@@ -2,7 +2,7 @@
 name = "atfd"
 version = "0.2.0"
 description = "Agent Trajectory Failure Detection — a benchmark for evaluating agent monitoring tools"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 license = {text = "CC-BY-4.0"}
 authors = [{name = "Sohan Shingade", email = "sohan@galea.foo"}]
 dependencies = [

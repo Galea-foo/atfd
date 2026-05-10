@@ -27,7 +27,12 @@ def download(dataset):
 
 
 @main.command()
-@click.option("--judge", type=click.Choice(["naive", "llm-gpt4", "llm-claude", "llm-llama", "galea", "galea-llm"]), required=True)
+@click.option("--judge", type=click.Choice([
+    "naive", "llm-gpt4", "llm-claude", "llm-llama",
+    "groq-llama-70b", "groq-llama4-scout", "groq-qwen3-32b",
+    "openrouter-gemma4", "openrouter-nemotron",
+    "galea", "galea-llm",
+]), required=True)
 @click.option("--dataset", type=click.Choice(["tau-bench", "swe-bench", "synthetic", "all"]), default="all")
 @click.option("--domain", type=str, default=None)
 @click.option("--limit", type=int, default=0)
@@ -81,9 +86,14 @@ def _make_judge(judge_key):
     if judge_key == "naive":
         from atfd.judges.naive import NaiveHeuristicJudge
         return NaiveHeuristicJudge()
-    elif judge_key.startswith("llm-"):
+    elif judge_key.startswith("llm-") or judge_key.startswith("groq-") or judge_key.startswith("openrouter-"):
         from atfd.judges.llm_judge import LLMJudge
-        model_map = {"llm-gpt4": "gpt-4.1", "llm-claude": "claude-sonnet-4", "llm-llama": "llama-4-scout"}
+        model_map = {
+            "llm-gpt4": "gpt-4.1", "llm-claude": "claude-sonnet-4", "llm-llama": "llama-4-scout",
+            "groq-llama-70b": "groq-llama-70b", "groq-llama4-scout": "groq-llama4-scout",
+            "groq-qwen3-32b": "groq-qwen3-32b",
+            "openrouter-gemma4": "openrouter-gemma4", "openrouter-nemotron": "openrouter-nemotron",
+        }
         return LLMJudge(model_key=model_map[judge_key])
     elif judge_key == "galea":
         from atfd.judges.galea import GaleaJudge

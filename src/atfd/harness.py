@@ -8,7 +8,7 @@ from atfd.metrics import (
     BenchmarkResults, category_alignment, cost_summary,
     detection_rate, f1_score, false_positive_rate, quality_detection_rate,
 )
-from atfd.schema import JudgeOutput, Outcome, Trajectory
+from atfd.schema import CostReport, JudgeOutput, Outcome, Trajectory
 from atfd.judges.base import Judge
 
 console = Console()
@@ -23,7 +23,14 @@ def run_benchmark(judge: Judge, trajectories: list[Trajectory], output_dir: Path
     for i, traj in enumerate(trajectories):
         status = "✗" if traj.ground_truth.outcome == Outcome.FAIL else ("◐" if traj.ground_truth.outcome == Outcome.DEGRADED else "✓")
         console.print(f"  [{i+1}/{len(trajectories)}] {traj.trajectory_id} {status}", end="")
-        output = judge.evaluate(traj)
+        try:
+            output = judge.evaluate(traj)
+        except Exception as e:
+            console.print(f" [red]ERROR: {e}[/red]")
+            output = JudgeOutput(
+                trajectory_id=traj.trajectory_id, has_failure=False, findings=[],
+                cost=CostReport(dollar_cost=0, latency_seconds=0, total_tokens=0, api_calls=0, infrastructure="none"),
+            )
         gt_outcomes.append(traj.ground_truth.outcome)
         outputs.append(output)
         gt_categories.append(traj.ground_truth.failure_categories)

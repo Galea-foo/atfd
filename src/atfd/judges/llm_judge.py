@@ -33,6 +33,7 @@ from atfd.schema import (
 # ---------------------------------------------------------------------------
 
 MODEL_CONFIGS: dict[str, dict[str, Any]] = {
+    # -- Paid models (original configs) --
     "gpt-4.1": {
         "provider": "openai",
         "model_id": "gpt-4.1",
@@ -50,6 +51,48 @@ MODEL_CONFIGS: dict[str, dict[str, Any]] = {
         "model_id": "meta-llama/llama-4-scout",
         "input_cost_per_m": 0.18,
         "output_cost_per_m": 0.59,
+    },
+    # -- Free models via Groq --
+    "groq-llama-70b": {
+        "provider": "openai-compat",
+        "model_id": "llama-3.3-70b-versatile",
+        "base_url": "https://api.groq.com/openai/v1",
+        "api_key_env": "GROQ_API_KEY",
+        "input_cost_per_m": 0.0,
+        "output_cost_per_m": 0.0,
+    },
+    "groq-llama4-scout": {
+        "provider": "openai-compat",
+        "model_id": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "base_url": "https://api.groq.com/openai/v1",
+        "api_key_env": "GROQ_API_KEY",
+        "input_cost_per_m": 0.0,
+        "output_cost_per_m": 0.0,
+    },
+    "groq-qwen3-32b": {
+        "provider": "openai-compat",
+        "model_id": "qwen/qwen3-32b",
+        "base_url": "https://api.groq.com/openai/v1",
+        "api_key_env": "GROQ_API_KEY",
+        "input_cost_per_m": 0.0,
+        "output_cost_per_m": 0.0,
+    },
+    # -- Free models via OpenRouter --
+    "openrouter-gemma4": {
+        "provider": "openai-compat",
+        "model_id": "google/gemma-4-31b-it:free",
+        "base_url": "https://openrouter.ai/api/v1",
+        "api_key_env": "OPENROUTER_API_KEY",
+        "input_cost_per_m": 0.0,
+        "output_cost_per_m": 0.0,
+    },
+    "openrouter-nemotron": {
+        "provider": "openai-compat",
+        "model_id": "nvidia/nemotron-3-super-120b-a12b:free",
+        "base_url": "https://openrouter.ai/api/v1",
+        "api_key_env": "OPENROUTER_API_KEY",
+        "input_cost_per_m": 0.0,
+        "output_cost_per_m": 0.0,
     },
 }
 
@@ -193,42 +236,62 @@ class LLMJudge(Judge):
 
             self._client = Anthropic()
         elif provider == "openai-compat":
+            import os
             from openai import OpenAI  # type: ignore[import]
 
-            self._client = OpenAI(base_url=self._base_url or "https://api.together.xyz/v1")
+            base_url = self._base_url or self._config.get("base_url", "https://api.together.xyz/v1")
+            api_key_env = self._config.get("api_key_env", "OPENAI_API_KEY")
+            api_key = os.environ.get(api_key_env, "")
+            self._client = OpenAI(base_url=base_url, api_key=api_key)
         else:
             raise ValueError(f"Unknown provider: {provider}")
 
         return self._client
 
-    def _call_model(self, prompt: str) -> tuple[str, int, int]:
+    def _call_model(self, prompt: str, max_retries: int = 5) -> tuple[str, int, int]:
         """Call the configured model and return (text, input_tokens, output_tokens)."""
+        import re as _re
         client = self._get_client()
         provider = self._config["provider"]
         model_id = self._config["model_id"]
 
-        if provider in ("openai", "openai-compat"):
-            response = client.chat.completions.create(
-                model=model_id,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0,
-            )
-            text = response.choices[0].message.content or ""
-            usage = response.usage
-            return text, usage.prompt_tokens, usage.completion_tokens
+        for attempt in range(max_retries):
+            try:
+                if provider in ("openai", "openai-compat"):
+                    response = client.chat.completions.create(
+                        model=model_id,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0,
+                    )
+                    text = response.choices[0].message.content or ""
+                    usage = response.usage
+                    return text, usage.prompt_tokens, usage.completion_tokens
 
-        elif provider == "anthropic":
-            response = client.messages.create(
-                model=model_id,
-                max_tokens=2048,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0,
-            )
-            text = response.content[0].text if response.content else ""
-            return text, response.usage.input_tokens, response.usage.output_tokens
+                elif provider == "anthropic":
+                    response = client.messages.create(
+                        model=model_id,
+                        max_tokens=2048,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0,
+                    )
+                    text = response.content[0].text if response.content else ""
+                    return text, response.usage.input_tokens, response.usage.output_tokens
 
-        else:
-            raise ValueError(f"Unknown provider: {provider}")
+                else:
+                    raise ValueError(f"Unknown provider: {provider}")
+
+            except Exception as e:
+                if "429" in str(e) or "rate_limit" in str(e).lower():
+                    wait_match = _re.search(r"(\d+(?:\.\d+)?)s", str(e))
+                    wait = float(wait_match.group(1)) + 1.0 if wait_match else (2 ** attempt) * 5
+                    wait = min(wait, 120)
+                    import sys
+                    print(f"\n  ⏳ Rate limited, waiting {wait:.0f}s (attempt {attempt+1}/{max_retries})...", file=sys.stderr, flush=True)
+                    time.sleep(wait)
+                    continue
+                raise
+
+        raise RuntimeError(f"Rate limit exceeded after {max_retries} retries")
 
     def _parse_json(self, raw: str) -> dict[str, Any]:
         """Strip markdown code fences and parse JSON; return empty dict on error."""
