@@ -66,3 +66,56 @@ def test_tau_bench_tool_failed_event():
     trajectory = adapter.convert_simulation(sim, _mock_tau_task())
     tool_results = [e for e in trajectory.events if e.type.value == "tool_result"]
     assert any(e.metadata.get("error") for e in tool_results)
+
+
+# ---------------------------------------------------------------------------
+# SWE-bench adapter tests
+# ---------------------------------------------------------------------------
+
+from atfd.adapters.swe_bench import SweBenchAdapter
+
+
+def _mock_openhands_trajectory():
+    return {
+        "instance_id": "django__django-11905", "model_name_or_path": "openhands", "resolved": False,
+        "history": [
+            {"action": "message", "args": {"content": "Fix the bug in django/db/models/fields/__init__.py"}},
+            {"action": "run", "args": {"command": "find . -name '*.py' | grep fields"}},
+            {"observation": "output", "content": "./django/db/models/fields/__init__.py"},
+            {"action": "read", "args": {"path": "django/db/models/fields/__init__.py", "start": 1, "end": 50}},
+            {"observation": "output", "content": "class Field:\n    ..."},
+            {"action": "edit", "args": {"path": "django/db/models/fields/__init__.py", "old": "old_code", "new": "new_code"}},
+            {"observation": "output", "content": "File edited successfully."},
+            {"action": "run", "args": {"command": "python -m pytest tests/model_fields/"}},
+            {"observation": "output", "content": "PASSED"},
+        ],
+    }
+
+def test_swe_bench_converts_openhands():
+    adapter = SweBenchAdapter(submission="openhands")
+    trajectory = adapter.convert_trajectory(_mock_openhands_trajectory())
+    assert isinstance(trajectory, Trajectory)
+    assert trajectory.source.value == "swe-bench"
+    assert trajectory.domain == "coding"
+    assert len(trajectory.events) > 0
+
+def test_swe_bench_fail_trajectory():
+    adapter = SweBenchAdapter(submission="openhands")
+    traj = _mock_openhands_trajectory()
+    traj["resolved"] = False
+    trajectory = adapter.convert_trajectory(traj)
+    assert trajectory.ground_truth.outcome == Outcome.FAIL
+
+def test_swe_bench_pass_trajectory():
+    adapter = SweBenchAdapter(submission="openhands")
+    traj = _mock_openhands_trajectory()
+    traj["resolved"] = True
+    trajectory = adapter.convert_trajectory(traj)
+    assert trajectory.ground_truth.outcome == Outcome.PASS
+
+def test_swe_bench_maps_actions_to_events():
+    adapter = SweBenchAdapter(submission="openhands")
+    trajectory = adapter.convert_trajectory(_mock_openhands_trajectory())
+    types = {e.type.value for e in trajectory.events}
+    assert "tool_call" in types
+    assert "tool_result" in types
