@@ -1,0 +1,9 @@
+data/
+results_*.json
+__pycache__/
+*.egg-info/
+*.aux
+*.log
+*.out
+*.bbl
+*.blg

@@ -1,0 +1,36 @@
+{
+  "tool_name": "Galea",
+  "version": "0.1.0",
+  "config_effort": 0,
+  "detection_method": "heuristic (no LLM)",
+  "results": {
+    "retail": {
+      "n": 100,
+      "failed": 22,
+      "passed": 78,
+      "detection_rate": 0.909,
+      "false_positive_rate": 0.0,
+      "category_alignment": 0.762,
+      "avg_findings_failed": 3.4,
+      "avg_findings_passed": 2.7
+    },
+    "airline": {
+      "n": 50,
+      "failed": 14,
+      "passed": 36,
+      "detection_rate": 1.0,
+      "false_positive_rate": 0.0,
+      "category_alignment": 0.85,
+      "avg_findings_failed": 4.3,
+      "avg_findings_passed": 1.7
+    },
+    "combined": {
+      "n": 150,
+      "detection_rate": 0.944,
+      "false_positive_rate": 0.0,
+      "category_alignment": 0.79
+    }
+  },
+  "methodology": "Zero-config heuristic investigation. tau-bench SimulationRun converted to Galea TraceEvent format, ingested via API, investigation triggered. No evaluation rules, LLM calls, or user configuration required.",
+  "reproduction_url": "https://github.com/Galea-foo/Galea/tree/main/benchmarks/tau-bench"
+}
