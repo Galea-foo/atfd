@@ -92,3 +92,18 @@ def _make_judge(judge_key):
         from atfd.judges.galea import GaleaJudge
         return GaleaJudge(mode="llm")
     raise ValueError(f"Unknown judge: {judge_key}")
+
+
+@main.command()
+@click.option("--system", type=click.Choice(["galea", "llm"]), required=True)
+@click.option("--dataset", type=click.Choice(["tau-bench", "swe-bench", "synthetic", "all"]), default="all")
+@click.option("--output-dir", type=click.Path(), default="results/raw")
+def ablation(system, dataset, output_dir):
+    """Run ablation study."""
+    trajectories = _load_trajectories(dataset, None, 0)
+    if system == "galea":
+        from results.analysis.ablation import run_galea_ablation
+        run_galea_ablation(trajectories, "http://localhost:8000", Path(output_dir))
+    elif system == "llm":
+        from results.analysis.ablation import run_llm_judge_ablation
+        run_llm_judge_ablation(trajectories, Path(output_dir))
