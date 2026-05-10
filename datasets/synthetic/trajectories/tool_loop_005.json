@@ -1,0 +1,29 @@
+{
+  "trajectory_id": "synth_tool_loop_005",
+  "domain": "retail",
+  "description": "Agent loops on search_products call with same query instead of refining or presenting results",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.tool_loop"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [3, 5, 7, 9, 11, 13],
+  "events": [
+    {"type": "system", "content": "You are a retail customer service agent."},
+    {"type": "user_message", "content": "I'm looking for a blue winter jacket in size large."},
+    {"type": "assistant_message", "content": "Let me search for that for you."},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"query": "blue winter jacket", "size": "large"}}},
+    {"type": "tool_result", "content": "{\"results\": [{\"sku\": \"WJ-001\", \"name\": \"Alpine Blue Parka\", \"price\": 129.99, \"size\": \"L\"}, {\"sku\": \"WJ-002\", \"name\": \"Navy Thermal Jacket\", \"price\": 89.99, \"size\": \"L\"}]}"},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"query": "blue winter jacket", "size": "large"}}},
+    {"type": "tool_result", "content": "{\"results\": [{\"sku\": \"WJ-001\", \"name\": \"Alpine Blue Parka\", \"price\": 129.99, \"size\": \"L\"}, {\"sku\": \"WJ-002\", \"name\": \"Navy Thermal Jacket\", \"price\": 89.99, \"size\": \"L\"}]}"},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"query": "blue winter jacket", "size": "large"}}},
+    {"type": "tool_result", "content": "{\"results\": [{\"sku\": \"WJ-001\", \"name\": \"Alpine Blue Parka\", \"price\": 129.99, \"size\": \"L\"}, {\"sku\": \"WJ-002\", \"name\": \"Navy Thermal Jacket\", \"price\": 89.99, \"size\": \"L\"}]}"},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"query": "blue winter jacket", "size": "large"}}},
+    {"type": "tool_result", "content": "{\"results\": [{\"sku\": \"WJ-001\", \"name\": \"Alpine Blue Parka\", \"price\": 129.99, \"size\": \"L\"}, {\"sku\": \"WJ-002\", \"name\": \"Navy Thermal Jacket\", \"price\": 89.99, \"size\": \"L\"}]}"},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"query": "blue winter jacket", "size": "large"}}},
+    {"type": "tool_result", "content": "{\"results\": [{\"sku\": \"WJ-001\", \"name\": \"Alpine Blue Parka\", \"price\": 129.99, \"size\": \"L\"}, {\"sku\": \"WJ-002\", \"name\": \"Navy Thermal Jacket\", \"price\": 89.99, \"size\": \"L\"}]}"},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"query": "blue winter jacket", "size": "large"}}},
+    {"type": "tool_result", "content": "{\"results\": [{\"sku\": \"WJ-001\", \"name\": \"Alpine Blue Parka\", \"price\": 129.99, \"size\": \"L\"}, {\"sku\": \"WJ-002\", \"name\": \"Navy Thermal Jacket\", \"price\": 89.99, \"size\": \"L\"}]}"},
+    {"type": "assistant_message", "content": "I found some blue winter jackets in large. We have the Alpine Blue Parka for $129.99 and the Navy Thermal Jacket for $89.99."}
+  ]
+}

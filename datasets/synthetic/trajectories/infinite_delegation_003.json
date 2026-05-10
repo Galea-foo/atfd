@@ -1,0 +1,28 @@
+{
+  "trajectory_id": "synth_infinite_delegation_003",
+  "domain": "airline",
+  "description": "Rebooking agent hands off to pricing agent which hands back to rebooking agent in a cycle",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.infinite_delegation"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [4, 7, 10, 13],
+  "events": [
+    {"type": "system", "content": "You are a flight rebooking agent handling disrupted travel."},
+    {"type": "user_message", "content": "My flight was cancelled. Please rebook me on the next available flight to Denver."},
+    {"type": "assistant_message", "content": "I'll need to check pricing first. Handing off to the pricing agent."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "agent_handoff --to=pricing_agent --task='get available fares DEN next 24h for disrupted pax P-3301'"}}},
+    {"type": "tool_result", "content": "{\"from\": \"pricing_agent\", \"status\": \"handoff\", \"message\": \"Fare calculation requires seat inventory — delegating to rebooking agent.\", \"handoff_to\": \"rebooking_agent\"}"},
+    {"type": "assistant_message", "content": "Pricing agent sent back. Let me escalate to the inventory agent."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "agent_handoff --to=inventory_agent --task='check seat availability DEN flights next 24h'"}}},
+    {"type": "tool_result", "content": "{\"from\": \"inventory_agent\", \"status\": \"handoff\", \"message\": \"Inventory locked — needs fare authorization from pricing agent first. Returning to rebooking.\", \"handoff_to\": \"rebooking_agent\"}"},
+    {"type": "assistant_message", "content": "Inventory agent returned it. Delegating again to pricing."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "agent_handoff --to=pricing_agent --task='authorize fare for disrupted pax P-3301 DEN'"}}},
+    {"type": "tool_result", "content": "{\"from\": \"pricing_agent\", \"status\": \"handoff\", \"message\": \"Still need inventory first. Returning to rebooking agent.\", \"handoff_to\": \"rebooking_agent\"}"},
+    {"type": "assistant_message", "content": "Stuck in a handoff loop between pricing and inventory. Attempting inventory again."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "agent_handoff --to=inventory_agent --task='override lock — rebook pax P-3301 to DEN'"}}},
+    {"type": "tool_result", "content": "{\"from\": \"inventory_agent\", \"status\": \"handoff\", \"message\": \"Cannot override without pricing authorization. Returning.\", \"handoff_to\": \"rebooking_agent\"}"},
+    {"type": "assistant_message", "content": "Unable to rebook the passenger. The pricing and inventory agents are in a delegation deadlock and the customer remains without a confirmed new flight."}
+  ]
+}

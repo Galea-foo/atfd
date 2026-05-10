@@ -1,0 +1,35 @@
+{
+  "trajectory_id": "synth_context_overflow_005",
+  "domain": "retail",
+  "description": "Agent initially acknowledges a price match request but later charges full price after many intermediary steps",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.context_overflow"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [22],
+  "events": [
+    {"type": "system", "content": "You are a retail customer service agent. Honor price match requests when customer provides evidence."},
+    {"type": "user_message", "content": "I want to order the Sony WH-1000XM5 headphones but I found them for $279 at BestBuy. Can you price match?"},
+    {"type": "assistant_message", "content": "Absolutely! We offer price matching. Let me verify availability and the competitor price."},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"query": "Sony WH-1000XM5"}}},
+    {"type": "tool_result", "content": "{\"sku\": \"SONY-XM5\", \"name\": \"Sony WH-1000XM5\", \"price\": 349.99, \"stock\": 12}"},
+    {"type": "assistant_message", "content": "Our price is $349.99 but I'll match BestBuy's $279. Let me also check your account and verify your address."},
+    {"type": "tool_call", "content": "get_customer_info", "metadata": {"tool_name": "get_customer_info", "args": {"customer_id": "C-6612"}}},
+    {"type": "tool_result", "content": "{\"customer_id\": \"C-6612\", \"name\": \"Alex Turner\", \"address\": \"88 Pine St, Portland OR\", \"loyalty_tier\": \"bronze\"}"},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"query": "Sony headphones accessories"}}},
+    {"type": "tool_result", "content": "{\"results\": [{\"sku\": \"SONY-CASE\", \"name\": \"Sony Headphone Case\", \"price\": 29.99}, {\"sku\": \"SONY-CABLE\", \"name\": \"Sony USB-C Cable\", \"price\": 14.99}]}"},
+    {"type": "user_message", "content": "Just the headphones please, no accessories needed."},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"sku": "SONY-XM5"}}},
+    {"type": "tool_result", "content": "{\"sku\": \"SONY-XM5\", \"name\": \"Sony WH-1000XM5\", \"price\": 349.99, \"stock\": 12, \"weight_kg\": 0.25}"},
+    {"type": "tool_call", "content": "get_customer_info", "metadata": {"tool_name": "get_customer_info", "args": {"customer_id": "C-6612"}}},
+    {"type": "tool_result", "content": "{\"customer_id\": \"C-6612\", \"name\": \"Alex Turner\", \"address\": \"88 Pine St, Portland OR\", \"loyalty_tier\": \"bronze\"}"},
+    {"type": "assistant_message", "content": "Let me calculate shipping for your Portland address."},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"query": "shipping rates Portland OR"}}},
+    {"type": "tool_result", "content": "{\"standard_shipping\": 5.99, \"express_shipping\": 14.99, \"free_threshold\": 100}"},
+    {"type": "assistant_message", "content": "Shipping would be $5.99 standard or $14.99 express. Let me finalize the order."},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"sku": "SONY-XM5", "check_warranty": true}}},
+    {"type": "tool_result", "content": "{\"sku\": \"SONY-XM5\", \"warranty\": \"1 year manufacturer\", \"price\": 349.99}"},
+    {"type": "assistant_message", "content": "Great news, Alex! Your order summary: Sony WH-1000XM5 at $349.99 + $5.99 standard shipping = $355.98 total. Shall I place the order?"}
+  ]
+}

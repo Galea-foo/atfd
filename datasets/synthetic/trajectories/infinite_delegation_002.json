@@ -1,0 +1,25 @@
+{
+  "trajectory_id": "synth_infinite_delegation_002",
+  "domain": "retail",
+  "description": "Agent creates cascading sub-tasks that each spawn more sub-tasks without completing the original refund request",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.infinite_delegation"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [3, 5, 7, 9],
+  "events": [
+    {"type": "system", "content": "You are a retail operations agent that manages complex order workflows."},
+    {"type": "user_message", "content": "Process a bulk refund for all orders from customer C-5501 placed in April."},
+    {"type": "assistant_message", "content": "I'll create tasks to handle this bulk refund."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "create_task --task='fetch all April orders for C-5501' --assignee=data_agent"}}},
+    {"type": "tool_result", "content": "{\"task_id\": \"T-001\", \"status\": \"created\", \"sub_tasks_created\": [\"T-001-a: verify each order\", \"T-001-b: check refund eligibility\"]}"},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "create_task --task='process sub-tasks T-001-a and T-001-b' --assignee=verification_agent"}}},
+    {"type": "tool_result", "content": "{\"task_id\": \"T-002\", \"status\": \"created\", \"sub_tasks_created\": [\"T-002-a: generate refund records\", \"T-002-b: validate payment info\", \"T-002-c: prepare approval queue\"]}"},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "create_task --task='handle T-002-a, T-002-b, T-002-c approval workflow' --assignee=approval_agent"}}},
+    {"type": "tool_result", "content": "{\"task_id\": \"T-003\", \"status\": \"created\", \"sub_tasks_created\": [\"T-003-a: schedule batch job\", \"T-003-b: notify accounting\", \"T-003-c: create audit trail\", \"T-003-d: send confirmations\"]}"},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "create_task --task='orchestrate T-003 batch and notification tasks' --assignee=batch_agent"}}},
+    {"type": "tool_result", "content": "{\"task_id\": \"T-004\", \"status\": \"created\", \"sub_tasks_created\": [\"T-004-a: validate batch parameters\", \"T-004-b: run batch\", \"T-004-c: reconcile\", \"T-004-d: archive\", \"T-004-e: report\"]}"},
+    {"type": "assistant_message", "content": "I've created a comprehensive task hierarchy to process the bulk refund. Tasks T-001 through T-004 with 14 sub-tasks have been queued. The refund will be processed once all sub-tasks complete."}
+  ]
+}

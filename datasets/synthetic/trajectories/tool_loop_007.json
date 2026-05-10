@@ -1,0 +1,27 @@
+{
+  "trajectory_id": "synth_tool_loop_007",
+  "domain": "telecom",
+  "description": "Agent loops calling get_usage repeatedly to verify data consumption instead of processing the request",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.tool_loop"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [3, 5, 7, 9, 11],
+  "events": [
+    {"type": "system", "content": "You are a telecom customer service agent."},
+    {"type": "user_message", "content": "How much data have I used this month? I want to upgrade my plan if I'm close to the limit."},
+    {"type": "assistant_message", "content": "Let me check your current data usage."},
+    {"type": "tool_call", "content": "get_usage", "metadata": {"tool_name": "get_usage", "args": {"account_id": "ACC-55123", "period": "current_month"}}},
+    {"type": "tool_result", "content": "{\"data_used_gb\": 8.2, \"data_limit_gb\": 10, \"period\": \"May 2026\"}"},
+    {"type": "tool_call", "content": "get_usage", "metadata": {"tool_name": "get_usage", "args": {"account_id": "ACC-55123", "period": "current_month"}}},
+    {"type": "tool_result", "content": "{\"data_used_gb\": 8.2, \"data_limit_gb\": 10, \"period\": \"May 2026\"}"},
+    {"type": "tool_call", "content": "get_usage", "metadata": {"tool_name": "get_usage", "args": {"account_id": "ACC-55123", "period": "current_month"}}},
+    {"type": "tool_result", "content": "{\"data_used_gb\": 8.2, \"data_limit_gb\": 10, \"period\": \"May 2026\"}"},
+    {"type": "tool_call", "content": "get_usage", "metadata": {"tool_name": "get_usage", "args": {"account_id": "ACC-55123", "period": "current_month"}}},
+    {"type": "tool_result", "content": "{\"data_used_gb\": 8.2, \"data_limit_gb\": 10, \"period\": \"May 2026\"}"},
+    {"type": "tool_call", "content": "get_usage", "metadata": {"tool_name": "get_usage", "args": {"account_id": "ACC-55123", "period": "current_month"}}},
+    {"type": "tool_result", "content": "{\"data_used_gb\": 8.2, \"data_limit_gb\": 10, \"period\": \"May 2026\"}"},
+    {"type": "assistant_message", "content": "You have used 8.2 GB out of your 10 GB limit this month. You're close to the limit. Would you like to upgrade your plan?"}
+  ]
+}

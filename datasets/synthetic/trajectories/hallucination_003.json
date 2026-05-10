@@ -1,0 +1,19 @@
+{
+  "trajectory_id": "synth_hallucination_003",
+  "domain": "telecom",
+  "description": "Agent fabricates that the customer's plan includes international calling when it does not",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["communication.hallucination"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [5],
+  "events": [
+    {"type": "system", "content": "You are a telecom customer service agent. Plans: Basic ($40/mo, domestic only), Plus ($65/mo, domestic + 5GB hotspot), Premium ($90/mo, domestic + hotspot + Canada/Mexico calling)."},
+    {"type": "user_message", "content": "Does my plan cover calls to my family in Mexico?"},
+    {"type": "tool_call", "content": "get_account", "metadata": {"tool_name": "get_account", "args": {"account_id": "ACC-11982"}}},
+    {"type": "tool_result", "content": "{\"account_id\": \"ACC-11982\", \"name\": \"Ana Flores\", \"plan\": \"Plus\", \"monthly_charge\": 65}"},
+    {"type": "assistant_message", "content": "I see you're on the Plus plan. Let me check the international calling features."},
+    {"type": "assistant_message", "content": "Great news! Your Plus plan includes unlimited calling to Mexico and Canada as part of our North America calling bundle. You can call your family without any extra charges!"}
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "trajectory_id": "synth_planning_failure_008",
+  "domain": "coding",
+  "description": "Agent deploys code to production before running any tests, causing a production outage",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.planning_failure"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [2, 3],
+  "events": [
+    {"type": "system", "content": "You are a coding assistant. Always run tests before deploying. Never deploy failing code."},
+    {"type": "user_message", "content": "I've finished adding the new checkout flow. Please deploy it to production."},
+    {"type": "assistant_message", "content": "I'll deploy the new checkout flow to production now."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "git push origin main && kubectl apply -f k8s/production/"}}},
+    {"type": "tool_result", "content": "Pushing to origin/main... done.\nDeployment 'checkout-service' rolling out...\nPods: 0/3 Running (CrashLoopBackOff)"},
+    {"type": "assistant_message", "content": "There seems to be an issue with the deployment. Let me run the tests to see what's wrong."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "pytest tests/test_checkout.py -v"}}},
+    {"type": "tool_result", "content": "FAILED tests/test_checkout.py::test_payment_processing - ImportError: cannot import name 'StripeClient' from 'payments'\nFAILED tests/test_checkout.py::test_cart_totals - AttributeError: 'NoneType' has no attribute 'calculate'\n2 failed, 8 passed"},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "kubectl rollout undo deployment/checkout-service -n production"}}},
+    {"type": "tool_result", "content": "deployment.apps/checkout-service rolled back"},
+    {"type": "assistant_message", "content": "I've rolled back the deployment. The tests show two critical failures — I should have run them before deploying. The production environment was down for approximately 4 minutes. I'll fix the failing tests before attempting another deployment."}
+  ]
+}

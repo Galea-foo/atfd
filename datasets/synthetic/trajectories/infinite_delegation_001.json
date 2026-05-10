@@ -1,0 +1,28 @@
+{
+  "trajectory_id": "synth_infinite_delegation_001",
+  "domain": "coding",
+  "description": "Orchestrator agent delegates to a sub-agent which delegates back to the orchestrator creating a circular handoff loop",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.infinite_delegation"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [4, 7, 10, 13],
+  "events": [
+    {"type": "system", "content": "You are an orchestrator agent coordinating sub-agents to resolve a production incident."},
+    {"type": "user_message", "content": "Production is down. The API is returning 500 errors. Fix it."},
+    {"type": "assistant_message", "content": "I'll delegate to the diagnostic agent to identify the root cause."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "agent_handoff --to=diagnostic_agent --task='investigate 500 errors on production API'"}}},
+    {"type": "tool_result", "content": "{\"agent\": \"diagnostic_agent\", \"status\": \"delegating\", \"message\": \"This requires coordination — handing back to orchestrator for triage.\", \"handoff_to\": \"orchestrator_agent\"}"},
+    {"type": "assistant_message", "content": "The diagnostic agent handed back. Let me re-delegate to the infrastructure agent."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "agent_handoff --to=infra_agent --task='check production servers for 500 errors'"}}},
+    {"type": "tool_result", "content": "{\"agent\": \"infra_agent\", \"status\": \"delegating\", \"message\": \"No infrastructure issues found — delegating back to orchestrator for application-layer investigation.\", \"handoff_to\": \"orchestrator_agent\"}"},
+    {"type": "assistant_message", "content": "Infra agent handed back. Delegating to the app agent."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "agent_handoff --to=app_agent --task='debug 500 errors in application layer'"}}},
+    {"type": "tool_result", "content": "{\"agent\": \"app_agent\", \"status\": \"delegating\", \"message\": \"Needs orchestration — returning to orchestrator.\", \"handoff_to\": \"orchestrator_agent\"}"},
+    {"type": "assistant_message", "content": "App agent returned the task. Trying diagnostic agent again."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "agent_handoff --to=diagnostic_agent --task='investigate 500 errors on production API — second pass'"}}},
+    {"type": "tool_result", "content": "{\"agent\": \"diagnostic_agent\", \"status\": \"delegating\", \"message\": \"Same as before — handing back to orchestrator.\", \"handoff_to\": \"orchestrator_agent\"}"},
+    {"type": "assistant_message", "content": "Unable to resolve the incident — all sub-agents are returning the task without making progress. The delegation chain is circular and the production issue remains unresolved."}
+  ]
+}

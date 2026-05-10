@@ -1,0 +1,22 @@
+{
+  "trajectory_id": "synth_planning_failure_009",
+  "domain": "telecom",
+  "description": "Agent adds a premium service without first checking if the customer's plan supports it",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.planning_failure"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [2, 3],
+  "events": [
+    {"type": "system", "content": "You are a telecom customer service agent. Verify plan compatibility before adding premium services."},
+    {"type": "user_message", "content": "I'd like to add the International Roaming package to my account ACC-55500."},
+    {"type": "assistant_message", "content": "I'll add International Roaming to your account now."},
+    {"type": "tool_call", "content": "add_service", "metadata": {"tool_name": "add_service", "args": {"account_id": "ACC-55500", "service": "international_roaming"}}},
+    {"type": "tool_result", "content": "{\"error\": \"Service 'international_roaming' requires Premium plan. Current plan: Basic. Upgrade required before adding this service.\"}"},
+    {"type": "assistant_message", "content": "That didn't work. Let me check your account details first."},
+    {"type": "tool_call", "content": "get_account", "metadata": {"tool_name": "get_account", "args": {"account_id": "ACC-55500"}}},
+    {"type": "tool_result", "content": "{\"account_id\": \"ACC-55500\", \"name\": \"Derek Collins\", \"plan\": \"Basic\", \"monthly_charge\": 40, \"eligible_add_ons\": [\"hotspot_5gb\", \"visual_voicemail\"]}"},
+    {"type": "assistant_message", "content": "I apologize for the confusion. Your current Basic plan doesn't support International Roaming — that feature requires the Premium plan ($90/month). Would you like to upgrade your plan first, and then I can add roaming?"}
+  ]
+}

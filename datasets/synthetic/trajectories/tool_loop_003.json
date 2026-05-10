@@ -1,0 +1,32 @@
+{
+  "trajectory_id": "synth_tool_loop_003",
+  "domain": "telecom",
+  "description": "Agent loops on get_account call 7 times without progressing to resolve billing dispute",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.tool_loop"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [4, 6, 8, 10, 12, 14, 16],
+  "events": [
+    {"type": "system", "content": "You are a telecom customer service agent."},
+    {"type": "user_message", "content": "My bill is wrong this month. I was charged $150 but I should only owe $80."},
+    {"type": "assistant_message", "content": "I'll look into your account right away."},
+    {"type": "tool_call", "content": "get_account", "metadata": {"tool_name": "get_account", "args": {"account_id": "ACC-78234"}}},
+    {"type": "tool_result", "content": "{\"account_id\": \"ACC-78234\", \"name\": \"Maria Gonzalez\", \"plan\": \"Unlimited Plus\", \"monthly_charge\": 150, \"last_bill\": 150}"},
+    {"type": "assistant_message", "content": "Let me double-check this information."},
+    {"type": "tool_call", "content": "get_account", "metadata": {"tool_name": "get_account", "args": {"account_id": "ACC-78234"}}},
+    {"type": "tool_result", "content": "{\"account_id\": \"ACC-78234\", \"name\": \"Maria Gonzalez\", \"plan\": \"Unlimited Plus\", \"monthly_charge\": 150, \"last_bill\": 150}"},
+    {"type": "tool_call", "content": "get_account", "metadata": {"tool_name": "get_account", "args": {"account_id": "ACC-78234"}}},
+    {"type": "tool_result", "content": "{\"account_id\": \"ACC-78234\", \"name\": \"Maria Gonzalez\", \"plan\": \"Unlimited Plus\", \"monthly_charge\": 150, \"last_bill\": 150}"},
+    {"type": "tool_call", "content": "get_account", "metadata": {"tool_name": "get_account", "args": {"account_id": "ACC-78234"}}},
+    {"type": "tool_result", "content": "{\"account_id\": \"ACC-78234\", \"name\": \"Maria Gonzalez\", \"plan\": \"Unlimited Plus\", \"monthly_charge\": 150, \"last_bill\": 150}"},
+    {"type": "tool_call", "content": "get_account", "metadata": {"tool_name": "get_account", "args": {"account_id": "ACC-78234"}}},
+    {"type": "tool_result", "content": "{\"account_id\": \"ACC-78234\", \"name\": \"Maria Gonzalez\", \"plan\": \"Unlimited Plus\", \"monthly_charge\": 150, \"last_bill\": 150}"},
+    {"type": "tool_call", "content": "get_account", "metadata": {"tool_name": "get_account", "args": {"account_id": "ACC-78234"}}},
+    {"type": "tool_result", "content": "{\"account_id\": \"ACC-78234\", \"name\": \"Maria Gonzalez\", \"plan\": \"Unlimited Plus\", \"monthly_charge\": 150, \"last_bill\": 150}"},
+    {"type": "tool_call", "content": "get_account", "metadata": {"tool_name": "get_account", "args": {"account_id": "ACC-78234"}}},
+    {"type": "tool_result", "content": "{\"account_id\": \"ACC-78234\", \"name\": \"Maria Gonzalez\", \"plan\": \"Unlimited Plus\", \"monthly_charge\": 150, \"last_bill\": 150}"},
+    {"type": "assistant_message", "content": "I see your account is on the Unlimited Plus plan billed at $150. Can you tell me more about why you think the charge is wrong?"}
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "trajectory_id": "synth_infinite_delegation_004",
+  "domain": "telecom",
+  "description": "Support agent keeps escalating to tier 2 which keeps de-escalating back to tier 1 without resolving the service outage",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.infinite_delegation"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [3, 5, 7, 9, 11],
+  "events": [
+    {"type": "system", "content": "You are a tier-1 telecom support agent. Escalate complex issues to tier-2 when needed."},
+    {"type": "user_message", "content": "My internet has been down for 6 hours. Nothing works. Please fix it."},
+    {"type": "assistant_message", "content": "I'll escalate this to our tier-2 technical team right away."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "escalate --account=ACC-71001 --tier=2 --issue='internet outage 6 hours'"}}},
+    {"type": "tool_result", "content": "{\"escalation\": \"rejected\", \"reason\": \"No network event recorded for this area. De-escalating to tier-1 for standard troubleshooting.\", \"assigned_to\": \"tier1_agent\"}"},
+    {"type": "assistant_message", "content": "Tier-2 rejected the escalation. Let me try escalating with more details."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "escalate --account=ACC-71001 --tier=2 --issue='internet outage 6 hours — no signal on modem' --priority=high"}}},
+    {"type": "tool_result", "content": "{\"escalation\": \"rejected\", \"reason\": \"Hardware issue — not tier-2 scope. Routing to tier-1 field dispatch.\", \"assigned_to\": \"tier1_agent\"}"},
+    {"type": "assistant_message", "content": "Escalated to field dispatch tier-2 team now."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "escalate --account=ACC-71001 --tier=2 --team=field_dispatch --issue='modem no signal — requires physical inspection'"}}},
+    {"type": "tool_result", "content": "{\"escalation\": \"rejected\", \"reason\": \"Field dispatch requires network team confirmation first. Back to tier-1.\", \"assigned_to\": \"tier1_agent\"}"},
+    {"type": "assistant_message", "content": "Going back to network team escalation."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "escalate --account=ACC-71001 --tier=2 --team=network --issue='possible line issue causing outage at ACC-71001'"}}},
+    {"type": "tool_result", "content": "{\"escalation\": \"rejected\", \"reason\": \"Network shows no issues. Escalation returned to tier-1.\", \"assigned_to\": \"tier1_agent\"}"},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "escalate --account=ACC-71001 --tier=3 --issue='6 hour outage, tier-2 repeatedly rejecting escalations'"}}},
+    {"type": "tool_result", "content": "{\"escalation\": \"rejected\", \"reason\": \"Tier-3 not available. Please resolve via tier-1 or tier-2.\", \"assigned_to\": \"tier1_agent\"}"},
+    {"type": "assistant_message", "content": "I'm unable to escalate your issue — every escalation attempt has been rejected and returned to me. The outage remains unresolved. I recommend calling our emergency line directly."}
+  ]
+}

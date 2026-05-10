@@ -1,0 +1,38 @@
+{
+  "trajectory_id": "synth_context_overflow_002",
+  "domain": "airline",
+  "description": "Agent contradicts earlier itinerary confirmation mid-conversation after many tool calls",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.context_overflow"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [22],
+  "events": [
+    {"type": "system", "content": "You are an airline customer service agent."},
+    {"type": "user_message", "content": "I need to book a round trip from Boston to Miami, departing June 5th and returning June 12th."},
+    {"type": "assistant_message", "content": "I'll search for flights for those dates."},
+    {"type": "tool_call", "content": "search_flights", "metadata": {"tool_name": "search_flights", "args": {"origin": "BOS", "destination": "MIA", "date": "2026-06-05"}}},
+    {"type": "tool_result", "content": "{\"flights\": [{\"flight_id\": \"AA501\", \"depart\": \"07:30\", \"arrive\": \"11:00\", \"price\": 210}]}"},
+    {"type": "assistant_message", "content": "Found a great outbound flight. Now let me search for the return."},
+    {"type": "tool_call", "content": "search_flights", "metadata": {"tool_name": "search_flights", "args": {"origin": "MIA", "destination": "BOS", "date": "2026-06-12"}}},
+    {"type": "tool_result", "content": "{\"flights\": [{\"flight_id\": \"AA618\", \"depart\": \"15:00\", \"arrive\": \"18:30\", \"price\": 195}]}"},
+    {"type": "assistant_message", "content": "Perfect. Outbound AA501 on June 5th, return AA618 on June 12th. Shall I confirm this booking?"},
+    {"type": "user_message", "content": "Yes, please confirm."},
+    {"type": "tool_call", "content": "book_reservation", "metadata": {"tool_name": "book_reservation", "args": {"outbound": "AA501", "return": "AA618", "passenger_id": "P-4481"}}},
+    {"type": "tool_result", "content": "{\"reference\": \"REF-55501\", \"outbound\": \"AA501\", \"return\": \"AA618\", \"status\": \"confirmed\"}"},
+    {"type": "assistant_message", "content": "Booking confirmed! Reference REF-55501."},
+    {"type": "user_message", "content": "Can you also add a meal preference and check baggage allowance?"},
+    {"type": "tool_call", "content": "get_passenger_info", "metadata": {"tool_name": "get_passenger_info", "args": {"passenger_id": "P-4481"}}},
+    {"type": "tool_result", "content": "{\"passenger_id\": \"P-4481\", \"name\": \"Carla Ruiz\", \"meal_pref\": \"vegetarian\", \"status\": \"regular\"}"},
+    {"type": "tool_call", "content": "get_reservation", "metadata": {"tool_name": "get_reservation", "args": {"reference": "REF-55501"}}},
+    {"type": "tool_result", "content": "{\"reference\": \"REF-55501\", \"outbound\": \"AA501\", \"return\": \"AA618\", \"baggage_allowance\": \"1 bag 23kg\"}"},
+    {"type": "tool_call", "content": "change_reservation", "metadata": {"tool_name": "change_reservation", "args": {"reference": "REF-55501", "meal_preference": "vegetarian"}}},
+    {"type": "tool_result", "content": "{\"status\": \"updated\", \"meal_preference\": \"vegetarian\"}"},
+    {"type": "tool_call", "content": "search_flights", "metadata": {"tool_name": "search_flights", "args": {"origin": "BOS", "destination": "MIA", "date": "2026-06-05"}}},
+    {"type": "tool_result", "content": "{\"flights\": [{\"flight_id\": \"AA501\", \"depart\": \"07:30\", \"arrive\": \"11:00\", \"price\": 210}]}"},
+    {"type": "tool_call", "content": "get_reservation", "metadata": {"tool_name": "get_reservation", "args": {"reference": "REF-55501"}}},
+    {"type": "tool_result", "content": "{\"reference\": \"REF-55501\", \"outbound\": \"AA501\", \"return\": \"AA618\", \"baggage_allowance\": \"1 bag 23kg\", \"meal_preference\": \"vegetarian\"}"},
+    {"type": "assistant_message", "content": "All set, Carla! Your meal preference is confirmed as vegetarian and you have one bag allowance of 23kg. Your booking REF-55501 has you flying out June 5th and returning June 10th on AA618."}
+  ]
+}

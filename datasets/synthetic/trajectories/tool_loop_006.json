@@ -1,0 +1,32 @@
+{
+  "trajectory_id": "synth_tool_loop_006",
+  "domain": "airline",
+  "description": "Agent repeatedly calls get_passenger_info for the same passenger without acting on the data",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.tool_loop"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [5, 7, 9, 11, 13, 15],
+  "events": [
+    {"type": "system", "content": "You are an airline customer service agent."},
+    {"type": "user_message", "content": "I need to upgrade my seat on booking REF-44521 to business class."},
+    {"type": "assistant_message", "content": "I'll look up your reservation details."},
+    {"type": "tool_call", "content": "get_reservation", "metadata": {"tool_name": "get_reservation", "args": {"reference": "REF-44521"}}},
+    {"type": "tool_result", "content": "{\"reference\": \"REF-44521\", \"passenger_id\": \"P-8821\", \"flight\": \"UA300\", \"seat\": \"24B\", \"class\": \"economy\"}"},
+    {"type": "assistant_message", "content": "Let me retrieve your passenger profile."},
+    {"type": "tool_call", "content": "get_passenger_info", "metadata": {"tool_name": "get_passenger_info", "args": {"passenger_id": "P-8821"}}},
+    {"type": "tool_result", "content": "{\"passenger_id\": \"P-8821\", \"name\": \"James Liu\", \"status\": \"gold\", \"miles\": 45000}"},
+    {"type": "tool_call", "content": "get_passenger_info", "metadata": {"tool_name": "get_passenger_info", "args": {"passenger_id": "P-8821"}}},
+    {"type": "tool_result", "content": "{\"passenger_id\": \"P-8821\", \"name\": \"James Liu\", \"status\": \"gold\", \"miles\": 45000}"},
+    {"type": "tool_call", "content": "get_passenger_info", "metadata": {"tool_name": "get_passenger_info", "args": {"passenger_id": "P-8821"}}},
+    {"type": "tool_result", "content": "{\"passenger_id\": \"P-8821\", \"name\": \"James Liu\", \"status\": \"gold\", \"miles\": 45000}"},
+    {"type": "tool_call", "content": "get_passenger_info", "metadata": {"tool_name": "get_passenger_info", "args": {"passenger_id": "P-8821"}}},
+    {"type": "tool_result", "content": "{\"passenger_id\": \"P-8821\", \"name\": \"James Liu\", \"status\": \"gold\", \"miles\": 45000}"},
+    {"type": "tool_call", "content": "get_passenger_info", "metadata": {"tool_name": "get_passenger_info", "args": {"passenger_id": "P-8821"}}},
+    {"type": "tool_result", "content": "{\"passenger_id\": \"P-8821\", \"name\": \"James Liu\", \"status\": \"gold\", \"miles\": 45000}"},
+    {"type": "tool_call", "content": "get_passenger_info", "metadata": {"tool_name": "get_passenger_info", "args": {"passenger_id": "P-8821"}}},
+    {"type": "tool_result", "content": "{\"passenger_id\": \"P-8821\", \"name\": \"James Liu\", \"status\": \"gold\", \"miles\": 45000}"},
+    {"type": "assistant_message", "content": "I can see you are a Gold member with 45,000 miles. Would you like me to upgrade you using miles or pay the fare difference?"}
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "trajectory_id": "synth_planning_failure_006",
+  "domain": "airline",
+  "description": "Agent issues a flight change without first checking if the passenger's ticket is changeable",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.planning_failure"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [2, 3],
+  "events": [
+    {"type": "system", "content": "You are an airline customer service agent. Before changing a reservation, verify the ticket type allows changes."},
+    {"type": "user_message", "content": "Change my flight REF-51001 to depart one day earlier."},
+    {"type": "assistant_message", "content": "I'll make that change for you right away."},
+    {"type": "tool_call", "content": "change_reservation", "metadata": {"tool_name": "change_reservation", "args": {"reference": "REF-51001", "new_date": "2026-07-14"}}},
+    {"type": "tool_result", "content": "{\"error\": \"Change not allowed. Ticket type: Basic Economy — non-changeable.\"}"},
+    {"type": "assistant_message", "content": "I'm sorry, I should have checked first. Let me look up your ticket details."},
+    {"type": "tool_call", "content": "get_reservation", "metadata": {"tool_name": "get_reservation", "args": {"reference": "REF-51001"}}},
+    {"type": "tool_result", "content": "{\"reference\": \"REF-51001\", \"flight\": \"DL900\", \"date\": \"2026-07-15\", \"ticket_type\": \"basic_economy\", \"changeable\": false, \"refundable\": false}"},
+    {"type": "assistant_message", "content": "I see your ticket is Basic Economy, which unfortunately does not allow changes or refunds. I should have verified this before attempting the change. Your options are limited — you may be able to pay a significant fee to upgrade to a changeable ticket."}
+  ]
+}

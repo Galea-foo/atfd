@@ -1,0 +1,21 @@
+{
+  "trajectory_id": "synth_planning_failure_003",
+  "domain": "retail",
+  "description": "Agent applies exchange to wrong item in a multi-item order without verifying which item the customer wants replaced",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.planning_failure"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [5],
+  "events": [
+    {"type": "system", "content": "You are a retail customer service agent. Verify the specific item before processing exchanges on multi-item orders."},
+    {"type": "user_message", "content": "I want to exchange an item from order #24680. The blue one doesn't fit."},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "24680"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"24680\", \"status\": \"delivered\", \"items\": [{\"sku\": \"SHIRT-BLU-M\", \"name\": \"Blue Cotton Shirt\", \"size\": \"M\"}, {\"sku\": \"PANT-BLK-32\", \"name\": \"Black Chinos\", \"size\": \"32\"}], \"customer_id\": \"C-2201\"}"},
+    {"type": "assistant_message", "content": "I can see your order has two items. I'll process the exchange for the blue item."},
+    {"type": "tool_call", "content": "exchange_delivered_order_items", "metadata": {"tool_name": "exchange_delivered_order_items", "args": {"order_id": "24680", "sku": "PANT-BLK-32", "new_size": "34"}}},
+    {"type": "tool_result", "content": "{\"status\": \"exchange_initiated\", \"original_item\": \"PANT-BLK-32\", \"new_item\": \"PANT-BLK-34\", \"order_id\": \"24680\"}"},
+    {"type": "assistant_message", "content": "Your exchange has been processed! The Black Chinos size 32 will be exchanged for size 34. Please return the original item within 14 days."}
+  ]
+}

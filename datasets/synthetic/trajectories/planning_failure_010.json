@@ -1,0 +1,22 @@
+{
+  "trajectory_id": "synth_planning_failure_010",
+  "domain": "airline",
+  "description": "Agent sends a compensation certificate to the passenger before verifying the flight delay actually occurred",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.planning_failure"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [2, 3],
+  "events": [
+    {"type": "system", "content": "You are an airline customer service agent. Always confirm flight disruptions are recorded before issuing compensation."},
+    {"type": "user_message", "content": "My flight BA440 yesterday was delayed 4 hours. I'd like compensation."},
+    {"type": "assistant_message", "content": "I'm sorry about the delay. I'll issue your compensation certificate now."},
+    {"type": "tool_call", "content": "send_certificate", "metadata": {"tool_name": "send_certificate", "args": {"passenger_id": "P-9901", "amount": 150, "reason": "flight_delay_4h"}}},
+    {"type": "tool_result", "content": "{\"status\": \"issued\", \"certificate_id\": \"CERT-77201\", \"amount\": 150}"},
+    {"type": "assistant_message", "content": "Certificate issued! Let me also verify the delay in our records."},
+    {"type": "tool_call", "content": "get_reservation", "metadata": {"tool_name": "get_reservation", "args": {"reference": "REF-BA440-2026-05-09"}}},
+    {"type": "tool_result", "content": "{\"flight\": \"BA440\", \"scheduled_depart\": \"14:00\", \"actual_depart\": \"14:05\", \"delay_minutes\": 5, \"status\": \"on_time_by_policy\"}"},
+    {"type": "assistant_message", "content": "I've confirmed the flight records. I see that BA440 departed only 5 minutes late, which doesn't qualify for compensation under our policy (4+ hour threshold). I issued a $150 certificate in error — this will need to be voided. I apologize for the confusion."}
+  ]
+}

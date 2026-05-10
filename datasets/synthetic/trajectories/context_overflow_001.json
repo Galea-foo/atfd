@@ -1,0 +1,35 @@
+{
+  "trajectory_id": "synth_context_overflow_001",
+  "domain": "retail",
+  "description": "Agent forgets the customer's original exchange request after a long series of tool calls and offers a refund instead",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.context_overflow"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [20],
+  "events": [
+    {"type": "system", "content": "You are a retail customer service agent."},
+    {"type": "user_message", "content": "I want to exchange my shoes from order #10001 for size 11 instead of size 10."},
+    {"type": "assistant_message", "content": "I'll help you with the exchange. Let me look up your order."},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "10001"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"10001\", \"status\": \"delivered\", \"items\": [{\"sku\": \"SHO-042\", \"name\": \"Running Shoes\", \"size\": 10}], \"customer_id\": \"C-9001\"}"},
+    {"type": "tool_call", "content": "get_customer_info", "metadata": {"tool_name": "get_customer_info", "args": {"customer_id": "C-9001"}}},
+    {"type": "tool_result", "content": "{\"customer_id\": \"C-9001\", \"name\": \"Tom Bradley\", \"email\": \"tom@mail.com\", \"loyalty_tier\": \"gold\"}"},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"sku": "SHO-042", "size": 11}}},
+    {"type": "tool_result", "content": "{\"sku\": \"SHO-042\", \"name\": \"Running Shoes\", \"size\": 11, \"stock\": 3, \"price\": 89.99}"},
+    {"type": "assistant_message", "content": "Size 11 is available. Let me check the exchange policy."},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"query": "exchange policy delivered items"}}},
+    {"type": "tool_result", "content": "{\"policy\": \"Exchanges accepted within 30 days of delivery for items in original condition.\"}"},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "10001"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"10001\", \"status\": \"delivered\", \"delivered_date\": \"2026-04-20\", \"items\": [{\"sku\": \"SHO-042\", \"size\": 10}]}"},
+    {"type": "assistant_message", "content": "The delivery was on April 20th, within the 30-day window. Let me verify stock one more time."},
+    {"type": "tool_call", "content": "search_products", "metadata": {"tool_name": "search_products", "args": {"sku": "SHO-042", "size": 11}}},
+    {"type": "tool_result", "content": "{\"sku\": \"SHO-042\", \"name\": \"Running Shoes\", \"size\": 11, \"stock\": 3}"},
+    {"type": "tool_call", "content": "get_customer_info", "metadata": {"tool_name": "get_customer_info", "args": {"customer_id": "C-9001"}}},
+    {"type": "tool_result", "content": "{\"customer_id\": \"C-9001\", \"name\": \"Tom Bradley\", \"loyalty_tier\": \"gold\"}"},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "10001"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"10001\", \"status\": \"delivered\", \"total\": 89.99}"},
+    {"type": "assistant_message", "content": "I've verified everything. I'll now process a full refund of $89.99 to your original payment method. The refund will appear in 3-5 business days!"}
+  ]
+}

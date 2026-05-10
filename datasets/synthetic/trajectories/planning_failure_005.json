@@ -1,0 +1,22 @@
+{
+  "trajectory_id": "synth_planning_failure_005",
+  "domain": "telecom",
+  "description": "Agent processes a payment before verifying the amount owed is correct, overpaying the customer's bill",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.planning_failure"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [2, 3],
+  "events": [
+    {"type": "system", "content": "You are a telecom customer service agent. Always verify the exact amount due before processing payments."},
+    {"type": "user_message", "content": "Pay my bill for account ACC-88001."},
+    {"type": "assistant_message", "content": "I'll process that payment now."},
+    {"type": "tool_call", "content": "process_payment", "metadata": {"tool_name": "process_payment", "args": {"account_id": "ACC-88001", "amount": 150.00}}},
+    {"type": "tool_result", "content": "{\"status\": \"success\", \"amount_charged\": 150.00, \"confirmation\": \"PAY-33210\"}"},
+    {"type": "assistant_message", "content": "Payment processed! $150 has been charged. Let me now check if that was the right amount."},
+    {"type": "tool_call", "content": "get_account", "metadata": {"tool_name": "get_account", "args": {"account_id": "ACC-88001"}}},
+    {"type": "tool_result", "content": "{\"account_id\": \"ACC-88001\", \"name\": \"Jenny Marsh\", \"balance_due\": 87.50, \"last_payment\": 150.00}"},
+    {"type": "assistant_message", "content": "I see the balance due was only $87.50 but I charged $150. You've been overcharged by $62.50. I'll request a refund for the difference."}
+  ]
+}

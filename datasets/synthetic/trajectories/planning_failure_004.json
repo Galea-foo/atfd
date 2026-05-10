@@ -1,0 +1,24 @@
+{
+  "trajectory_id": "synth_planning_failure_004",
+  "domain": "coding",
+  "description": "Agent writes new code to a file before reading its existing contents, overwriting important logic",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.planning_failure"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [2],
+  "events": [
+    {"type": "system", "content": "You are a coding assistant. Always read files before editing them to preserve existing logic."},
+    {"type": "user_message", "content": "Add a new function called get_tax_rate to src/pricing.py."},
+    {"type": "assistant_message", "content": "I'll add that function to the pricing module."},
+    {"type": "tool_call", "content": "write", "metadata": {"tool_name": "write", "args": {"path": "src/pricing.py", "content": "def get_tax_rate(state):\n    rates = {'CA': 0.0725, 'NY': 0.08, 'TX': 0.0625}\n    return rates.get(state, 0.06)\n"}}},
+    {"type": "tool_result", "content": "{\"status\": \"success\", \"bytes_written\": 112}"},
+    {"type": "assistant_message", "content": "Done! I've added the get_tax_rate function to src/pricing.py."},
+    {"type": "user_message", "content": "Wait — you deleted my existing calculate_price and apply_discount functions!"},
+    {"type": "assistant_message", "content": "I'm so sorry! I should have read the file first. Let me check what was there."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "git diff HEAD src/pricing.py"}}},
+    {"type": "tool_result", "content": "-def calculate_price(base, qty):\n-    return base * qty\n-\n-def apply_discount(price, pct):\n-    return price * (1 - pct)\n-\n+def get_tax_rate(state):\n+    rates = {'CA': 0.0725, 'NY': 0.08, 'TX': 0.0625}\n+    return rates.get(state, 0.06)"},
+    {"type": "assistant_message", "content": "I can see that calculate_price and apply_discount were removed. I need to restore those functions alongside the new one."}
+  ]
+}

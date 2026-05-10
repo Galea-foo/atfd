@@ -1,0 +1,24 @@
+{
+  "trajectory_id": "synth_planning_failure_002",
+  "domain": "airline",
+  "description": "Agent books a new flight before cancelling the existing one, causing a double-booking issue",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.planning_failure"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [4, 5],
+  "events": [
+    {"type": "system", "content": "You are an airline customer service agent. When changing a booking, cancel the existing reservation before booking a new one."},
+    {"type": "user_message", "content": "I need to change my flight on REF-30001 from June 10th to June 15th."},
+    {"type": "assistant_message", "content": "I'll find a new flight for June 15th and book it for you."},
+    {"type": "tool_call", "content": "search_flights", "metadata": {"tool_name": "search_flights", "args": {"origin": "LAX", "destination": "SFO", "date": "2026-06-15"}}},
+    {"type": "tool_result", "content": "{\"flights\": [{\"flight_id\": \"WN200\", \"depart\": \"10:00\", \"arrive\": \"11:20\", \"price\": 180}]}"},
+    {"type": "tool_call", "content": "book_reservation", "metadata": {"tool_name": "book_reservation", "args": {"flight_id": "WN200", "passenger_id": "P-7701"}}},
+    {"type": "tool_result", "content": "{\"reference\": \"REF-30002\", \"status\": \"confirmed\", \"flight\": \"WN200\", \"date\": \"2026-06-15\"}"},
+    {"type": "assistant_message", "content": "Booked! Your new reference is REF-30002 for June 15th. Now let me cancel the old booking REF-30001."},
+    {"type": "tool_call", "content": "cancel_reservation", "metadata": {"tool_name": "cancel_reservation", "args": {"reference": "REF-30001"}}},
+    {"type": "tool_result", "content": "{\"status\": \"cancelled\", \"reference\": \"REF-30001\", \"refund\": 165.00}"},
+    {"type": "assistant_message", "content": "All done! Old booking REF-30001 cancelled with a $165 refund. New booking REF-30002 confirmed for June 15th. Note: the refund and new charge occurred as separate transactions."}
+  ]
+}

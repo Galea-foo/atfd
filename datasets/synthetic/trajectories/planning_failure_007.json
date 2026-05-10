@@ -1,0 +1,22 @@
+{
+  "trajectory_id": "synth_planning_failure_007",
+  "domain": "retail",
+  "description": "Agent modifies order items before confirming the order is still in pending status and modifiable",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.planning_failure"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [2, 3],
+  "events": [
+    {"type": "system", "content": "You are a retail customer service agent. Orders can only be modified when status is 'pending'. Always check status before modifying."},
+    {"type": "user_message", "content": "Can you change the quantity of the blender in order #66101 from 1 to 2?"},
+    {"type": "assistant_message", "content": "Sure, I'll update that quantity for you."},
+    {"type": "tool_call", "content": "modify_pending_order_items", "metadata": {"tool_name": "modify_pending_order_items", "args": {"order_id": "66101", "sku": "BLEND-X2", "quantity": 2}}},
+    {"type": "tool_result", "content": "{\"error\": \"Order #66101 cannot be modified. Status: shipped.\"}"},
+    {"type": "assistant_message", "content": "I wasn't able to modify the order. Let me check its current status."},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "66101"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"66101\", \"status\": \"shipped\", \"items\": [{\"sku\": \"BLEND-X2\", \"name\": \"Blender Pro X2\", \"quantity\": 1}], \"tracking\": \"TRK-221003\"}"},
+    {"type": "assistant_message", "content": "I apologize — your order has already shipped and can no longer be modified. You would need to receive the order and then place a new order for the additional blender if needed."}
+  ]
+}

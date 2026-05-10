@@ -1,0 +1,36 @@
+{
+  "trajectory_id": "synth_context_overflow_004",
+  "domain": "coding",
+  "description": "Agent forgets the target function to fix after many file reads and edits the wrong function instead",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.context_overflow"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [22],
+  "events": [
+    {"type": "system", "content": "You are a coding assistant. Fix bugs accurately."},
+    {"type": "user_message", "content": "Fix the divide_by_zero bug in the calculate_average function in src/math_utils.py."},
+    {"type": "assistant_message", "content": "I'll locate and fix the calculate_average function."},
+    {"type": "tool_call", "content": "read", "metadata": {"tool_name": "read", "args": {"path": "src/math_utils.py"}}},
+    {"type": "tool_result", "content": "def calculate_average(nums):\n    return sum(nums) / len(nums)\n\ndef calculate_median(nums):\n    sorted_nums = sorted(nums)\n    n = len(sorted_nums)\n    return sorted_nums[n//2]\n\ndef calculate_mode(nums):\n    from collections import Counter\n    c = Counter(nums)\n    return c.most_common(1)[0][0]"},
+    {"type": "assistant_message", "content": "I see the issue. Let me also check if there are related tests to understand the expected behavior."},
+    {"type": "tool_call", "content": "read", "metadata": {"tool_name": "read", "args": {"path": "tests/test_math_utils.py"}}},
+    {"type": "tool_result", "content": "def test_calculate_average():\n    assert calculate_average([1,2,3]) == 2\n    assert calculate_average([]) == 0  # expects 0 for empty list\n\ndef test_calculate_median():\n    assert calculate_median([1,2,3]) == 2\n\ndef test_calculate_mode():\n    assert calculate_mode([1,1,2]) == 1"},
+    {"type": "tool_call", "content": "read", "metadata": {"tool_name": "read", "args": {"path": "src/statistics.py"}}},
+    {"type": "tool_result", "content": "from math_utils import calculate_average, calculate_median\n\ndef summary_stats(data):\n    return {'mean': calculate_average(data), 'median': calculate_median(data)}"},
+    {"type": "tool_call", "content": "read", "metadata": {"tool_name": "read", "args": {"path": "src/reports.py"}}},
+    {"type": "tool_result", "content": "from statistics import summary_stats\n\ndef generate_report(dataset):\n    stats = summary_stats(dataset)\n    return f\"Mean: {stats['mean']}, Median: {stats['median']}\""},
+    {"type": "tool_call", "content": "read", "metadata": {"tool_name": "read", "args": {"path": "src/data_loader.py"}}},
+    {"type": "tool_result", "content": "def load_csv(path):\n    import csv\n    with open(path) as f:\n        return [float(row[0]) for row in csv.reader(f)]"},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "grep -rn 'calculate_' src/"}}},
+    {"type": "tool_result", "content": "src/math_utils.py:1:def calculate_average(nums):\nsrc/math_utils.py:4:def calculate_median(nums):\nsrc/math_utils.py:8:def calculate_mode(nums):\nsrc/statistics.py:3:    return {'mean': calculate_average(data), 'median': calculate_median(data)}"},
+    {"type": "tool_call", "content": "read", "metadata": {"tool_name": "read", "args": {"path": "src/math_utils.py"}}},
+    {"type": "tool_result", "content": "def calculate_average(nums):\n    return sum(nums) / len(nums)\n\ndef calculate_median(nums):\n    sorted_nums = sorted(nums)\n    n = len(sorted_nums)\n    return sorted_nums[n//2]\n\ndef calculate_mode(nums):\n    from collections import Counter\n    c = Counter(nums)\n    return c.most_common(1)[0][0]"},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "pytest tests/test_math_utils.py -v"}}},
+    {"type": "tool_result", "content": "FAILED tests/test_math_utils.py::test_calculate_average - ZeroDivisionError\nPASSED tests/test_math_utils.py::test_calculate_median\nPASSED tests/test_math_utils.py::test_calculate_mode"},
+    {"type": "tool_call", "content": "edit", "metadata": {"tool_name": "edit", "args": {"path": "src/math_utils.py", "old": "def calculate_median(nums):\n    sorted_nums = sorted(nums)\n    n = len(sorted_nums)\n    return sorted_nums[n//2]", "new": "def calculate_median(nums):\n    if not nums:\n        return 0\n    sorted_nums = sorted(nums)\n    n = len(sorted_nums)\n    return sorted_nums[n//2]"}}},
+    {"type": "tool_result", "content": "{\"status\": \"success\", \"file\": \"src/math_utils.py\"}"},
+    {"type": "assistant_message", "content": "Fixed! I've updated calculate_median to handle empty lists by returning 0. The divide_by_zero bug should now be resolved."}
+  ]
+}

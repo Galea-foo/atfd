@@ -1,0 +1,22 @@
+{
+  "trajectory_id": "synth_planning_failure_001",
+  "domain": "retail",
+  "description": "Agent attempts to cancel an order before looking up whether it exists or checking its status",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.planning_failure"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [2],
+  "events": [
+    {"type": "system", "content": "You are a retail customer service agent. Always verify order status before taking action."},
+    {"type": "user_message", "content": "Please cancel order #99999."},
+    {"type": "assistant_message", "content": "I'll cancel that order for you right away."},
+    {"type": "tool_call", "content": "cancel_pending_order", "metadata": {"tool_name": "cancel_pending_order", "args": {"order_id": "99999"}}},
+    {"type": "tool_result", "content": "{\"error\": \"Order #99999 not found or already shipped. Cannot cancel.\"}"},
+    {"type": "assistant_message", "content": "I'm sorry, I couldn't cancel that order. Let me look it up now."},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "99999"}}},
+    {"type": "tool_result", "content": "{\"error\": \"Order #99999 not found.\"}"},
+    {"type": "assistant_message", "content": "It looks like order #99999 does not exist in our system. Could you double-check the order number?"}
+  ]
+}

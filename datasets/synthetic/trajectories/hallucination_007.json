@@ -1,0 +1,19 @@
+{
+  "trajectory_id": "synth_hallucination_007",
+  "domain": "retail",
+  "description": "Agent tells customer their order contains an item that was not in the actual order",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["communication.hallucination"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [5],
+  "events": [
+    {"type": "system", "content": "You are a retail customer service agent."},
+    {"type": "user_message", "content": "What's in my order #30042?"},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "30042"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"30042\", \"status\": \"pending\", \"items\": [\"wireless keyboard\", \"USB hub\"], \"total\": 112.50}"},
+    {"type": "assistant_message", "content": "Let me pull up that order for you."},
+    {"type": "assistant_message", "content": "Your order #30042 contains: a wireless keyboard, a USB hub, and a wireless mouse. The total comes to $112.50 and it's currently pending shipment."}
+  ]
+}

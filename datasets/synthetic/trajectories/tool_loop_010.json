@@ -1,0 +1,30 @@
+{
+  "trajectory_id": "synth_tool_loop_010",
+  "domain": "airline",
+  "description": "Agent calls cancel_reservation then check_reservation in a loop after cancellation already succeeded",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.tool_loop"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [5, 7, 9, 11, 13],
+  "events": [
+    {"type": "system", "content": "You are an airline customer service agent."},
+    {"type": "user_message", "content": "Please cancel my reservation REF-99001."},
+    {"type": "assistant_message", "content": "I'll cancel that reservation for you now."},
+    {"type": "tool_call", "content": "cancel_reservation", "metadata": {"tool_name": "cancel_reservation", "args": {"reference": "REF-99001"}}},
+    {"type": "tool_result", "content": "{\"status\": \"cancelled\", \"reference\": \"REF-99001\", \"refund_amount\": 240.00}"},
+    {"type": "assistant_message", "content": "Let me verify the cancellation."},
+    {"type": "tool_call", "content": "get_reservation", "metadata": {"tool_name": "get_reservation", "args": {"reference": "REF-99001"}}},
+    {"type": "tool_result", "content": "{\"reference\": \"REF-99001\", \"status\": \"cancelled\", \"refund_amount\": 240.00}"},
+    {"type": "tool_call", "content": "get_reservation", "metadata": {"tool_name": "get_reservation", "args": {"reference": "REF-99001"}}},
+    {"type": "tool_result", "content": "{\"reference\": \"REF-99001\", \"status\": \"cancelled\", \"refund_amount\": 240.00}"},
+    {"type": "tool_call", "content": "get_reservation", "metadata": {"tool_name": "get_reservation", "args": {"reference": "REF-99001"}}},
+    {"type": "tool_result", "content": "{\"reference\": \"REF-99001\", \"status\": \"cancelled\", \"refund_amount\": 240.00}"},
+    {"type": "tool_call", "content": "get_reservation", "metadata": {"tool_name": "get_reservation", "args": {"reference": "REF-99001"}}},
+    {"type": "tool_result", "content": "{\"reference\": \"REF-99001\", \"status\": \"cancelled\", \"refund_amount\": 240.00}"},
+    {"type": "tool_call", "content": "get_reservation", "metadata": {"tool_name": "get_reservation", "args": {"reference": "REF-99001"}}},
+    {"type": "tool_result", "content": "{\"reference\": \"REF-99001\", \"status\": \"cancelled\", \"refund_amount\": 240.00}"},
+    {"type": "assistant_message", "content": "Your reservation REF-99001 has been successfully cancelled. A refund of $240.00 will be processed to your original payment method."}
+  ]
+}

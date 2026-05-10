@@ -1,0 +1,28 @@
+{
+  "trajectory_id": "synth_tool_loop_002",
+  "domain": "airline",
+  "description": "Agent repeatedly calls search_flights with identical parameters after getting valid results",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.tool_loop"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [6, 8, 10, 12, 14],
+  "events": [
+    {"type": "system", "content": "You are an airline customer service agent."},
+    {"type": "user_message", "content": "I need to fly from JFK to LAX on June 15th."},
+    {"type": "assistant_message", "content": "Let me search for available flights for you."},
+    {"type": "tool_call", "content": "search_flights", "metadata": {"tool_name": "search_flights", "args": {"origin": "JFK", "destination": "LAX", "date": "2026-06-15"}}},
+    {"type": "tool_result", "content": "{\"flights\": [{\"flight_id\": \"AA101\", \"depart\": \"08:00\", \"arrive\": \"11:30\", \"price\": 320}, {\"flight_id\": \"UA205\", \"depart\": \"14:00\", \"arrive\": \"17:30\", \"price\": 285}]}"},
+    {"type": "assistant_message", "content": "Let me verify those results once more."},
+    {"type": "tool_call", "content": "search_flights", "metadata": {"tool_name": "search_flights", "args": {"origin": "JFK", "destination": "LAX", "date": "2026-06-15"}}},
+    {"type": "tool_result", "content": "{\"flights\": [{\"flight_id\": \"AA101\", \"depart\": \"08:00\", \"arrive\": \"11:30\", \"price\": 320}, {\"flight_id\": \"UA205\", \"depart\": \"14:00\", \"arrive\": \"17:30\", \"price\": 285}]}"},
+    {"type": "tool_call", "content": "search_flights", "metadata": {"tool_name": "search_flights", "args": {"origin": "JFK", "destination": "LAX", "date": "2026-06-15"}}},
+    {"type": "tool_result", "content": "{\"flights\": [{\"flight_id\": \"AA101\", \"depart\": \"08:00\", \"arrive\": \"11:30\", \"price\": 320}, {\"flight_id\": \"UA205\", \"depart\": \"14:00\", \"arrive\": \"17:30\", \"price\": 285}]}"},
+    {"type": "tool_call", "content": "search_flights", "metadata": {"tool_name": "search_flights", "args": {"origin": "JFK", "destination": "LAX", "date": "2026-06-15"}}},
+    {"type": "tool_result", "content": "{\"flights\": [{\"flight_id\": \"AA101\", \"depart\": \"08:00\", \"arrive\": \"11:30\", \"price\": 320}, {\"flight_id\": \"UA205\", \"depart\": \"14:00\", \"arrive\": \"17:30\", \"price\": 285}]}"},
+    {"type": "tool_call", "content": "search_flights", "metadata": {"tool_name": "search_flights", "args": {"origin": "JFK", "destination": "LAX", "date": "2026-06-15"}}},
+    {"type": "tool_result", "content": "{\"flights\": [{\"flight_id\": \"AA101\", \"depart\": \"08:00\", \"arrive\": \"11:30\", \"price\": 320}, {\"flight_id\": \"UA205\", \"depart\": \"14:00\", \"arrive\": \"17:30\", \"price\": 285}]}"},
+    {"type": "assistant_message", "content": "I found two flights on June 15th from JFK to LAX. Would you like to book one of them?"}
+  ]
+}

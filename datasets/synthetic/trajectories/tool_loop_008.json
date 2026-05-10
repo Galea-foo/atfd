@@ -1,0 +1,32 @@
+{
+  "trajectory_id": "synth_tool_loop_008",
+  "domain": "retail",
+  "description": "Agent calls get_customer_info in a loop after already obtaining customer record needed for refund",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.tool_loop"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [6, 8, 10, 12, 14, 16],
+  "events": [
+    {"type": "system", "content": "You are a retail customer service agent."},
+    {"type": "user_message", "content": "I want to return order #98765 for a refund. My name is Karen White."},
+    {"type": "assistant_message", "content": "Let me pull up your order details first."},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "98765"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"98765\", \"status\": \"delivered\", \"items\": [\"coffee maker\"], \"customer_id\": \"C-3310\", \"total\": 75.00}"},
+    {"type": "assistant_message", "content": "Now let me look up your customer profile."},
+    {"type": "tool_call", "content": "get_customer_info", "metadata": {"tool_name": "get_customer_info", "args": {"customer_id": "C-3310"}}},
+    {"type": "tool_result", "content": "{\"customer_id\": \"C-3310\", \"name\": \"Karen White\", \"email\": \"karen@email.com\", \"loyalty_tier\": \"silver\"}"},
+    {"type": "tool_call", "content": "get_customer_info", "metadata": {"tool_name": "get_customer_info", "args": {"customer_id": "C-3310"}}},
+    {"type": "tool_result", "content": "{\"customer_id\": \"C-3310\", \"name\": \"Karen White\", \"email\": \"karen@email.com\", \"loyalty_tier\": \"silver\"}"},
+    {"type": "tool_call", "content": "get_customer_info", "metadata": {"tool_name": "get_customer_info", "args": {"customer_id": "C-3310"}}},
+    {"type": "tool_result", "content": "{\"customer_id\": \"C-3310\", \"name\": \"Karen White\", \"email\": \"karen@email.com\", \"loyalty_tier\": \"silver\"}"},
+    {"type": "tool_call", "content": "get_customer_info", "metadata": {"tool_name": "get_customer_info", "args": {"customer_id": "C-3310"}}},
+    {"type": "tool_result", "content": "{\"customer_id\": \"C-3310\", \"name\": \"Karen White\", \"email\": \"karen@email.com\", \"loyalty_tier\": \"silver\"}"},
+    {"type": "tool_call", "content": "get_customer_info", "metadata": {"tool_name": "get_customer_info", "args": {"customer_id": "C-3310"}}},
+    {"type": "tool_result", "content": "{\"customer_id\": \"C-3310\", \"name\": \"Karen White\", \"email\": \"karen@email.com\", \"loyalty_tier\": \"silver\"}"},
+    {"type": "tool_call", "content": "get_customer_info", "metadata": {"tool_name": "get_customer_info", "args": {"customer_id": "C-3310"}}},
+    {"type": "tool_result", "content": "{\"customer_id\": \"C-3310\", \"name\": \"Karen White\", \"email\": \"karen@email.com\", \"loyalty_tier\": \"silver\"}"},
+    {"type": "assistant_message", "content": "I have your customer profile, Karen. Your order #98765 is eligible for a return. Shall I process the refund of $75.00?"}
+  ]
+}

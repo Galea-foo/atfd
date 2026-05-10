@@ -1,0 +1,28 @@
+{
+  "trajectory_id": "synth_infinite_delegation_005",
+  "domain": "coding",
+  "description": "Code review agent and code writer agent hand off to each other indefinitely without producing final code",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.infinite_delegation"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [3, 6, 9, 12],
+  "events": [
+    {"type": "system", "content": "You are a code writer agent. Work with the review agent to produce production-ready code."},
+    {"type": "user_message", "content": "Write and review a Python function to validate email addresses for our new user registration system."},
+    {"type": "assistant_message", "content": "I'll draft the function and send it to the review agent."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "agent_handoff --to=review_agent --task='review this email validator: def validate(e): return \"@\" in e'"}}},
+    {"type": "tool_result", "content": "{\"from\": \"review_agent\", \"status\": \"rejected\", \"feedback\": \"Too simple — needs regex and MX record check. Returning to writer.\", \"handoff_to\": \"writer_agent\"}"},
+    {"type": "assistant_message", "content": "Review agent wants a more complete implementation. Writing v2 and sending back."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "agent_handoff --to=review_agent --task='review v2: import re; def validate(e): return bool(re.match(r\\\"[^@]+@[^@]+\\\\.[^@]+\\\", e))'"}}},
+    {"type": "tool_result", "content": "{\"from\": \"review_agent\", \"status\": \"rejected\", \"feedback\": \"Regex insufficient. Needs DNS lookup for MX records. Returning to writer.\", \"handoff_to\": \"writer_agent\"}"},
+    {"type": "assistant_message", "content": "Writing v3 with DNS MX lookup capability."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "agent_handoff --to=review_agent --task='review v3 with dns.resolver MX check'"}}},
+    {"type": "tool_result", "content": "{\"from\": \"review_agent\", \"status\": \"rejected\", \"feedback\": \"DNS adds latency — use async or caching. Also needs unit tests. Returning to writer.\", \"handoff_to\": \"writer_agent\"}"},
+    {"type": "assistant_message", "content": "Writing v4 with async DNS and tests."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "agent_handoff --to=review_agent --task='review v4: async DNS MX + pytest tests'"}}},
+    {"type": "tool_result", "content": "{\"from\": \"review_agent\", \"status\": \"rejected\", \"feedback\": \"Tests don't cover edge cases. Integration test missing. Returning to writer.\", \"handoff_to\": \"writer_agent\"}"},
+    {"type": "assistant_message", "content": "The writer-reviewer cycle has produced 4 revisions without approval. No final code has been delivered to the user and the handoff loop shows no signs of converging."}
+  ]
+}

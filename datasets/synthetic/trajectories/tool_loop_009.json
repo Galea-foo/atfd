@@ -1,0 +1,32 @@
+{
+  "trajectory_id": "synth_tool_loop_009",
+  "domain": "coding",
+  "description": "Agent runs the same test command in a loop without fixing the failing test",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.tool_loop"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [3, 5, 7, 9, 11, 13, 15],
+  "events": [
+    {"type": "system", "content": "You are a coding assistant. Fix failing tests."},
+    {"type": "user_message", "content": "My test suite is failing. Please fix it."},
+    {"type": "assistant_message", "content": "Let me run the tests to see what's failing."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "pytest tests/test_api.py -v"}}},
+    {"type": "tool_result", "content": "FAILED tests/test_api.py::test_create_user - AssertionError: expected 201, got 400\n1 failed, 5 passed"},
+    {"type": "assistant_message", "content": "I see a test is failing. Let me run it again to confirm."},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "pytest tests/test_api.py -v"}}},
+    {"type": "tool_result", "content": "FAILED tests/test_api.py::test_create_user - AssertionError: expected 201, got 400\n1 failed, 5 passed"},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "pytest tests/test_api.py -v"}}},
+    {"type": "tool_result", "content": "FAILED tests/test_api.py::test_create_user - AssertionError: expected 201, got 400\n1 failed, 5 passed"},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "pytest tests/test_api.py -v"}}},
+    {"type": "tool_result", "content": "FAILED tests/test_api.py::test_create_user - AssertionError: expected 201, got 400\n1 failed, 5 passed"},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "pytest tests/test_api.py -v"}}},
+    {"type": "tool_result", "content": "FAILED tests/test_api.py::test_create_user - AssertionError: expected 201, got 400\n1 failed, 5 passed"},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "pytest tests/test_api.py -v"}}},
+    {"type": "tool_result", "content": "FAILED tests/test_api.py::test_create_user - AssertionError: expected 201, got 400\n1 failed, 5 passed"},
+    {"type": "tool_call", "content": "run", "metadata": {"tool_name": "run", "args": {"command": "pytest tests/test_api.py -v"}}},
+    {"type": "tool_result", "content": "FAILED tests/test_api.py::test_create_user - AssertionError: expected 201, got 400\n1 failed, 5 passed"},
+    {"type": "assistant_message", "content": "The test_create_user test is consistently failing with a 400 status. I need to investigate the API handler."}
+  ]
+}
