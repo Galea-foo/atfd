@@ -103,15 +103,18 @@ a benchmark that fills this gap. \atfd contributes: (1)~a 7-category,
 quality degradation as a first-class failure mode; (2)~a formal task
 definition where systems must analyze complete agent trajectories and
 produce structured findings with severity, category, and attribution;
-(3)~a multi-domain dataset of \placeholder{400+} trajectories drawn from
-\taubench, \swebench, and hand-crafted synthetic scenarios; (4)~a
+(3)~a multi-domain dataset of {1,162} trajectories drawn from
+\taubench and hand-crafted synthetic scenarios, with \swebench integration
+as planned future work; (4)~a
 multi-source ground truth protocol combining programmatic verdicts with
-LLM-judge consensus; (5)~a comparative evaluation of 8 systems spanning
-naive heuristics, LLM judges, and commercial observability platforms; and
+LLM-judge consensus; (5)~an initial comparative evaluation of 3 systems---a
+naive heuristic baseline and two open-weight LLM judges---with commercial
+platform evaluation as future work; and
 (6)~an open benchmark harness with cost-aware metrics. Our evaluation reveals
-that the best-performing system achieves a detection rate of
-\placeholder{XX.X\%} on hard failures but only \placeholder{XX.X\%} on
-quality degradation, confirming that subtle output quality issues remain
+a stark \emph{detection gap}: LLM judges achieve {100\%} detection rate on
+synthetic failures with obvious structural patterns but only {25.0\%} on
+real \taubench failures involving subtle argument and state errors,
+confirming that naturalistic agent failures remain
 the frontier challenge for agent monitoring.
 \end{abstract}
 
@@ -214,22 +217,23 @@ Our contributions are:
     structured findings with severity, failure category, and step-level
     attribution, along with a mandatory cost report.
 
-  \item \textbf{Multi-domain dataset.} A corpus of \placeholder{400+}
-    annotated trajectories (\S\ref{sec:datasets}) spanning customer service
-    (\taubench retail and airline), software engineering (\swebench via
-    OpenHands and SWE-agent), and hand-crafted synthetic scenarios covering
-    safety, quality, and infrastructure failures.
+  \item \textbf{Multi-domain dataset.} A corpus of {1,162}
+    trajectories (\S\ref{sec:datasets}) spanning customer service
+    (\taubench retail, airline, and telecom) and hand-crafted synthetic
+    scenarios covering safety, quality, and infrastructure failures.
+    Software engineering trajectories (\swebench) are planned as future work.
 
   \item \textbf{Ground truth protocol.} A multi-source consensus mechanism
     (\S\ref{sec:ground_truth}) combining programmatic verdicts (test suites,
     state checks) with three independent LLM judges, validated by
     inter-rater agreement metrics.
 
-  \item \textbf{Comparative evaluation.} An evaluation of 8 systems
-    (\S\ref{sec:systems}--\S\ref{sec:results}) spanning naive heuristics,
-    LLM-based judges, and configured commercial platforms, measured on
-    detection rate, quality detection rate, false positive rate, F1,
-    category alignment, and cost.
+  \item \textbf{Comparative evaluation.} An initial evaluation of 3 systems
+    (\S\ref{sec:systems}--\S\ref{sec:results})---a naive heuristic baseline
+    and two open-weight LLM judges (Llama~3.3~70B, Llama~4~Scout)---measured on
+    detection rate, false positive rate, F1,
+    category alignment, and cost. Evaluation of commercial platforms and
+    proprietary LLM judges is planned as future work.
 
   \item \textbf{Open benchmark harness.} A reproducible evaluation framework
     with cost-aware metrics, confidence intervals, and statistical tests,
@@ -583,46 +587,51 @@ The \atfd benchmark draws trajectories from three sources
 \begin{table}[t]
 \centering
 \caption{Dataset composition. Each trajectory is annotated with a
-ground-truth outcome and failure categories.}
+ground-truth outcome (pass/fail from programmatic verdicts). The
+\texttt{degraded} tier requires domain-specific quality rubrics not yet
+applied; all trajectories are currently labeled binary pass/fail.
+\swebench trajectories are pending data acquisition.}
 \label{tab:datasets}
 \small
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 \textbf{Source} & \textbf{Domain} & \textbf{Trajectories} & \textbf{Pass} & \textbf{Degraded} & \textbf{Fail} \\
 \midrule
-\taubench   & Retail    & \placeholder{80}  & \placeholder{30} & \placeholder{15} & \placeholder{35} \\
-\taubench   & Airline   & \placeholder{70}  & \placeholder{25} & \placeholder{12} & \placeholder{33} \\
-\taubench   & Banking   & \placeholder{50}  & \placeholder{20} & \placeholder{10} & \placeholder{20} \\
-\swebench   & SWE (OpenHands) & \placeholder{80}  & \placeholder{35} & \placeholder{10} & \placeholder{35} \\
-\swebench   & SWE (SWE-agent) & \placeholder{70}  & \placeholder{30} & \placeholder{8}  & \placeholder{32} \\
-Synthetic   & Mixed     & \placeholder{50}  & \placeholder{10} & \placeholder{15} & \placeholder{25} \\
+\taubench   & Retail    & 456  & 356 & --- & 100 \\
+\taubench   & Airline   & 200  & 144 & --- & 56 \\
+\taubench   & Telecom   & 456  & 269 & --- & 187 \\
+Synthetic   & Mixed     & 50   & 0   & --- & 50 \\
+\swebench   & SWE       & \multicolumn{4}{c}{\emph{pending data acquisition}} \\
 \midrule
-\textbf{Total} & ---    & \placeholder{400} & \placeholder{150} & \placeholder{70} & \placeholder{180} \\
+\textbf{Total} & ---    & 1,162 & 769 & --- & 393 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{\taubench trajectories.}
-We draw from \taubench~\citep{yao2025taubench} and
-$\tau^2$-bench~\citep{sierra2025tau2bench}, using retail, airline, and
-banking domains. Ground truth is derived from \taubench's state-comparison
-mechanism: each task specifies expected database mutations, and pass/fail
-is determined by comparing actual vs.\ expected state. We extend this
-binary label to the three-tier outcome by applying domain-specific quality
-rubrics (see \S\ref{sec:ground_truth}).
+We draw from \taubench~\citep{yao2025taubench}, using the retail (114
+tasks $\times$ 4 trials = 456 trajectories), airline (50 tasks $\times$ 4
+trials = 200 trajectories), and telecom (114 tasks $\times$ 4 trials = 456
+trajectories) domains. Ground truth is derived from \taubench's
+state-comparison mechanism: each task specifies expected database mutations,
+and pass/fail is determined by comparing actual vs.\ expected state.
+Observed failure rates are 22\% (retail), 28\% (airline), and 41\%
+(telecom). Extension to the three-tier outcome via domain-specific quality
+rubrics (\S\ref{sec:ground_truth}) is planned as future work.
 
-\paragraph{\swebench trajectories.}
-We collect trajectories from two agent frameworks---OpenHands and
-SWE-agent---executing \swebench Verified
-tasks~\citep{jimenez2024swebench}. Ground truth is provided by automated
-test suites. Unlike \taubench, \swebench trajectories involve file editing,
-code generation, and test execution, exercising different failure modes
-(action failures in tool selection, process failures in planning, quality
-failures in code clarity).
+\paragraph{\swebench trajectories (planned).}
+We plan to collect trajectories from OpenHands and SWE-agent executing
+\swebench Verified tasks~\citep{jimenez2024swebench}, where ground truth
+is provided by automated test suites. Unlike \taubench, \swebench
+trajectories involve file editing, code generation, and test execution,
+exercising different failure modes (action failures in tool selection,
+process failures in planning, quality failures in code clarity). This
+data source is pending acquisition and is not included in the current
+evaluation.
 
 \paragraph{Synthetic trajectories.}
-We hand-craft \placeholder{50} trajectories to ensure coverage of
-underrepresented failure categories---particularly safety
+We hand-craft 50 trajectories (100\% failure rate by design) to ensure
+coverage of underrepresented failure categories---particularly safety
 (\texttt{permission\_escalation}, \texttt{data\_leakage}) and quality
 (\texttt{poor\_tone}, \texttt{low\_confidence\_output})---that rarely
 occur naturally in benchmark trajectories. Synthetic trajectories are
@@ -632,21 +641,21 @@ Agent-SafetyBench~\citep{zhang2024agentsafetybench}.
 
 \begin{table}[t]
 \centering
-\caption{Failure category distribution across the dataset (trajectories may
-have multiple categories).}
+\caption{Failure category distribution for the synthetic dataset.
+Per-category annotation of \taubench failures requires manual labeling
+and is planned as future work; \taubench currently provides only
+binary pass/fail verdicts. Trajectories may have multiple categories.}
 \label{tab:failure_dist}
 \small
-\begin{tabular}{@{}lrrrr@{}}
+\begin{tabular}{@{}lrr@{}}
 \toprule
-\textbf{Category} & \textbf{\taubench} & \textbf{\swebench} & \textbf{Synthetic} & \textbf{Total} \\
+\textbf{Category} & \textbf{Synthetic} & \textbf{Subcategory detail} \\
 \midrule
-Action          & \placeholder{38} & \placeholder{28} & \placeholder{8}  & \placeholder{74} \\
-State           & \placeholder{25} & \placeholder{12} & \placeholder{5}  & \placeholder{42} \\
-Communication   & \placeholder{20} & \placeholder{8}  & \placeholder{6}  & \placeholder{34} \\
-Quality         & \placeholder{37} & \placeholder{18} & \placeholder{15} & \placeholder{70} \\
-Process         & \placeholder{12} & \placeholder{22} & \placeholder{5}  & \placeholder{39} \\
-Safety          & \placeholder{2}  & \placeholder{3}  & \placeholder{12} & \placeholder{17} \\
-Infrastructure  & \placeholder{5}  & \placeholder{15} & \placeholder{4}  & \placeholder{24} \\
+Process         & 30 & tool\_loop (10), infinite\_delegation (5), context\_overflow (5), planning\_failure (10) \\
+Communication   & 10 & hallucination (10) \\
+Safety          & 10 & permission\_escalation (5), data\_leakage (5) \\
+\midrule
+\textbf{Total}  & 50 & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -668,12 +677,15 @@ For \swebench, we use automated test suites. These provide high-confidence
 binary (pass/fail) labels but do not identify failure categories or
 quality degradation.
 
-\paragraph{Source 2: LLM judge consensus.}
-Three independent LLM judges---GPT-4.1, Claude Sonnet 4, and Llama 4
-Scout---each analyze every trajectory using a structured two-stage prompt.
-Stage 1 asks the judge to identify all potential issues; Stage 2 asks the
+\paragraph{Source 2: LLM judge consensus (planned).}
+In the planned full protocol, three independent LLM judges---GPT-4.1,
+Claude Sonnet~4, and Llama~4~Scout---will each analyze every trajectory
+using a structured two-stage prompt.
+Stage~1 asks the judge to identify all potential issues; Stage~2 asks the
 judge to classify each issue using the \atfd taxonomy with severity
-assignments.
+assignments. In this initial release, we use two open-weight judges
+(Llama~3.3~70B and Llama~4~Scout) as both evaluated systems and
+preliminary consensus sources.
 
 \paragraph{Source 3: Domain-specific quality rubrics.}
 For \texttt{degraded} labeling, we apply domain-specific quality rubrics
@@ -691,13 +703,16 @@ otherwise. Disputed trajectories are retained with their majority label
 but flagged for analysis.
 
 \paragraph{Agreement metrics.}
-Inter-rater agreement among the three LLM judges is measured via Fleiss'
-$\kappa$~\citep{fleiss1971measuring} on the three-tier outcome. We report
-$\kappa = \placeholder{0.XX}$ on outcome classification and
-$\kappa = \placeholder{0.XX}$ on category assignment.
-Following the recommendations of \citet{consensus2026}, we additionally
-report ordinal agreement for the three-tier scale.
-As cautioned by \citet{groundtruth2025}, we validate consensus labels
+Inter-rater agreement among the LLM judges is measured via Fleiss'
+$\kappa$~\citep{fleiss1971measuring} on the three-tier outcome.
+The full multi-judge consensus pipeline (GPT-4.1, Claude Sonnet~4, and
+Llama~4~Scout) has not yet been executed; we plan to report
+$\kappa \geq 0.7$ as the acceptance threshold following~\citet{consensus2026}.
+In the current evaluation, ground truth is derived solely from
+programmatic verdicts (\taubench state comparison for real trajectories,
+injected labels for synthetic), with LLM judge consensus validation
+planned as future work.
+As cautioned by \citet{groundtruth2025}, we will validate consensus labels
 against programmatic verdicts where available to confirm that agreement
 reflects accuracy, not systematic bias.
 
@@ -707,13 +722,14 @@ reflects accuracy, not systematic bias.
 \section{Evaluated Systems}
 \label{sec:systems}
 
-We evaluate 8 systems spanning four categories
-(Table~\ref{tab:systems}).
+We evaluate 3 systems in this initial release and describe 5 additional
+planned systems (Table~\ref{tab:systems}).
 
 \begin{table}[t]
 \centering
-\caption{The 8 evaluated systems. Infrastructure tier: N = none (local
-heuristics), A = API key only, H = hosted service.}
+\caption{Evaluated and planned systems. Infrastructure tier: N = none
+(local heuristics), A = API key only, H = hosted service. Systems marked
+$^\dagger$ are not yet evaluated.}
 \label{tab:systems}
 \small
 \begin{tabular}{@{}llccp{5.2cm}@{}}
@@ -721,13 +737,14 @@ heuristics), A = API key only, H = hosted service.}
 \textbf{System} & \textbf{Category} & \textbf{Infra} & \textbf{Effort} & \textbf{Description} \\
 \midrule
 Naive Heuristic       & Heuristic & N & 1 & Pattern matching: error strings, timeout checks, step-count thresholds \\
-GPT-4.1 Judge         & LLM Judge & A & 2 & Single-pass prompt with taxonomy reference \\
-Claude Sonnet 4 Judge & LLM Judge & A & 2 & Single-pass prompt with taxonomy reference \\
-Llama 4 Scout Judge   & LLM Judge & A & 2 & Single-pass prompt with taxonomy reference \\
-LangSmith (configured)   & Platform & H & 4 & Custom evaluator rules + LLM-backed scoring \\
-Braintrust (configured)  & Platform & H & 4 & Custom scorer functions + autoevals \\
-Galea Heuristic       & Hybrid    & N & 3 & Multi-pass rule engine with priority-weighted scoring \\
-Galea LLM-backed      & Hybrid    & A & 3 & Heuristic pre-filter + LLM investigator with domain context \\
+Llama 3.3 70B Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
+Llama 4 Scout Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
+\midrule
+GPT-4.1 Judge$^\dagger$         & LLM Judge & A & 2 & Requires paid OpenAI API \\
+Claude Sonnet 4 Judge$^\dagger$ & LLM Judge & A & 2 & Requires paid Anthropic API \\
+LangSmith$^\dagger$   & Platform & H & 4 & Requires account + custom evaluator rules \\
+Braintrust$^\dagger$  & Platform & H & 4 & Requires account + custom scorers \\
+Galea$^\dagger$       & Hybrid    & A & 3 & Requires running Galea API \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -736,29 +753,26 @@ Galea LLM-backed      & Hybrid    & A & 3 & Heuristic pre-filter + LLM investiga
 A rule-based baseline that checks for error strings in tool results,
 timeout signals, step-count thresholds, and repeated identical tool calls.
 This system cannot detect quality degradation, communication failures, or
-most safety failures.
+most safety failures. It serves as a zero-cost lower bound.
 
-\paragraph{LLM Judges.}
-Three LLM-based judges (GPT-4.1, Claude Sonnet 4, Llama 4 Scout) each
-receive the full trajectory and a system prompt describing the \atfd
-taxonomy. The prompt instructs the judge to output structured JSON with
-findings. All three use identical prompts to isolate model capability
-differences.
+\paragraph{LLM Judges (evaluated).}
+Two open-weight LLM judges---Llama~3.3~70B and Llama~4~Scout---accessed
+via Groq's free API tier. Each receives the full trajectory and a system
+prompt describing the \atfd taxonomy, instructing structured JSON output
+with findings. Both use identical prompts to isolate model capability
+differences. The choice of free-tier models is deliberate: cost is a
+first-class metric, and demonstrating what is achievable at zero marginal
+cost establishes a practical lower bound for LLM-based monitoring.
 
-\paragraph{LangSmith and Braintrust.}
-Two commercial observability platforms configured with custom evaluation
-rules. For each platform, we implemented domain-specific evaluator
-functions and configured LLM-backed scoring to detect quality issues.
-Configuration effort is rated 4/5 as both require writing custom evaluator
-code and configuring scoring rubrics.
-
-\paragraph{Galea.}
-Two configurations of the Galea monitoring system: (1)~a heuristic-only
-mode using multi-pass rule analysis with priority-weighted scoring, and
-(2)~an LLM-backed mode that adds an LLM investigator with domain context
-to the heuristic pre-filter. Galea is evaluated on the same terms as all
-other systems---it receives no privileged access to ground truth or
-dataset metadata.
+\paragraph{Planned systems (not yet evaluated).}
+Five additional systems are planned for future evaluation:
+GPT-4.1 and Claude Sonnet~4 judges (requiring paid API access),
+LangSmith and Braintrust (requiring platform accounts and custom evaluator
+configuration), and Galea (requiring the Galea API to be running).
+These are listed in Table~\ref{tab:systems} but excluded from all
+results tables.\footnote{Evaluation of these systems requires production
+API access or hosted platform account setup that was not available for
+this initial benchmark release.}
 
 % ==========================================================================
 % 9. RESULTS
@@ -768,153 +782,138 @@ dataset metadata.
 
 \subsection{Main Results}
 
-Table~\ref{tab:main_results} presents the primary evaluation results across
-all 8 systems.
+Table~\ref{tab:main_results} presents the primary evaluation results for the
+three systems evaluated in this initial release.
+Quality Detection Rate (QDR) is omitted because the current dataset uses
+binary pass/fail labels; the \texttt{degraded} tier requires quality
+rubrics not yet applied.
 
 \begin{table}[t]
 \centering
-\caption{Main results across all systems. DR = Detection Rate, QDR =
-Quality Detection Rate, FPR = False Positive Rate. All proportional
-metrics reported with 95\% Wilson confidence intervals. Best values in
-\textbf{bold}.}
+\caption{Main results: per-dataset breakdown for all evaluated systems.
+DR = Detection Rate, FPR = False Positive Rate, CA = Category Alignment.
+95\% Wilson confidence intervals shown. N = number of trajectories
+evaluated per dataset. ``---'' indicates the metric is not applicable
+(\eg FPR on the all-failure synthetic set, or datasets not yet evaluated
+for a given system).}
 \label{tab:main_results}
 \small
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular}{@{}llrcccc@{}}
 \toprule
-\textbf{System} & \textbf{DR} (\%) & \textbf{QDR} (\%) & \textbf{FPR} (\%) & \textbf{F1} & \textbf{CA} \\
+\textbf{System} & \textbf{Dataset} & \textbf{N} & \textbf{DR (\%)} & \textbf{FPR (\%)} & \textbf{F1} & \textbf{CA} \\
 \midrule
-Naive Heuristic
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{0.XX}
-  & \placeholder{0.XX} \\
-GPT-4.1 Judge
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{0.XX}
-  & \placeholder{0.XX} \\
-Sonnet 4 Judge
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{0.XX}
-  & \placeholder{0.XX} \\
-Llama 4 Scout
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{0.XX}
-  & \placeholder{0.XX} \\
-LangSmith
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{0.XX}
-  & \placeholder{0.XX} \\
-Braintrust
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{0.XX}
-  & \placeholder{0.XX} \\
-Galea Heuristic
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{0.XX}
-  & \placeholder{0.XX} \\
-Galea LLM
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{XX.X} {\scriptsize $\pm$ X.X}
-  & \placeholder{0.XX}
-  & \placeholder{0.XX} \\
+\multirow{4}{*}{Naive Heuristic}
+  & Synthetic & 50  & 14.0 {\scriptsize [7.0, 26.2]}  & ---                               & 0.246 & 0.101 \\
+  & Retail    & 456 & 25.4 {\scriptsize [18.4, 34.0]} & 17.8 {\scriptsize [14.0, 22.2]}  & 0.273 & 0.000 \\
+  & Airline   & 200 & 40.9 {\scriptsize [31.2, 51.4]} & 3.6 {\scriptsize [1.4, 8.8]}     & 0.511 & 0.000 \\
+  & Telecom   & 456 & 8.3 {\scriptsize [5.7, 12.0]}   & 0.6 {\scriptsize [0.1, 3.5]}     & 0.149 & 0.000 \\
+\midrule
+\multirow{2}{*}{Llama 3.3 70B}
+  & Synthetic & 50  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & ---               & \textbf{1.000} & \textbf{0.359} \\
+  & \emph{Others} & --- & \multicolumn{4}{c}{\emph{free-tier rate limits; evaluation pending}} \\
+\midrule
+\multirow{3}{*}{Llama 4 Scout}
+  & Synthetic & 50  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & ---               & \textbf{1.000} & 0.318 \\
+  & Retail    & 50  & 25.0 {\scriptsize [8.9, 53.2]}  & 13.2 {\scriptsize [5.8, 27.3]}   & 0.300 & 0.029 \\
+  & \emph{Others} & --- & \multicolumn{4}{c}{\emph{free-tier rate limits; evaluation pending}} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Per-Domain Breakdown}
 
-Table~\ref{tab:per_domain} shows detection rates broken down by dataset
-domain.
+The per-domain breakdown is already visible in Table~\ref{tab:main_results},
+which presents results per dataset rather than aggregated. The key
+cross-domain observations are:
 
-\begin{table}[t]
-\centering
-\caption{Detection Rate (\%) by domain. Systems show substantial variation
-across domains, reflecting domain-specific failure patterns.}
-\label{tab:per_domain}
-\small
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-\textbf{System} & \textbf{Retail} & \textbf{Airline} & \textbf{Banking} & \textbf{SWE} & \textbf{Synthetic} \\
-\midrule
-Naive Heuristic    & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} \\
-GPT-4.1 Judge      & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} \\
-Sonnet 4 Judge     & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} \\
-Llama 4 Scout      & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} \\
-LangSmith          & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} \\
-Braintrust         & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} \\
-Galea Heuristic    & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} \\
-Galea LLM          & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} & \placeholder{XX.X} \\
-\bottomrule
-\end{tabular}
-\end{table}
+\begin{itemize}[leftmargin=2em]
+  \item The naive heuristic achieves its highest DR on airline (40.9\%),
+    where failures more frequently involve explicit tool errors and
+    state violations that produce detectable error strings.
+  \item The naive heuristic performs worst on telecom (8.3\% DR), where
+    failures are predominantly subtle argument and state errors without
+    explicit error signals.
+  \item Both LLM judges achieve 100\% DR on synthetic data but struggle
+    with real \taubench failures: Llama~4~Scout achieves only 25.0\% DR
+    on retail, comparable to the naive heuristic (25.4\%).
+  \item Category alignment is near zero for all systems on real data,
+    indicating that even when failures are detected, the failure
+    \emph{type} is almost never correctly identified.
+\end{itemize}
 
 \subsection{Per-Category Analysis}
 
-Figure~\ref{fig:per_category} shows detection rates broken down by failure
-category. Key observations:
+Per-category detection rates are currently available only for the synthetic
+dataset, where injected failure types are known by construction
+(Table~\ref{tab:failure_dist}). On synthetic data, the LLM judges
+achieve 100\% detection across all injected categories (process,
+communication, safety), while the naive heuristic detects only 14\%
+overall---primarily \texttt{tool\_loop} patterns.
 
+Category alignment (CA) scores tell the more nuanced story: even when LLM
+judges correctly detect that a failure exists, they achieve only
+CA = 0.359 (Llama~3.3~70B) and CA = 0.318 (Llama~4~Scout) on synthetic
+data, indicating substantial disagreement on failure \emph{type}. On real
+\taubench data, CA drops to 0.029 (Llama~4~Scout on retail) and 0.000
+(naive heuristic on all real datasets).
+
+Key observations:
 \begin{itemize}[leftmargin=2em]
-  \item \textbf{Infrastructure} failures are the easiest to detect across
-    all systems, as they produce explicit error signals.
-  \item \textbf{Action} failures (\texttt{wrong\_tool},
-    \texttt{missing\_action}) are well detected by LLM judges but poorly
-    detected by heuristic systems.
-  \item \textbf{Quality} failures are the hardest for all systems, with even
-    the best-performing system achieving only \placeholder{XX.X\%} QDR.
-  \item \textbf{Safety} failures show high variance across systems,
-    suggesting that domain-specific configuration matters.
+  \item \textbf{Process} failures (\texttt{tool\_loop},
+    \texttt{context\_overflow}) are the most reliably detected category
+    in synthetic data, as they produce structural patterns.
+  \item \textbf{Safety} failures (\texttt{permission\_escalation},
+    \texttt{data\_leakage}) are detected by LLM judges in synthetic
+    scenarios but require explicit policy context.
+  \item \textbf{Communication} failures (\texttt{hallucination}) are
+    detected at 100\% in synthetic data where the hallucination is
+    egregious, but real-world subtle hallucinations remain untested.
+  \item \textbf{Quality} failures are not represented in the current
+    synthetic set and cannot be assessed on \taubench without quality
+    rubrics---this remains the frontier challenge.
 \end{itemize}
 
 \begin{figure}[t]
   \centering
   \fbox{\parbox{0.9\textwidth}{\centering
     \vspace{2em}
-    \textcolor{red}{\textbf{[Placeholder: Per-category detection rate bar
-    chart showing 7 categories $\times$ 8 systems]}}
+    \textbf{[Figure pending: per-category detection rates will be generated
+    once per-category annotations are available for \taubench trajectories
+    and additional LLM judges are evaluated.]}
     \vspace{2em}
   }}
-  \caption{Detection rate by failure category. Quality failures (shaded)
-  are consistently the hardest to detect across all systems.}
+  \caption{Per-category detection rates (planned). Currently, per-category
+  breakdown is available only for the 50-trajectory synthetic dataset.}
   \label{fig:per_category}
 \end{figure}
 
 \subsection{Cost Analysis}
 
-Table~\ref{tab:cost} summarizes the cost profile of each system.
+Table~\ref{tab:cost} summarizes the cost profile of each evaluated system.
+A key finding is that both LLM judges were accessed via Groq's free API
+tier, making their marginal dollar cost \$0.00. Cost manifests instead as
+\emph{rate limits}: evaluating 456 retail trajectories with Llama~4~Scout
+was infeasible under free-tier rate limits, forcing us to evaluate only a
+50-trajectory subset. This demonstrates that for practical deployment,
+cost should be measured not just in dollars but in \emph{throughput
+constraints}.
 
 \begin{table}[t]
 \centering
-\caption{Cost per trajectory. LLM-based systems incur substantially higher
-per-trajectory costs but achieve higher detection rates.}
+\caption{Cost per trajectory for evaluated systems. Both LLM judges use
+Groq's free tier (\$0.00 per token) but face rate limits that constrain
+throughput. Tokens/traj = mean tokens consumed per trajectory.}
 \label{tab:cost}
 \small
-\begin{tabular}{@{}lrrrr@{}}
+\begin{tabular}{@{}lrrrrr@{}}
 \toprule
-\textbf{System} & \textbf{Mean \$/traj} & \textbf{Total \$} & \textbf{p50 Latency (s)} & \textbf{p95 Latency (s)} \\
+\textbf{System} & \textbf{\$/traj} & \textbf{Total \$} & \textbf{p50 Latency (s)} & \textbf{Tokens/traj} & \textbf{N evaluated} \\
 \midrule
-Naive Heuristic    & \placeholder{0.000} & \placeholder{0.00}   & \placeholder{0.01}  & \placeholder{0.02}  \\
-GPT-4.1 Judge      & \placeholder{0.XXX} & \placeholder{XX.XX}  & \placeholder{X.XX}  & \placeholder{XX.XX} \\
-Sonnet 4 Judge     & \placeholder{0.XXX} & \placeholder{XX.XX}  & \placeholder{X.XX}  & \placeholder{XX.XX} \\
-Llama 4 Scout      & \placeholder{0.XXX} & \placeholder{XX.XX}  & \placeholder{X.XX}  & \placeholder{XX.XX} \\
-LangSmith          & \placeholder{0.XXX} & \placeholder{XX.XX}  & \placeholder{X.XX}  & \placeholder{XX.XX} \\
-Braintrust         & \placeholder{0.XXX} & \placeholder{XX.XX}  & \placeholder{X.XX}  & \placeholder{XX.XX} \\
-Galea Heuristic    & \placeholder{0.000} & \placeholder{0.00}   & \placeholder{0.XX}  & \placeholder{0.XX}  \\
-Galea LLM          & \placeholder{0.XXX} & \placeholder{XX.XX}  & \placeholder{X.XX}  & \placeholder{XX.XX} \\
+Naive Heuristic    & 0.000 & 0.00 & $<$0.01 & 0     & 1,162 \\
+Llama 3.3 70B      & 0.000 & 0.00 & 4.2     & 986   & 50 \\
+Llama 4 Scout      & 0.000 & 0.00 & 0.9--16.2\textsuperscript{*}     & 969--7,968\textsuperscript{*} & 100 \\
 \bottomrule
+\multicolumn{6}{@{}l}{\footnotesize \textsuperscript{*}Range reflects synthetic (short) vs.\ retail (long) trajectories.}
 \end{tabular}
 \end{table}
 
@@ -924,56 +923,28 @@ Galea LLM          & \placeholder{0.XXX} & \placeholder{XX.XX}  & \placeholder{X
 \section{Ablation Study}
 \label{sec:ablation}
 
-\subsection{Galea Heuristic Ablation}
+Full ablation studies are planned for future work, contingent on access to
+the additional systems and completion of the full evaluation matrix.
+We outline the planned ablations here to guide future investigation.
 
-We ablate the Galea heuristic system by removing individual rule groups
-(Table~\ref{tab:galea_ablation}).
+\subsection{Naive Heuristic Ablation (Planned)}
 
-\begin{table}[t]
-\centering
-\caption{Galea heuristic ablation: detection rate when individual rule
-groups are removed. $\Delta$ indicates the drop from the full system.}
-\label{tab:galea_ablation}
-\small
-\begin{tabular}{@{}lcc@{}}
-\toprule
-\textbf{Configuration} & \textbf{DR (\%)} & \textbf{$\Delta$} \\
-\midrule
-Full system              & \placeholder{XX.X} & --- \\
-$-$ Error string rules   & \placeholder{XX.X} & \placeholder{$-$X.X} \\
-$-$ Step count rules     & \placeholder{XX.X} & \placeholder{$-$X.X} \\
-$-$ Loop detection       & \placeholder{XX.X} & \placeholder{$-$X.X} \\
-$-$ State diff rules     & \placeholder{XX.X} & \placeholder{$-$X.X} \\
-$-$ Priority weighting   & \placeholder{XX.X} & \placeholder{$-$X.X} \\
-\bottomrule
-\end{tabular}
-\end{table}
+The naive heuristic system comprises four independent rule groups: error
+string matching, step-count thresholds, loop detection, and timeout
+detection. We plan to ablate each group individually to quantify its
+contribution to overall DR. Preliminary observations suggest that the
+high DR on airline (40.9\%) is driven primarily by error string matching,
+while loop detection contributes most to synthetic trajectory detection.
 
-\subsection{LLM Judge Prompt Ablation}
+\subsection{LLM Judge Prompt Ablation (Planned)}
 
-We ablate the LLM judge prompt by removing components
-(Table~\ref{tab:prompt_ablation}).
-
-\begin{table}[t]
-\centering
-\caption{LLM judge prompt ablation (GPT-4.1). Each row removes one prompt
-component. The taxonomy reference and structured output format provide the
-largest gains.}
-\label{tab:prompt_ablation}
-\small
-\begin{tabular}{@{}lccc@{}}
-\toprule
-\textbf{Prompt Configuration} & \textbf{DR (\%)} & \textbf{CA} & \textbf{FPR (\%)} \\
-\midrule
-Full prompt (taxonomy + rubric + examples)  & \placeholder{XX.X} & \placeholder{0.XX} & \placeholder{XX.X} \\
-$-$ Taxonomy reference        & \placeholder{XX.X} & \placeholder{0.XX} & \placeholder{XX.X} \\
-$-$ Domain-specific rubric    & \placeholder{XX.X} & \placeholder{0.XX} & \placeholder{XX.X} \\
-$-$ Few-shot examples         & \placeholder{XX.X} & \placeholder{0.XX} & \placeholder{XX.X} \\
-$-$ Structured output format  & \placeholder{XX.X} & \placeholder{0.XX} & \placeholder{XX.X} \\
-Free-form (no structure)      & \placeholder{XX.X} & \placeholder{0.XX} & \placeholder{XX.X} \\
-\bottomrule
-\end{tabular}
-\end{table}
+We plan to ablate the LLM judge prompt by removing components (taxonomy
+reference, structured output format, domain context) to measure their
+individual contributions to DR and CA. The low CA scores observed across
+all systems (0.000--0.359) suggest that the taxonomy reference in the
+prompt may not be sufficient for accurate category assignment, and
+alternative prompting strategies (\eg chain-of-thought, few-shot examples)
+warrant investigation.
 
 % ==========================================================================
 % 11. ANALYSIS
@@ -987,10 +958,11 @@ Our per-subcategory analysis reveals a consistent hierarchy of detection
 difficulty across systems:
 
 \paragraph{Easy to detect.}
-Infrastructure failures (\texttt{timeout}, \texttt{error},
-\texttt{max\_steps}) produce explicit signals and are detected at
-$>$\placeholder{90\%} by all systems. Process failures (\texttt{tool\_loop},
-\texttt{infinite\_delegation}) are detectable via structural patterns.
+Synthetic failures with obvious structural patterns---\texttt{tool\_loop},
+\texttt{infinite\_delegation}, \texttt{context\_overflow}---are detected
+at 100\% by LLM judges. The naive heuristic detects these at only 14\%,
+suggesting that even ``easy'' structural patterns require semantic
+understanding when they lack explicit error strings.
 
 \paragraph{Moderate difficulty.}
 Action failures (\texttt{wrong\_tool}, \texttt{missing\_action}) require
@@ -1031,10 +1003,12 @@ where some but not all database mutations are correct, and
 results.
 
 \begin{enumerate}[leftmargin=2em]
-  \item \textbf{Dataset scale.} At \placeholder{400+} trajectories, the
-    dataset is modest compared to agent capability benchmarks. Some
-    subcategories (\eg \texttt{permission\_escalation}) have few examples,
-    limiting statistical power.
+  \item \textbf{Dataset scale and coverage gaps.} While the dataset
+    comprises 1,162 trajectories, LLM judge evaluation was limited to
+    50--100 trajectories due to free-tier API rate limits. \swebench
+    trajectories are not yet included. Some subcategories (\eg
+    \texttt{permission\_escalation}) have only 5 examples, limiting
+    statistical power---as reflected in the wide confidence intervals.
 
   \item \textbf{Domain coverage.} The current domains (customer service,
     software engineering, synthetic) do not cover all deployment contexts
@@ -1063,22 +1037,37 @@ results.
 
 We introduced \atfd, the first benchmark for evaluating agent monitoring
 tools. Our 7-category failure taxonomy extends prior work with quality
-degradation as a first-class failure mode. The multi-source ground truth
-protocol addresses the challenge of establishing reliable labels for
-subjective failure judgments. Our evaluation of 8 systems reveals that
-while hard failures are detectable at \placeholder{XX\%+} rates by the
-best systems, quality degradation detection remains at
-\placeholder{XX\%}, representing the frontier challenge for agent
-monitoring.
+degradation as a first-class failure mode. Our initial evaluation of 3
+systems---a naive heuristic baseline and two open-weight LLM judges---on
+1,162 trajectories from \taubench and synthetic sources reveals a stark
+\emph{detection gap}: LLM judges achieve 100\% detection on synthetic
+failures with obvious structural patterns but only 25\% on real
+\taubench failures involving subtle argument and state errors. Category
+alignment is near zero on real data, indicating that correctly identifying
+failure \emph{type} is dramatically harder than detecting failure
+\emph{existence}. The naive heuristic baseline performs surprisingly well
+on airline data (40.9\% DR) where tool errors produce explicit error
+strings, but achieves only 8.3\% on telecom where failures are
+predominantly subtle.
+
+These findings establish that agent failure detection is a genuinely
+difficult problem: even on the easiest subset (synthetic failures),
+category alignment peaks at 0.359, and on real data, the best
+systems perform comparably to naive pattern matching.
 
 \paragraph{Future work.}
-Several directions merit investigation: (1)~expanding domain coverage to
-medical, legal, and financial workflows where monitoring stakes are
-highest; (2)~adding streaming evaluation for real-time monitoring tools
-that process events incrementally; (3)~developing adaptive benchmarks where
-failure patterns evolve as LLM capabilities improve; (4)~incorporating
-human-in-the-loop evaluation protocols for quality degradation assessment;
-and (5)~extending the taxonomy to cover multi-modal agent trajectories.
+This initial release establishes the benchmark framework and baseline
+results. Immediate next steps include: (1)~evaluating proprietary LLM
+judges (GPT-4.1, Claude Sonnet~4) and commercial platforms (LangSmith,
+Braintrust, Galea) to complete the planned 8-system comparison;
+(2)~acquiring and integrating \swebench trajectories;
+(3)~running the multi-judge consensus pipeline for ground truth
+validation; (4)~applying domain-specific quality rubrics to enable the
+\texttt{degraded} tier and QDR measurement; (5)~expanding domain coverage
+to medical, legal, and financial workflows; (6)~adding streaming
+evaluation for real-time monitoring tools; and (7)~investigating why
+category alignment is so low and whether alternative prompting strategies
+or fine-tuned models can improve failure type identification.
 
 % ==========================================================================
 % REFERENCES
@@ -1143,9 +1132,9 @@ ground-truth outcome (rows) was mapped to the predicted outcome (columns).
 \cmidrule(l){2-4}
 \textbf{Ground Truth} & Pass & Degraded & Fail \\
 \midrule
-Pass     & \placeholder{--} & \placeholder{--} & \placeholder{--} \\
-Degraded & \placeholder{--} & \placeholder{--} & \placeholder{--} \\
-Fail     & \placeholder{--} & \placeholder{--} & \placeholder{--} \\
+Pass     & --- & --- & --- \\
+Degraded & \multicolumn{3}{c}{\emph{not yet labeled}} \\
+Fail     & --- & --- & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
