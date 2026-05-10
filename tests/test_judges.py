@@ -54,3 +54,41 @@ def test_naive_reports_latency():
     judge = NaiveHeuristicJudge()
     output = judge.evaluate(_traj([_event("user_message", "help")]))
     assert output.cost.latency_seconds >= 0.0
+
+
+# ---------------------------------------------------------------------------
+# LLMJudge tests
+# ---------------------------------------------------------------------------
+
+from unittest.mock import patch, MagicMock  # noqa: E402
+from atfd.judges.llm_judge import LLMJudge  # noqa: E402
+
+
+def test_llm_judge_name():
+    judge = LLMJudge(model_key="gpt-4.1")
+    assert judge.name == "llm_judge_gpt-4.1"
+
+def test_llm_judge_parses_stage1_fail():
+    judge = LLMJudge(model_key="gpt-4.1")
+    mock_response = '{"outcome": "fail", "failure_categories": ["action.wrong_tool"], "failure_events": [], "reasoning": "Wrong tool called"}'
+    with patch.object(judge, "_call_model", return_value=(mock_response, 1000, 200)):
+        output = judge.evaluate(_traj([_event("user_message", "help")]))
+    assert output.has_failure
+    assert output.findings[0].category == "action.wrong_tool"
+    assert output.cost.api_calls == 1
+
+def test_llm_judge_runs_stage2_on_pass():
+    judge = LLMJudge(model_key="gpt-4.1")
+    stage1_resp = '{"outcome": "pass", "failure_categories": [], "failure_events": [], "reasoning": "OK"}'
+    stage2_resp = '{"dimensions": {}, "quality_categories": ["quality.shallow_output"], "overall_quality": "degraded", "reasoning": "Shallow"}'
+    call_count = 0
+    def mock_call(prompt):
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return stage1_resp, 1000, 200
+        return stage2_resp, 800, 150
+    with patch.object(judge, "_call_model", side_effect=mock_call):
+        output = judge.evaluate(_traj([_event("user_message", "help")]))
+    assert output.cost.api_calls == 2
+    assert any(f.category == "quality.shallow_output" for f in output.findings)
