@@ -131,7 +131,7 @@ from pathlib import Path
 def test_synthetic_loads_trajectories():
     adapter = SyntheticAdapter()
     trajectories = adapter.load_dataset(Path("datasets/synthetic"))
-    assert len(trajectories) == 2
+    assert len(trajectories) == 50
     assert all(t.source.value == "synthetic" for t in trajectories)
     ids = {t.trajectory_id for t in trajectories}
     assert "synth_tool_loop_001" in ids
