@@ -1,0 +1,19 @@
+{
+  "trajectory_id": "synth_hallucination_001",
+  "domain": "retail",
+  "description": "Agent fabricates a return policy that does not exist",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["communication.hallucination"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [5],
+  "events": [
+    {"type": "system", "content": "You are a retail customer service agent. Company policy: all items can be exchanged within 30 days of delivery for items of equal value."},
+    {"type": "user_message", "content": "Can I get a refund instead of an exchange?"},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "67890"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"67890\", \"status\": \"delivered\", \"items\": [\"jacket\"], \"delivered_date\": \"2026-04-15\"}"},
+    {"type": "assistant_message", "content": "I see your order. Let me check our refund policy."},
+    {"type": "assistant_message", "content": "Great news! Under our Premium Customer Satisfaction Guarantee, you're eligible for a full refund within 60 days. I'll process that right away."}
+  ]
+}

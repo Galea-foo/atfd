@@ -1,0 +1,30 @@
+{
+  "trajectory_id": "synth_tool_loop_001",
+  "domain": "retail",
+  "description": "Agent enters tool loop — calls get_order_details 8 times for same order",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": ["process.tool_loop"],
+    "quality_categories": []
+  },
+  "failure_event_indices": [4, 6, 8, 10, 12, 14],
+  "events": [
+    {"type": "system", "content": "You are a retail customer service agent."},
+    {"type": "user_message", "content": "I need to exchange my order #12345."},
+    {"type": "assistant_message", "content": "Let me look up your order."},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "12345"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"12345\", \"status\": \"delivered\", \"items\": [\"shoes\"]}"},
+    {"type": "assistant_message", "content": "Let me check again to be sure."},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "12345"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"12345\", \"status\": \"delivered\", \"items\": [\"shoes\"]}"},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "12345"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"12345\", \"status\": \"delivered\", \"items\": [\"shoes\"]}"},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "12345"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"12345\", \"status\": \"delivered\", \"items\": [\"shoes\"]}"},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "12345"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"12345\", \"status\": \"delivered\", \"items\": [\"shoes\"]}"},
+    {"type": "tool_call", "content": "get_order_details", "metadata": {"tool_name": "get_order_details", "args": {"order_id": "12345"}}},
+    {"type": "tool_result", "content": "{\"order_id\": \"12345\", \"status\": \"delivered\", \"items\": [\"shoes\"]}"},
+    {"type": "assistant_message", "content": "Your order contains shoes. Would you like to exchange them?"}
+  ]
+}

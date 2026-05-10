@@ -119,3 +119,20 @@ def test_swe_bench_maps_actions_to_events():
     types = {e.type.value for e in trajectory.events}
     assert "tool_call" in types
     assert "tool_result" in types
+
+
+# ---------------------------------------------------------------------------
+# Synthetic adapter tests
+# ---------------------------------------------------------------------------
+
+from atfd.adapters.synthetic import SyntheticAdapter
+from pathlib import Path
+
+def test_synthetic_loads_trajectories():
+    adapter = SyntheticAdapter()
+    trajectories = adapter.load_dataset(Path("datasets/synthetic"))
+    assert len(trajectories) == 2
+    assert all(t.source.value == "synthetic" for t in trajectories)
+    ids = {t.trajectory_id for t in trajectories}
+    assert "synth_tool_loop_001" in ids
+    assert "synth_hallucination_001" in ids
