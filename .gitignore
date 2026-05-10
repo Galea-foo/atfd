@@ -1,9 +1,14 @@
 data/
-results_*.json
+datasets/converted/
+results/raw/
 __pycache__/
 *.egg-info/
+dist/
+.venv/
 *.aux
 *.log
 *.out
 *.bbl
 *.blg
+*.synctex.gz
+.DS_Store
