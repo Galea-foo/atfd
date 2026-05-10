@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATFD Benchmark Leaderboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #30363d;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --accent:    #58a6ff;
+      --green:     #3fb950;
+      --red:       #f85149;
+      --yellow:    #d29922;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 2rem 0 1.5rem;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    header .container {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header .badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2em 0.55em;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      vertical-align: middle;
+    }
+
+    header nav {
+      margin-left: auto;
+      display: flex;
+      gap: 1.25rem;
+      font-size: 0.875rem;
+    }
+
+    .hero {
+      padding: 2.5rem 0 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+
+    .hero p {
+      color: var(--muted);
+      max-width: 680px;
+    }
+
+    .hero p + p { margin-top: 0.5rem; }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+    }
+
+    .pill {
+      font-size: 0.78rem;
+      padding: 0.2em 0.7em;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: var(--surface);
+    }
+
+    section {
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    section:last-of-type { border-bottom: none; }
+
+    section h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    thead tr {
+      background: var(--surface);
+    }
+
+    th {
+      padding: 0.65rem 0.9rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    th abbr {
+      text-decoration: none;
+      cursor: help;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    th .dir {
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+
+    td {
+      padding: 0.65rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    tbody tr:hover { background: rgba(88, 166, 255, 0.04); }
+
+    .sys-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .sys-ver {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-left: 0.4em;
+    }
+
+    .placeholder-row td {
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+    }
+
+    .metric-good { color: var(--green); }
+    .metric-bad  { color: var(--red); }
+
+    /* ── Column-key ── */
+    .col-key {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.6rem;
+      font-size: 0.82rem;
+    }
+
+    .col-key-item {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .col-key-item code {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.05em 0.4em;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .col-key-item span { color: var(--muted); }
+
+    /* ── Submit section ── */
+    .submit-steps {
+      list-style: none;
+      counter-reset: steps;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .submit-steps li {
+      counter-increment: steps;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .submit-steps li::before {
+      content: counter(steps);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    .submit-steps li p { color: var(--muted); font-size: 0.875rem; }
+
+    code.inline {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1em 0.45em;
+      font-size: 0.85em;
+    }
+
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-top: 1rem;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 0;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>ATFD Benchmark Leaderboard</h1>
+    <span class="badge">v2</span>
+    <nav>
+      <a href="https://github.com/Galea-foo/atfd">GitHub</a>
+      <a href="#">Paper</a>
+      <a href="schema.json">Schema</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="hero">
+    <h2>Agent Trajectory Failure Detection</h2>
+    <p>
+      ATFD measures whether monitoring tools can detect failures in agent trajectories
+      and correctly categorize them across a 7-category, 23-subcategory failure taxonomy.
+      Evaluations run over three domains: <strong>tau-bench</strong> (tool-use agents),
+      <strong>SWE-bench</strong> (coding agents), and a <strong>synthetic</strong> suite
+      of adversarial trajectories.
+    </p>
+    <p>
+      All metrics include 95% bootstrap confidence intervals.
+      Every submission must report cost to make the trade-off between accuracy and
+      inference cost explicit.
+    </p>
+    <div class="pill-row">
+      <span class="pill">Detection Rate (DR)</span>
+      <span class="pill">Quality Detection Rate (QDR)</span>
+      <span class="pill">False Positive Rate (FPR)</span>
+      <span class="pill">F1</span>
+      <span class="pill">Category Alignment</span>
+      <span class="pill">$/trajectory</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>Results</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>System</th>
+            <th><abbr title="Failure detection rate (recall). Higher is better.">DR</abbr> <span class="dir">↑</span></th>
+            <th><abbr title="Quality-weighted detection rate. Higher is better.">QDR</abbr> <span class="dir">↑</span></th>
+            <th><abbr title="False positive rate. Lower is better.">FPR</abbr> <span class="dir">↓</span></th>
+            <th><abbr title="F1 score. Higher is better.">F1</abbr> <span class="dir">↑</span></th>
+            <th><abbr title="Fraction of detections with correct failure category. Higher is better.">Cat.Align</abbr> <span class="dir">↑</span></th>
+            <th><abbr title="Mean cost in USD per trajectory evaluated. Lower is better.">$/traj</abbr> <span class="dir">↓</span></th>
+            <th><abbr title="Number of rules / configuration entries provided (0 = zero-shot).">Config</abbr></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="placeholder-row">
+            <td colspan="8">No submissions yet — be the first to submit results.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-key" style="margin-top:1.25rem;">
+      <div class="col-key-item"><code>DR</code>       <span>Detection rate (recall) on combined domains</span></div>
+      <div class="col-key-item"><code>QDR</code>      <span>Quality-weighted detection rate</span></div>
+      <div class="col-key-item"><code>FPR</code>      <span>False positive rate (lower = more precise)</span></div>
+      <div class="col-key-item"><code>F1</code>       <span>Harmonic mean of precision &amp; recall</span></div>
+      <div class="col-key-item"><code>Cat.Align</code><span>Category taxonomy alignment</span></div>
+      <div class="col-key-item"><code>$/traj</code>   <span>Mean inference cost per trajectory</span></div>
+      <div class="col-key-item"><code>Config</code>   <span>Number of rules provided (0 = zero-shot)</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>How to Submit</h2>
+    <ol class="submit-steps">
+      <li>
+        <p>
+          Run your tool against the ATFD datasets using the benchmark harness:<br>
+          <code class="inline">atfd run --judge &lt;your-adapter&gt; --dataset all</code>
+        </p>
+      </li>
+      <li>
+        <p>
+          Produce a submission JSON file following
+          <a href="schema.json">leaderboard/schema.json</a>.
+          Validate it locally before submitting:
+        </p>
+        <pre>python leaderboard/validate.py my_submission.json</pre>
+      </li>
+      <li>
+        <p>
+          Open a pull request to
+          <a href="https://github.com/Galea-foo/atfd">github.com/Galea-foo/atfd</a>
+          adding your file under <code class="inline">results/submissions/&lt;tool_name&gt;.json</code>.
+          Include a link to reproduction code in the <code class="inline">reproduction_url</code> field.
+        </p>
+      </li>
+      <li>
+        <p>
+          A maintainer will validate the submission, verify the methodology note,
+          and merge it. The leaderboard updates on each merge to main.
+        </p>
+      </li>
+    </ol>
+
+    <pre>{
+  "tool_name": "MyTool",
+  "version": "1.0.0",
+  "config_effort": { "num_rules": 0, "notes": "Zero-shot, no configuration required." },
+  "results": {
+    "combined": {
+      "n": 500,
+      "detection_rate": 0.74,
+      "false_positive_rate": 0.11,
+      "detection_rate_ci": [0.70, 0.78],
+      "quality_detection_rate": 0.61,
+      "f1": 0.70,
+      "category_alignment": 0.55
+    }
+  },
+  "methodology": "LLM judge using gpt-4o with a single system prompt. No per-trajectory configuration.",
+  "cost": { "usd_per_trajectory": 0.014 },
+  "reproduction_url": "https://github.com/example/mytool-atfd"
+}</pre>
+  </section>
+
+  <section>
+    <h2>Citation</h2>
+    <pre>@misc{atfd2025,
+  title  = {ATFD: Agent Trajectory Failure Detection Benchmark},
+  year   = {2025},
+  url    = {https://github.com/Galea-foo/atfd}
+}</pre>
+  </section>
+
+</div>
+
+<footer>
+  <div class="container">
+    <a href="https://github.com/Galea-foo/atfd">GitHub</a> &nbsp;·&nbsp;
+    <a href="#">Paper</a> &nbsp;·&nbsp;
+    <a href="schema.json">Submission Schema</a>
+    &nbsp;·&nbsp; ATFD Benchmark v2
+  </div>
+</footer>
+
+</body>
+</html>
