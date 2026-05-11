@@ -179,9 +179,58 @@ cd /Users/sohan/Documents/galea-org/galea/apps/api
 GALEA_DEV_NO_AUTH=1 /opt/homebrew/bin/python3.11 -m uvicorn app.main:app --port 8002
 ```
 
+## CRITICAL: Competing Work — "First" Claim Needs Qualification
+
+Our abstract says ATFD is the first benchmark for monitoring tools. **Three competing works exist:**
+
+### 1. TRAIL (PatronusAI, May 2025)
+- **Paper:** arXiv:2505.08638
+- **What:** 148 annotated traces (GAIA + SWE-Bench), 841 errors, 20+ error taxonomy
+- **What it benchmarks:** Whether LLMs can debug traces (model-as-judge capability)
+- **Key result:** Best model (Gemini-2.5-Pro) scores 11% joint accuracy
+- **How we differ:** TRAIL benchmarks *model capability at trace analysis*. ATFD benchmarks *monitoring tool effectiveness* — including heuristic tools, configured platforms (LangSmith, Braintrust), and auto-detect systems (Galea). We evaluate tools, not models.
+- **Action:** Cite TRAIL as related work. Position ATFD as evaluating *tools* (heterogeneous systems) vs TRAIL evaluating *models* (LLMs-as-judges only). Our 7-system heterogeneous evaluation is novel. Also: we have 2,462 trajectories vs their 148.
+
+### 2. TrajAD / TrajBench (Feb 2025)
+- **Paper:** arXiv:2602.06443
+- **What:** 60,000 trajectories via perturb-and-complete on AgentBank. Trains a specialized detector (TrajAD, 85% F1).
+- **How we differ:** TrajAD trains a detector model. ATFD evaluates existing tools. We use real agent trajectories (tau-bench, SWE-bench), not synthetic perturbations. We include configuration effort as a metric.
+- **Action:** Cite as related work. Position ATFD as tool-evaluation vs TrajAD's detector-training.
+
+### 3. "Detecting Silent Failures in Multi-Agentic AI Trajectories" (Nov 2025)
+- **Paper:** arXiv:2511.04032
+- **What:** 4,275 labeled multi-agent trajectories. XGBoost/SVDD reach 96-98% accuracy.
+- **How we differ:** They train ML classifiers. We evaluate production monitoring tools.
+- **Action:** Cite as related work.
+
+### Revised claim for paper:
+Instead of "first benchmark for evaluating agent monitoring tools," say:
+> "the first benchmark that evaluates **heterogeneous monitoring systems** — spanning naive heuristics, configured observability platforms, LLM judges, and zero-config auto-detection tools — on a unified dataset with cost-aware metrics and configuration effort measurement."
+
+The novelty is: (a) heterogeneous tool evaluation (not just LLMs), (b) configuration effort as metric, (c) real production tool comparison (LangSmith, Braintrust, Galea), (d) multi-domain multi-source dataset.
+
+## Recent Agent Failure Incidents (Add to Motivation)
+
+These are newer than what's in the paper:
+
+- **Claude Code hijacking (Sep 2025):** Chinese state-sponsored group hijacked Claude Code instances for autonomous cyber espionage against ~30 defense/energy targets
+- **Mexican government breach (Dec 2025-Feb 2026):** Single attacker used Claude Code + GPT-4.1 to breach 9 agencies, stealing 195M+ records
+- **PocketOS database deletion:** Autonomous agent deleted production database, 30-hour outage
+- **88% of enterprises** running AI agents reported security incidents in past year (2026 survey)
+
+## New Observability Tools (Update Landscape)
+
+Since our wiki was written:
+- **Maxim AI** — end-to-end simulation + eval + observability, OTel support
+- **ClawTrace** (Epsilla) — purpose-built for OpenClaw agents
+- **New Relic Agentic AI Monitoring** — multi-agent focus
+- **Datadog MCP tracing** — mid-2025
+- **Langfuse** — went full MIT open-source
+- **OpenTelemetry** — published AI agent observability standards (Feb 2026)
+
 ## Git State
 
-- 40+ commits on main
-- Ahead of origin/main by 40 commits (not pushed)
+- 41 commits on main
+- Ahead of origin/main by 41 commits (not pushed)
 - No uncommitted changes
 - Branch: main
