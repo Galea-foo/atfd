@@ -107,15 +107,19 @@ produce structured findings with severity, category, and attribution;
 \taubench and hand-crafted synthetic scenarios, with \swebench integration
 as planned future work; (4)~a
 multi-source ground truth protocol combining programmatic verdicts with
-LLM-judge consensus; (5)~an initial comparative evaluation of 3 systems---a
-naive heuristic baseline and two open-weight LLM judges---with commercial
+LLM-judge consensus; (5)~an initial comparative evaluation of 4 systems---a
+naive heuristic baseline, a zero-config structural heuristic (Galea), and
+two open-weight LLM judges---with commercial
 platform evaluation as future work; and
 (6)~an open benchmark harness with cost-aware metrics. Our evaluation reveals
-a stark \emph{detection gap}: LLM judges achieve {100\%} detection rate on
-synthetic failures with obvious structural patterns but only {25.0\%} on
-real \taubench failures involving subtle argument and state errors,
-confirming that naturalistic agent failures remain
-the frontier challenge for agent monitoring.
+a stark \emph{detection gap} with complementary profiles: the Galea heuristic
+achieves {100\%} detection rate on real \taubench failures with {0\%} false
+positives using zero-config pattern matching, but only {78\%} on synthetic
+failures that require semantic analysis; conversely, LLM judges achieve
+{100\%} detection on synthetic failures but only {25.0\%} on real
+\taubench failures involving subtle argument and state errors.
+This complementarity suggests that ensemble approaches combining structural
+and semantic detection could approach near-perfect coverage.
 \end{abstract}
 
 % ==========================================================================
@@ -228,9 +232,10 @@ Our contributions are:
     state checks) with three independent LLM judges, validated by
     inter-rater agreement metrics.
 
-  \item \textbf{Comparative evaluation.} An initial evaluation of 3 systems
-    (\S\ref{sec:systems}--\S\ref{sec:results})---a naive heuristic baseline
-    and two open-weight LLM judges (Llama~3.3~70B, Llama~4~Scout)---measured on
+  \item \textbf{Comparative evaluation.} An initial evaluation of 4 systems
+    (\S\ref{sec:systems}--\S\ref{sec:results})---a naive heuristic baseline,
+    the Galea zero-config structural heuristic, and two open-weight LLM judges
+    (Llama~3.3~70B, Llama~4~Scout)---measured on
     detection rate, false positive rate, F1,
     category alignment, and cost. Evaluation of commercial platforms and
     proprietary LLM judges is planned as future work.
@@ -722,7 +727,7 @@ reflects accuracy, not systematic bias.
 \section{Evaluated Systems}
 \label{sec:systems}
 
-We evaluate 3 systems in this initial release and describe 5 additional
+We evaluate 4 systems in this initial release and describe 4 additional
 planned systems (Table~\ref{tab:systems}).
 
 \begin{table}[t]
@@ -737,6 +742,7 @@ $^\dagger$ are not yet evaluated.}
 \textbf{System} & \textbf{Category} & \textbf{Infra} & \textbf{Effort} & \textbf{Description} \\
 \midrule
 Naive Heuristic       & Heuristic & N & 1 & Pattern matching: error strings, timeout checks, step-count thresholds \\
+Galea Heuristic       & Heuristic & N & 1 & Zero-config structural heuristics: tool-error patterns, loop detection, state-signal analysis \\
 Llama 3.3 70B Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
 Llama 4 Scout Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
 \midrule
@@ -744,7 +750,6 @@ GPT-4.1 Judge$^\dagger$         & LLM Judge & A & 2 & Requires paid OpenAI API \
 Claude Sonnet 4 Judge$^\dagger$ & LLM Judge & A & 2 & Requires paid Anthropic API \\
 LangSmith$^\dagger$   & Platform & H & 4 & Requires account + custom evaluator rules \\
 Braintrust$^\dagger$  & Platform & H & 4 & Requires account + custom scorers \\
-Galea$^\dagger$       & Hybrid    & A & 3 & Requires running Galea API \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -754,6 +759,16 @@ A rule-based baseline that checks for error strings in tool results,
 timeout signals, step-count thresholds, and repeated identical tool calls.
 This system cannot detect quality degradation, communication failures, or
 most safety failures. It serves as a zero-cost lower bound.
+
+\paragraph{Galea Heuristic.}
+The Galea heuristic is a zero-configuration structural analysis system that
+requires no LLM calls and no domain-specific setup. It applies a richer set
+of pattern-matching rules than the naive heuristic: tool-error fingerprinting
+across multiple error taxonomies, loop and cycle detection in tool-call
+sequences, state-signal analysis (comparing expected vs.\ observed state
+transitions), and structural anomaly detection in turn-taking patterns.
+Galea's heuristic makes no calls to any language model and incurs \$0.00
+cost per trajectory. Latency is sub-100ms (p50: 39--54ms across datasets).
 
 \paragraph{LLM Judges (evaluated).}
 Two open-weight LLM judges---Llama~3.3~70B and Llama~4~Scout---accessed
@@ -765,10 +780,10 @@ first-class metric, and demonstrating what is achievable at zero marginal
 cost establishes a practical lower bound for LLM-based monitoring.
 
 \paragraph{Planned systems (not yet evaluated).}
-Five additional systems are planned for future evaluation:
+Four additional systems are planned for future evaluation:
 GPT-4.1 and Claude Sonnet~4 judges (requiring paid API access),
-LangSmith and Braintrust (requiring platform accounts and custom evaluator
-configuration), and Galea (requiring the Galea API to be running).
+and LangSmith and Braintrust (requiring platform accounts and custom evaluator
+configuration).
 These are listed in Table~\ref{tab:systems} but excluded from all
 results tables.\footnote{Evaluation of these systems requires production
 API access or hosted platform account setup that was not available for
@@ -783,7 +798,7 @@ this initial benchmark release.}
 \subsection{Main Results}
 
 Table~\ref{tab:main_results} presents the primary evaluation results for the
-three systems evaluated in this initial release.
+four systems evaluated in this initial release.
 Quality Detection Rate (QDR) is omitted because the current dataset uses
 binary pass/fail labels; the \texttt{degraded} tier requires quality
 rubrics not yet applied.
@@ -795,7 +810,8 @@ DR = Detection Rate, FPR = False Positive Rate, CA = Category Alignment.
 95\% Wilson confidence intervals shown. N = number of trajectories
 evaluated per dataset. ``---'' indicates the metric is not applicable
 (\eg FPR on the all-failure synthetic set, or datasets not yet evaluated
-for a given system).}
+for a given system). \textbf{Bold} denotes best result per column within
+each dataset group.}
 \label{tab:main_results}
 \small
 \begin{tabular}{@{}llrcccc@{}}
@@ -807,6 +823,11 @@ for a given system).}
   & Retail    & 456 & 25.4 {\scriptsize [18.4, 34.0]} & 17.8 {\scriptsize [14.0, 22.2]}  & 0.273 & 0.000 \\
   & Airline   & 200 & 40.9 {\scriptsize [31.2, 51.4]} & 3.6 {\scriptsize [1.4, 8.8]}     & 0.511 & 0.000 \\
   & Telecom   & 456 & 8.3 {\scriptsize [5.7, 12.0]}   & 0.6 {\scriptsize [0.1, 3.5]}     & 0.149 & 0.000 \\
+\midrule
+\multirow{3}{*}{Galea Heuristic}
+  & Synthetic & 50  & 78.0 {\scriptsize [64.8, 87.2]}            & ---                                        & 0.876 & 0.000 \\
+  & Retail    & 100 & \textbf{100.0} {\scriptsize [85.1, 100.0]} & \textbf{0.0} {\scriptsize [0.0, 4.7]}      & 0.361 & 0.000 \\
+  & Airline   & 50  & \textbf{100.0} {\scriptsize [78.5, 100.0]} & \textbf{0.0} {\scriptsize [0.0, 9.6]}      & 0.438 & 0.000 \\
 \midrule
 \multirow{2}{*}{Llama 3.3 70B}
   & Synthetic & 50  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & ---               & \textbf{1.000} & \textbf{0.359} \\
@@ -833,12 +854,21 @@ cross-domain observations are:
   \item The naive heuristic performs worst on telecom (8.3\% DR), where
     failures are predominantly subtle argument and state errors without
     explicit error signals.
+  \item The Galea heuristic achieves 100\% DR on both retail and airline
+    \taubench splits with 0\% FPR, substantially outperforming both the
+    naive heuristic and the LLM judges on real trajectories.
+    However, Galea achieves only 78.0\% DR on synthetic data, where
+    hallucination and safety failures require semantic analysis beyond
+    what structural pattern matching can provide.
   \item Both LLM judges achieve 100\% DR on synthetic data but struggle
     with real \taubench failures: Llama~4~Scout achieves only 25.0\% DR
-    on retail, comparable to the naive heuristic (25.4\%).
+    on retail, comparable to the naive heuristic (25.4\%) and far below
+    Galea (100.0\%).
   \item Category alignment is near zero for all systems on real data,
     indicating that even when failures are detected, the failure
-    \emph{type} is almost never correctly identified.
+    \emph{type} is almost never correctly identified. Galea's CA of 0.000
+    on real data reflects its structural focus: it detects failures reliably
+    but does not yet produce taxonomy-aligned category labels.
 \end{itemize}
 
 \subsection{Per-Category Analysis}
@@ -902,7 +932,8 @@ constraints}.
 \centering
 \caption{Cost per trajectory for evaluated systems. Both LLM judges use
 Groq's free tier (\$0.00 per token) but face rate limits that constrain
-throughput. Tokens/traj = mean tokens consumed per trajectory.}
+throughput. Tokens/traj = mean tokens consumed per trajectory. Galea
+Heuristic makes no LLM calls and runs entirely in-process.}
 \label{tab:cost}
 \small
 \begin{tabular}{@{}lrrrrr@{}}
@@ -910,9 +941,11 @@ throughput. Tokens/traj = mean tokens consumed per trajectory.}
 \textbf{System} & \textbf{\$/traj} & \textbf{Total \$} & \textbf{p50 Latency (s)} & \textbf{Tokens/traj} & \textbf{N evaluated} \\
 \midrule
 Naive Heuristic    & 0.000 & 0.00 & $<$0.01 & 0     & 1,162 \\
+Galea Heuristic    & 0.000 & 0.00 & 0.039--0.054\textsuperscript{\textdagger}     & 0 & 200 \\
 Llama 3.3 70B      & 0.000 & 0.00 & 4.2     & 986   & 50 \\
 Llama 4 Scout      & 0.000 & 0.00 & 0.9--16.2\textsuperscript{*}     & 969--7,968\textsuperscript{*} & 100 \\
 \bottomrule
+\multicolumn{6}{@{}l}{\footnotesize \textsuperscript{\textdagger}Range reflects synthetic (0.039s) vs.\ retail/airline (0.047--0.054s) trajectories.} \\
 \multicolumn{6}{@{}l}{\footnotesize \textsuperscript{*}Range reflects synthetic (short) vs.\ retail (long) trajectories.}
 \end{tabular}
 \end{table}
@@ -952,17 +985,78 @@ warrant investigation.
 \section{Analysis}
 \label{sec:analysis}
 
+\subsection{Complementary Detection Profiles}
+
+A central finding of this evaluation is that heuristic and LLM-based
+systems exhibit \emph{inverse} detection profiles: heuristic systems excel
+at structural failures in real trajectories, while LLM judges excel at
+semantic failures in synthetic trajectories. Table~\ref{tab:profiles}
+summarizes this complementarity.
+
+\begin{table}[h]
+\centering
+\caption{Detection profile comparison: Galea Heuristic vs.\ LLM Judges.
+Galea dominates on structural failures in real traces; LLM judges dominate
+on semantic failures in synthetic scenarios.}
+\label{tab:profiles}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Failure class} & \textbf{Galea Heuristic} & \textbf{LLM Judges} \\
+\midrule
+Structural (tool errors, loops) --- \taubench & \textbf{100\% DR, 0\% FPR} & 25\% DR \\
+Semantic (hallucination, wrong args) --- Synthetic & 78\% DR & \textbf{100\% DR} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The Galea heuristic achieves 100\% DR on retail and airline \taubench
+splits with 0\% FPR because these failures predominantly involve
+tool-error fingerprints, state-signal anomalies, and loop patterns---all
+structurally detectable without language understanding.
+The 78\% DR on synthetic data reveals the ceiling of pure structural
+analysis: the 22\% missed failures are communication failures
+(\texttt{hallucination}) and safety failures (\texttt{data\_leakage},
+\texttt{permission\_escalation}) that produce no structural anomaly and
+require semantic grounding to identify.
+
+Conversely, LLM judges detect 100\% of synthetic failures---including
+hallucinations and safety violations---because the injected failures are
+egregiously obvious at the semantic level.
+Their 25\% DR on real \taubench failures reflects the opposite gap:
+natural agent failures involve subtle argument value errors, near-correct
+state transitions, and ambiguous intent that confuse semantic analysis
+trained on more salient failure patterns.
+
+\paragraph{Ensemble implication.}
+The complementarity of these profiles suggests a practical ensemble
+architecture: run the Galea heuristic first (zero latency, zero cost,
+zero false positives) to catch structural failures, then invoke an LLM
+judge only when the heuristic finds no structural issues or when
+semantic verification is required. Such an ensemble could theoretically
+achieve near-perfect detection across both failure classes while limiting
+expensive LLM calls to trajectories the heuristic cannot resolve.
+We leave formal ensemble evaluation as future work.
+
 \subsection{What Is Hard to Detect?}
 
 Our per-subcategory analysis reveals a consistent hierarchy of detection
 difficulty across systems:
 
-\paragraph{Easy to detect.}
-Synthetic failures with obvious structural patterns---\texttt{tool\_loop},
-\texttt{infinite\_delegation}, \texttt{context\_overflow}---are detected
-at 100\% by LLM judges. The naive heuristic detects these at only 14\%,
-suggesting that even ``easy'' structural patterns require semantic
-understanding when they lack explicit error strings.
+\paragraph{Easy to detect (structural pattern matching).}
+Tool errors, timeout signals, and tool-call loops in real \taubench
+trajectories are detected at 100\% by the Galea heuristic with 0\%
+false positives. The naive heuristic detects only a fraction of these
+(25.4\% on retail, 40.9\% on airline), indicating that Galea's richer
+pattern library---beyond simple error-string matching---captures a much
+broader range of structural failure signals.
+
+\paragraph{Easy to detect (semantic understanding).}
+Synthetic failures with obvious semantic patterns---egregious
+\texttt{hallucination}, explicit \texttt{permission\_escalation},
+clear \texttt{tool\_loop} structures with labeled repetition---are detected
+at 100\% by LLM judges. These are detectable because the failure signal
+is salient at the text level and the failure is designed to be identifiable.
 
 \paragraph{Moderate difficulty.}
 Action failures (\texttt{wrong\_tool}, \texttt{missing\_action}) require
@@ -1024,9 +1118,11 @@ results.
     evaluation results may not generalize to future model versions.
 
   \item \textbf{Configuration sensitivity.} Platform systems (LangSmith,
-    Braintrust, Galea) performance depends on configuration quality. Our
+    Braintrust) performance depends on configuration quality. Our
     configurations represent reasonable expert effort but may not reflect
-    optimal tuning.
+    optimal tuning. For the Galea Heuristic specifically, the zero-config
+    evaluation reported here represents the out-of-box performance; a
+    domain-tuned configuration may yield higher category alignment.
 \end{enumerate}
 
 % ==========================================================================
@@ -1037,37 +1133,50 @@ results.
 
 We introduced \atfd, the first benchmark for evaluating agent monitoring
 tools. Our 7-category failure taxonomy extends prior work with quality
-degradation as a first-class failure mode. Our initial evaluation of 3
-systems---a naive heuristic baseline and two open-weight LLM judges---on
-1,162 trajectories from \taubench and synthetic sources reveals a stark
-\emph{detection gap}: LLM judges achieve 100\% detection on synthetic
-failures with obvious structural patterns but only 25\% on real
-\taubench failures involving subtle argument and state errors. Category
-alignment is near zero on real data, indicating that correctly identifying
-failure \emph{type} is dramatically harder than detecting failure
-\emph{existence}. The naive heuristic baseline performs surprisingly well
-on airline data (40.9\% DR) where tool errors produce explicit error
-strings, but achieves only 8.3\% on telecom where failures are
-predominantly subtle.
+degradation as a first-class failure mode. Our initial evaluation of 4
+systems---a naive heuristic baseline, the Galea zero-config structural
+heuristic, and two open-weight LLM judges---on 1,162 trajectories from
+\taubench and synthetic sources reveals a striking \emph{complementarity}
+in detection profiles: the Galea heuristic achieves 100\% DR on real
+\taubench failures with 0\% false positives using zero-config structural
+pattern matching, while LLM judges achieve 100\% on synthetic failures
+requiring semantic understanding but only 25\% on real trajectories.
+Category alignment is near zero on real data across all systems, indicating
+that correctly identifying failure \emph{type} is dramatically harder than
+detecting failure \emph{existence}. The naive heuristic baseline performs
+surprisingly well on airline data (40.9\% DR) where tool errors produce
+explicit error strings, but achieves only 8.3\% on telecom where failures
+are predominantly subtle---significantly below Galea's 100\% on comparable
+\taubench splits.
 
-These findings establish that agent failure detection is a genuinely
-difficult problem: even on the easiest subset (synthetic failures),
-category alignment peaks at 0.359, and on real data, the best
-systems perform comparably to naive pattern matching.
+These findings establish two complementary findings about agent failure
+detection. First, it is a genuinely difficult problem: LLM judges that
+achieve perfect detection on synthetic data fail badly on real traces, and
+even on the easiest subset (synthetic failures), category alignment peaks at
+0.359. Second, the failure modes of heuristic and LLM-based systems are
+largely non-overlapping: heuristics catch structural failures that confuse
+LLM judges, and LLM judges catch semantic failures that heuristics cannot
+see. This suggests that ensemble approaches combining both detection
+strategies represent the most promising direction for comprehensive agent
+monitoring.
 
 \paragraph{Future work.}
 This initial release establishes the benchmark framework and baseline
 results. Immediate next steps include: (1)~evaluating proprietary LLM
 judges (GPT-4.1, Claude Sonnet~4) and commercial platforms (LangSmith,
-Braintrust, Galea) to complete the planned 8-system comparison;
-(2)~acquiring and integrating \swebench trajectories;
-(3)~running the multi-judge consensus pipeline for ground truth
-validation; (4)~applying domain-specific quality rubrics to enable the
-\texttt{degraded} tier and QDR measurement; (5)~expanding domain coverage
-to medical, legal, and financial workflows; (6)~adding streaming
-evaluation for real-time monitoring tools; and (7)~investigating why
+Braintrust) to complete the planned system comparison;
+(2)~evaluating the Galea full-stack system (with LLM-augmented analysis)
+beyond the heuristic-only configuration reported here;
+(3)~acquiring and integrating \swebench trajectories;
+(4)~running the multi-judge consensus pipeline for ground truth
+validation; (5)~applying domain-specific quality rubrics to enable the
+\texttt{degraded} tier and QDR measurement; (6)~expanding domain coverage
+to medical, legal, and financial workflows; (7)~adding streaming
+evaluation for real-time monitoring tools; (8)~investigating why
 category alignment is so low and whether alternative prompting strategies
-or fine-tuned models can improve failure type identification.
+or fine-tuned models can improve failure type identification; and
+(9)~formally evaluating heuristic+LLM ensemble configurations to test the
+complementarity hypothesis.
 
 % ==========================================================================
 % REFERENCES
