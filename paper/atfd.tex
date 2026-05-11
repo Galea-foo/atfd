@@ -107,10 +107,11 @@ produce structured findings with severity, category, and attribution;
 \taubench and hand-crafted synthetic scenarios, with \swebench integration
 as planned future work; (4)~a
 multi-source ground truth protocol combining programmatic verdicts with
-LLM-judge consensus; (5)~a comparative evaluation of 5 systems---a
+LLM-judge consensus; (5)~a comparative evaluation of 6 systems---a
 naive heuristic baseline, a zero-config structural heuristic (Galea),
-two open-weight LLM judges, and Claude Sonnet~4 as a proprietary LLM
-judge---with commercial platform evaluation as future work; and
+two open-weight LLM judges, Claude Sonnet~4 as a proprietary LLM
+judge, and LangSmith with custom evaluator rules---revealing a stark
+configuration effort gap; and
 (6)~an open benchmark harness with cost-aware metrics. Our evaluation reveals
 a stark \emph{detection gap} with complementary profiles: the Galea heuristic
 achieves {100\%} detection rate on real \taubench failures with {0\%} false
@@ -235,15 +236,18 @@ Our contributions are:
     state checks) with three independent LLM judges, validated by
     inter-rater agreement metrics.
 
-  \item \textbf{Comparative evaluation.} An evaluation of 5 systems
+  \item \textbf{Comparative evaluation.} An evaluation of 6 systems
     (\S\ref{sec:systems}--\S\ref{sec:results})---a naive heuristic baseline,
     the Galea zero-config structural heuristic, two open-weight LLM judges
-    (Llama~3.3~70B, Llama~4~Scout), and Claude Sonnet~4 as a proprietary
-    LLM judge---measured on detection rate, false positive rate, F1,
-    category alignment, and cost. Claude Sonnet~4 achieves the highest
-    F1 on real trajectories (0.800 on retail) and the highest category
-    alignment (0.489) of any evaluated system. Evaluation of commercial
-    platforms is planned as future work.
+    (Llama~3.3~70B, Llama~4~Scout), Claude Sonnet~4 as a proprietary
+    LLM judge, and LangSmith with custom evaluator rules---measured on
+    detection rate, false positive rate, F1, category alignment, cost, and
+    configuration effort. Claude Sonnet~4 achieves the highest F1 on real
+    trajectories (0.800 on retail) and the highest category alignment (0.489)
+    of any evaluated system. LangSmith achieves only 22\% DR on synthetic
+    trajectories with 4 manually authored rules, illustrating the cost of
+    rule-based platform configuration. Evaluation of additional commercial
+    platforms (Braintrust) is planned as future work.
 
   \item \textbf{Open benchmark harness.} A reproducible evaluation framework
     with cost-aware metrics, confidence intervals, and statistical tests,
@@ -732,17 +736,18 @@ reflects accuracy, not systematic bias.
 \section{Evaluated Systems}
 \label{sec:systems}
 
-We evaluate 5 systems in this release and describe 3 additional
+We evaluate 6 systems in this release and describe 2 additional
 planned systems (Table~\ref{tab:systems}).
 
 \begin{table}[t]
 \centering
 \caption{Evaluated and planned systems. Infrastructure tier: N = none
-(local heuristics), A = API key only, H = hosted service. Systems marked
-$^\dagger$ are not yet evaluated.}
+(local heuristics), A = API key only, H = hosted service. Config Effort
+column reports rules authored and approximate setup time where applicable.
+Systems marked $^\dagger$ are not yet evaluated.}
 \label{tab:systems}
 \small
-\begin{tabular}{@{}llccp{5.2cm}@{}}
+\begin{tabular}{@{}llccp{4.8cm}@{}}
 \toprule
 \textbf{System} & \textbf{Category} & \textbf{Infra} & \textbf{Effort} & \textbf{Description} \\
 \midrule
@@ -751,9 +756,9 @@ Galea Heuristic       & Heuristic & N & 1 & Zero-config structural heuristics: t
 Llama 3.3 70B Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
 Llama 4 Scout Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
 Claude Sonnet 4 Judge & LLM Judge & A & 2 & Two-stage prompt via Anthropic API (\$3/\$15 per MTok input/output) \\
+LangSmith             & Platform  & H & 4 & 4 custom eval rules ($\sim$80 LOC), $\sim$15 min setup; account required \\
 \midrule
 GPT-4.1 Judge$^\dagger$  & LLM Judge & A & 2 & Requires paid OpenAI API \\
-LangSmith$^\dagger$   & Platform & H & 4 & Requires account + custom evaluator rules \\
 Braintrust$^\dagger$  & Platform & H & 4 & Requires account + custom scorers \\
 \bottomrule
 \end{tabular}
@@ -793,11 +798,24 @@ smaller subset (20 retail trajectories) due to API throughput constraints,
 but delivers substantially higher detection rate (100\% on retail) and the
 highest category alignment (CA = 0.489 on synthetic) of any evaluated system.
 
+\paragraph{LangSmith (evaluated).}
+LangSmith is a commercial observability platform for LLM applications that
+supports custom evaluator rules written as Python functions. We configured
+4 evaluation rules ($\sim$80 lines of code) targeting the most tractable
+failure categories: a tool-loop detector (triggering on repeated identical
+tool calls), and an event-count threshold that flags runs exceeding a
+configurable step budget. Setup required approximately 15 minutes of
+configuration including account creation, project setup, and rule authoring.
+LangSmith's evaluation model is fundamentally \emph{rule-driven}: each
+failure category requires explicit authorship, in contrast to LLM judges
+(which generalize from a prompt) or the Galea heuristic (which ships
+zero-config). This places LangSmith in a distinct configuration tier
+(Effort = 4) reflecting substantial per-deployment setup burden.
+
 \paragraph{Planned systems (not yet evaluated).}
-Three additional systems are planned for future evaluation:
-GPT-4.1 judge (requiring paid OpenAI API access),
-and LangSmith and Braintrust (requiring platform accounts and custom evaluator
-configuration).
+Two additional systems are planned for future evaluation:
+GPT-4.1 judge (requiring paid OpenAI API access) and
+Braintrust (requiring platform account and custom scorer configuration).
 These are listed in Table~\ref{tab:systems} but excluded from all
 results tables.
 
@@ -817,13 +835,13 @@ rubrics not yet applied.
 
 \begin{table}[t]
 \centering
-\caption{Main results: per-dataset breakdown for all evaluated systems.
+\caption{Main results: per-dataset breakdown for all 6 evaluated systems.
 DR = Detection Rate, FPR = False Positive Rate, CA = Category Alignment.
 95\% Wilson confidence intervals shown. N = number of trajectories
 evaluated per dataset. ``---'' indicates the metric is not applicable
-(\eg FPR on the all-failure synthetic set, or datasets not yet evaluated
-for a given system). \textbf{Bold} denotes best result per column within
-each dataset group.}
+(\eg FPR on the all-failure synthetic set, CA for rule-driven systems that
+do not produce taxonomy labels, or datasets not yet evaluated for a given
+system). \textbf{Bold} denotes best result per column within each dataset group.}
 \label{tab:main_results}
 \small
 \begin{tabular}{@{}llrcccc@{}}
@@ -853,6 +871,9 @@ each dataset group.}
 \multirow{2}{*}{Claude Sonnet 4}
   & Synthetic & 50  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & ---               & \textbf{1.000} & \textbf{0.489} \\
   & Retail    & 20  & \textbf{100.0} {\scriptsize [34.2, 100.0]} & \textbf{5.6} {\scriptsize [1.0, 25.8]}  & \textbf{0.800} & 0.133 \\
+\midrule
+LangSmith
+  & Synthetic & 50  & 22.0 {\scriptsize [12.8, 35.2]}            & ---               & 0.361 & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -959,18 +980,21 @@ constraints}.
 Groq's free tier (\$0.00 per token) but face rate limits that constrain
 throughput. Claude Sonnet~4 is priced at \$3/MTok input and \$15/MTok output
 (Anthropic API list pricing). Tokens/traj = mean tokens consumed per trajectory.
-Galea Heuristic makes no LLM calls and runs entirely in-process.}
+Galea Heuristic makes no LLM calls and runs entirely in-process.
+LangSmith dollar cost is \$0.00 (rule execution), but incurs 4 manually
+authored rules and $\sim$15 min of setup effort not captured in \$/traj.}
 \label{tab:cost}
 \small
-\begin{tabular}{@{}lrrrrr@{}}
+\begin{tabular}{@{}llrrrr@{}}
 \toprule
-\textbf{System} & \textbf{\$/traj} & \textbf{Total \$} & \textbf{p50 Latency (s)} & \textbf{Tokens/traj} & \textbf{N evaluated} \\
+\textbf{System} & \textbf{Config Effort} & \textbf{\$/traj} & \textbf{p50 Latency (s)} & \textbf{Tokens/traj} & \textbf{N evaluated} \\
 \midrule
-Naive Heuristic    & 0.000 & 0.00 & $<$0.01 & 0     & 1,162 \\
-Galea Heuristic    & 0.000 & 0.00 & 0.039--0.054\textsuperscript{\textdagger}     & 0 & 200 \\
-Llama 3.3 70B      & 0.000 & 0.00 & 4.2     & 986   & 50 \\
-Llama 4 Scout      & 0.000 & 0.00 & 0.9--16.2\textsuperscript{*}     & 969--7,968\textsuperscript{*} & 100 \\
-Claude Sonnet 4    & $\sim$0.006 & $\sim$0.42 & 13.4--47.7\textsuperscript{\textdaggerdbl}     & 254--1,546\textsuperscript{\textdaggerdbl} & 70 \\
+Naive Heuristic    & 0 rules, 0 min & 0.000 & $<$0.01 & 0     & 1,162 \\
+Galea Heuristic    & 0 rules, 0 min & 0.000 & 0.039--0.054\textsuperscript{\textdagger}     & 0 & 200 \\
+Llama 3.3 70B      & prompt only    & 0.000 & 4.2     & 986   & 50 \\
+Llama 4 Scout      & prompt only    & 0.000 & 0.9--16.2\textsuperscript{*}     & 969--7,968\textsuperscript{*} & 100 \\
+Claude Sonnet 4    & prompt only    & $\sim$0.006 & 13.4--47.7\textsuperscript{\textdaggerdbl}     & 254--1,546\textsuperscript{\textdaggerdbl} & 70 \\
+LangSmith          & 4 rules, $\sim$80 LOC, $\sim$15 min & 0.000 & $<$0.01 & 0 & 50 \\
 \bottomrule
 \multicolumn{6}{@{}l}{\footnotesize \textsuperscript{\textdagger}Range reflects synthetic (0.039s) vs.\ retail/airline (0.047--0.054s) trajectories.} \\
 \multicolumn{6}{@{}l}{\footnotesize \textsuperscript{*}Range reflects synthetic (short) vs.\ retail (long) trajectories.} \\
@@ -1078,6 +1102,55 @@ semantic failures and superior category alignment, while limiting expensive
 LLM calls to trajectories the heuristic cannot resolve.
 We leave formal ensemble evaluation as future work.
 
+\subsection{The Configuration Effort Gap}
+\label{sec:analysis:config}
+
+LangSmith's results expose a third dimension of evaluation beyond detection
+rate and cost: \emph{configuration effort}. With 4 manually authored
+evaluation rules ($\sim$80 lines of Python) and approximately 15 minutes of
+setup time, LangSmith achieves only 22.0\% DR on the synthetic dataset---lower
+than the zero-config Galea heuristic (78.0\% DR) and dramatically below the
+zero-config LLM judges (100\% DR). Crucially, LangSmith's 4 rules catch
+only what those rules explicitly target: tool-loop patterns (6 of 10 detected)
+and a coarse event-count threshold (5 of 50 flagged via step budget). Every
+other failure category---hallucination (0/10), permission\_escalation (0/5),
+data\_leakage (0/5), infinite\_delegation (0/5), context\_overflow (0/5),
+planning\_failure (0/10)---is completely missed.
+
+This reveals a fundamental limitation of rule-driven platform monitoring:
+\emph{coverage scales with authorship}. Catching a new failure category
+requires writing a new rule. For production deployments spanning dozens of
+failure modes, this becomes an ongoing engineering burden rather than a
+one-time setup cost.
+
+Table~\ref{tab:config_effort} makes the configuration effort comparison
+explicit across the three evaluation paradigms represented in this study.
+
+\begin{table}[h]
+\centering
+\caption{Configuration effort by evaluation paradigm. LLM judges and the
+Galea heuristic require no per-deployment rule authorship; LangSmith's
+coverage is bounded by the rules written.}
+\label{tab:config_effort}
+\small
+\begin{tabular}{@{}llrrl@{}}
+\toprule
+\textbf{System} & \textbf{Paradigm} & \textbf{Rules} & \textbf{Setup (min)} & \textbf{Coverage model} \\
+\midrule
+Galea Heuristic    & Structural heuristic & 0 & 0   & Zero-config; ships with pattern library \\
+Llama 3.3 70B      & LLM judge            & 0 & 0   & Prompt only; generalizes across categories \\
+Llama 4 Scout      & LLM judge            & 0 & 0   & Prompt only; generalizes across categories \\
+Claude Sonnet 4    & LLM judge            & 0 & 0   & Prompt only; generalizes across categories \\
+LangSmith          & Rule-driven platform & 4 & $\sim$15 & Each category requires explicit rule authorship \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The practical implication is clear: monitoring tools that require per-category
+rule authorship create an ongoing maintenance cost as workflows evolve and new
+failure modes emerge. Zero-config approaches (heuristics, LLM judges) absorb
+this cost at development time rather than deployment time.
+
 \subsection{What Is Hard to Detect?}
 
 Our per-subcategory analysis reveals a consistent hierarchy of detection
@@ -1173,11 +1246,12 @@ results.
 
 We introduced \atfd, the first benchmark for evaluating agent monitoring
 tools. Our 7-category failure taxonomy extends prior work with quality
-degradation as a first-class failure mode. Our evaluation of 5
+degradation as a first-class failure mode. Our evaluation of 6
 systems---a naive heuristic baseline, the Galea zero-config structural
-heuristic, two open-weight LLM judges, and Claude Sonnet~4---on 1,162
-trajectories from \taubench and synthetic sources reveals a striking
-\emph{complementarity} in detection profiles.
+heuristic, two open-weight LLM judges, Claude Sonnet~4, and LangSmith
+with custom evaluator rules---on 1,162 trajectories from \taubench and
+synthetic sources reveals a striking \emph{complementarity} in detection
+profiles and an equally stark \emph{configuration effort gap}.
 
 The Galea heuristic achieves 100\% DR on real \taubench failures with 0\%
 false positives using zero-config structural pattern matching. Open-weight
@@ -1198,7 +1272,15 @@ strings, but achieves only 8.3\% on telecom where failures are
 predominantly subtle---significantly below Galea's 100\% on comparable
 \taubench splits.
 
-These findings establish two conclusions about agent failure detection.
+LangSmith, evaluated with 4 manually authored rules ($\sim$80 LOC,
+$\sim$15 min setup), achieves only 22\% DR on synthetic trajectories---catching
+tool loops and a coarse event-count threshold while missing every semantic
+failure category (hallucination, safety violations, delegation failures). This
+result quantifies the configuration effort gap: rule-driven platforms require
+explicit authorship per failure category, making coverage a function of
+engineering investment rather than a property of the tool itself.
+
+These findings establish three conclusions about agent failure detection.
 First, it is a genuinely difficult problem: open-weight LLM judges that
 achieve perfect detection on synthetic data fail badly on real traces, and
 even frontier models (Claude Sonnet~4) achieve category alignment below 0.5.
@@ -1207,13 +1289,19 @@ complementary: heuristics catch structural failures with zero false positives,
 and LLM judges catch semantic failures that heuristics cannot see. Claude
 Sonnet~4 represents the most capable single-system option, while a
 Galea+Claude ensemble represents the most promising direction for
-comprehensive agent monitoring.
+comprehensive agent monitoring. Third, configuration effort is a first-class
+evaluation dimension: zero-config approaches (Galea heuristic, LLM judges)
+generalize across failure categories without per-deployment authorship, while
+rule-driven platforms (LangSmith) scale coverage only with continued
+engineering investment.
 
 \paragraph{Future work.}
 This initial release establishes the benchmark framework and baseline
 results. Immediate next steps include: (1)~evaluating additional proprietary LLM
-judges (GPT-4.1) and commercial platforms (LangSmith,
-Braintrust) to complete the planned system comparison;
+judges (GPT-4.1) and commercial platforms (Braintrust) to complete the
+planned system comparison, and evaluating LangSmith with a more comprehensive
+rule set (covering all 7 failure categories) to separate the effect of
+platform capability from configuration effort;
 (2)~evaluating the Galea full-stack system (with LLM-augmented analysis)
 beyond the heuristic-only configuration reported here;
 (3)~acquiring and integrating \swebench trajectories;
