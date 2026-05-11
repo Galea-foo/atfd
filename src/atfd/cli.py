@@ -32,6 +32,7 @@ def download(dataset):
     "groq-llama-70b", "groq-llama4-scout", "groq-qwen3-32b",
     "openrouter-gemma4", "openrouter-nemotron",
     "galea", "galea-llm",
+    "claude-headless",
 ]), required=True)
 @click.option("--dataset", type=click.Choice(["tau-bench", "swe-bench", "synthetic", "all"]), default="all")
 @click.option("--domain", type=str, default=None)
@@ -95,6 +96,9 @@ def _make_judge(judge_key):
             "openrouter-gemma4": "openrouter-gemma4", "openrouter-nemotron": "openrouter-nemotron",
         }
         return LLMJudge(model_key=model_map[judge_key])
+    elif judge_key == "claude-headless":
+        from atfd.judges.claude_headless import ClaudeHeadlessJudge
+        return ClaudeHeadlessJudge(model="sonnet")
     elif judge_key == "galea":
         from atfd.judges.galea import GaleaJudge
         return GaleaJudge(mode="heuristic")
