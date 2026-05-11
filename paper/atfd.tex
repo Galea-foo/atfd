@@ -750,7 +750,7 @@ Naive Heuristic       & Heuristic & N & 1 & Pattern matching: error strings, tim
 Galea Heuristic       & Heuristic & N & 1 & Zero-config structural heuristics: tool-error patterns, loop detection, state-signal analysis \\
 Llama 3.3 70B Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
 Llama 4 Scout Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
-Claude Sonnet 4 Judge & LLM Judge & A & 2 & Single-pass prompt via Anthropic API (headless access, \$0.00 cost) \\
+Claude Sonnet 4 Judge & LLM Judge & A & 2 & Two-stage prompt via Anthropic API (\$3/\$15 per MTok input/output) \\
 \midrule
 GPT-4.1 Judge$^\dagger$  & LLM Judge & A & 2 & Requires paid OpenAI API \\
 LangSmith$^\dagger$   & Platform & H & 4 & Requires account + custom evaluator rules \\
@@ -957,9 +957,9 @@ constraints}.
 \centering
 \caption{Cost per trajectory for evaluated systems. Open-weight LLM judges use
 Groq's free tier (\$0.00 per token) but face rate limits that constrain
-throughput. Claude Sonnet~4 was accessed at \$0.00 via headless API access.
-Tokens/traj = mean tokens consumed per trajectory. Galea
-Heuristic makes no LLM calls and runs entirely in-process.}
+throughput. Claude Sonnet~4 is priced at \$3/MTok input and \$15/MTok output
+(Anthropic API list pricing). Tokens/traj = mean tokens consumed per trajectory.
+Galea Heuristic makes no LLM calls and runs entirely in-process.}
 \label{tab:cost}
 \small
 \begin{tabular}{@{}lrrrrr@{}}
@@ -970,7 +970,7 @@ Naive Heuristic    & 0.000 & 0.00 & $<$0.01 & 0     & 1,162 \\
 Galea Heuristic    & 0.000 & 0.00 & 0.039--0.054\textsuperscript{\textdagger}     & 0 & 200 \\
 Llama 3.3 70B      & 0.000 & 0.00 & 4.2     & 986   & 50 \\
 Llama 4 Scout      & 0.000 & 0.00 & 0.9--16.2\textsuperscript{*}     & 969--7,968\textsuperscript{*} & 100 \\
-Claude Sonnet 4    & 0.000 & 0.00 & 13.4--47.7\textsuperscript{\textdaggerdbl}     & 254--1,546\textsuperscript{\textdaggerdbl} & 70 \\
+Claude Sonnet 4    & $\sim$0.006 & $\sim$0.42 & 13.4--47.7\textsuperscript{\textdaggerdbl}     & 254--1,546\textsuperscript{\textdaggerdbl} & 70 \\
 \bottomrule
 \multicolumn{6}{@{}l}{\footnotesize \textsuperscript{\textdagger}Range reflects synthetic (0.039s) vs.\ retail/airline (0.047--0.054s) trajectories.} \\
 \multicolumn{6}{@{}l}{\footnotesize \textsuperscript{*}Range reflects synthetic (short) vs.\ retail (long) trajectories.} \\

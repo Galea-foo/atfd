@@ -35,10 +35,18 @@ _DEFAULT_QUALITY_RUBRIC = """\
 """
 
 
+CLAUDE_PRICING = {
+    "sonnet": {"input_per_m": 3.00, "output_per_m": 15.00},
+    "opus": {"input_per_m": 15.00, "output_per_m": 75.00},
+    "haiku": {"input_per_m": 0.80, "output_per_m": 4.00},
+}
+
+
 class ClaudeHeadlessJudge(Judge):
 
     def __init__(self, model: str = "sonnet"):
         self._model = model
+        self._pricing = CLAUDE_PRICING.get(model, CLAUDE_PRICING["sonnet"])
 
     @property
     def name(self) -> str:
@@ -47,7 +55,8 @@ class ClaudeHeadlessJudge(Judge):
     def evaluate(self, trajectory: Trajectory) -> JudgeOutput:
         start = time.monotonic()
         findings: list[Finding] = []
-        total_tokens = 0
+        total_input_tokens = 0
+        total_output_tokens = 0
         api_calls = 0
 
         traj_text = format_trajectory_for_prompt(trajectory.events)
@@ -60,9 +69,10 @@ class ClaudeHeadlessJudge(Judge):
             task_description=trajectory.task_description or "(not provided)",
             trajectory_events=traj_text,
         )
-        raw1, tokens1 = self._call_claude(prompt1)
+        raw1, in1, out1 = self._call_claude(prompt1)
         api_calls += 1
-        total_tokens += tokens1
+        total_input_tokens += in1
+        total_output_tokens += out1
 
         stage1 = self._parse_json(raw1)
         outcome = stage1.get("outcome", "pass")
@@ -88,9 +98,10 @@ class ClaudeHeadlessJudge(Judge):
                 trajectory_events=traj_text,
                 rubric_table=rubric_table,
             )
-            raw2, tokens2 = self._call_claude(prompt2)
+            raw2, in2, out2 = self._call_claude(prompt2)
             api_calls += 1
-            total_tokens += tokens2
+            total_input_tokens += in2
+            total_output_tokens += out2
 
             stage2 = self._parse_json(raw2)
             for qcat in stage2.get("quality_categories", []):
@@ -103,12 +114,18 @@ class ClaudeHeadlessJudge(Judge):
         elapsed = time.monotonic() - start
         has_failure = outcome == "fail" or any(f.severity == Severity.ERROR for f in findings)
 
+        total_tokens = total_input_tokens + total_output_tokens
+        dollar_cost = (
+            total_input_tokens / 1_000_000 * self._pricing["input_per_m"]
+            + total_output_tokens / 1_000_000 * self._pricing["output_per_m"]
+        )
+
         return JudgeOutput(
             trajectory_id=trajectory.trajectory_id,
             has_failure=has_failure,
             findings=findings,
             cost=CostReport(
-                dollar_cost=0.0,
+                dollar_cost=round(dollar_cost, 6),
                 latency_seconds=elapsed,
                 total_tokens=total_tokens,
                 api_calls=api_calls,
@@ -116,7 +133,7 @@ class ClaudeHeadlessJudge(Judge):
             ),
         )
 
-    def _call_claude(self, prompt: str, max_retries: int = 3) -> tuple[str, int]:
+    def _call_claude(self, prompt: str, max_retries: int = 3) -> tuple[str, int, int]:
         for attempt in range(max_retries):
             try:
                 result = subprocess.run(
@@ -130,20 +147,22 @@ class ClaudeHeadlessJudge(Judge):
                     if attempt < max_retries - 1:
                         time.sleep(2 ** attempt)
                         continue
-                    return "", 0
+                    return "", 0, 0
 
                 output = json.loads(result.stdout)
                 text = output.get("result", "")
-                tokens = output.get("usage", {}).get("input_tokens", 0) + output.get("usage", {}).get("output_tokens", 0)
-                return text, tokens
+                usage = output.get("usage", {})
+                input_tokens = usage.get("input_tokens", 0)
+                output_tokens = usage.get("output_tokens", 0)
+                return text, input_tokens, output_tokens
 
             except (subprocess.TimeoutExpired, json.JSONDecodeError, Exception) as e:
                 if attempt < max_retries - 1:
                     time.sleep(2 ** attempt)
                     continue
-                return "", 0
+                return "", 0, 0
 
-        return "", 0
+        return "", 0, 0
 
     def _parse_json(self, raw: str) -> dict:
         cleaned = re.sub(r"^```(?:json)?\s*", "", raw.strip(), flags=re.IGNORECASE)
