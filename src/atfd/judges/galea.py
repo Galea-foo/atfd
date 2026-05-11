@@ -11,9 +11,17 @@ from atfd.schema import CostReport, Finding, JudgeOutput, Severity, Trajectory
 
 class GaleaJudge(Judge):
 
-    def __init__(self, api_url: str = "http://localhost:8000", mode: str = "heuristic"):
+    DOMAIN_PRIORITIES = {
+        "retail": ["correctness", "tool_safety", "audit"],
+        "airline": ["correctness", "tool_safety", "audit", "regulatory_compliance"],
+        "telecom": ["correctness", "tool_safety", "cost"],
+        "coding": ["correctness", "tool_safety"],
+        "synthetic": ["correctness", "tool_safety", "audit"],
+    }
+
+    def __init__(self, api_url: str = "http://localhost:8002", mode: str = "heuristic"):
         self.api_url = api_url.rstrip("/")
-        self.mode = mode  # "heuristic" or "llm"
+        self.mode = mode
 
     @property
     def name(self) -> str:
@@ -25,9 +33,10 @@ class GaleaJudge(Judge):
         project_id = f"atfd-{trajectory.domain}"
 
         with httpx.Client(timeout=60) as client:
-            # Ensure project
+            priorities = self.DOMAIN_PRIORITIES.get(trajectory.domain, ["correctness", "tool_safety"])
             client.post(f"{self.api_url}/v1/projects", json={
                 "id": project_id, "name": f"ATFD {trajectory.domain}",
+                "priorities": priorities,
             })
             # Ingest
             trace_id = galea_events[0]["traceId"] if galea_events else trajectory.trajectory_id
@@ -47,11 +56,14 @@ class GaleaJudge(Judge):
             summary = result.get("summary") or {}
             for gf in summary.get("findings") or []:
                 sev_map = {"error": Severity.ERROR, "warning": Severity.WARNING, "info": Severity.INFO}
+                attr = gf.get("attribution")
+                if attr is not None and not isinstance(attr, str):
+                    attr = str(attr)
                 findings.append(Finding(
                     severity=sev_map.get(gf.get("severity", "info"), Severity.INFO),
                     category=gf.get("category", "unknown"),
-                    description=gf.get("description", ""),
-                    attribution=gf.get("attribution"),
+                    description=str(gf.get("description", "")),
+                    attribution=attr if attr else None,
                 ))
 
         return JudgeOutput(
