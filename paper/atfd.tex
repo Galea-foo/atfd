@@ -107,11 +107,11 @@ produce structured findings with severity, category, and attribution;
 \taubench and hand-crafted synthetic scenarios, with \swebench integration
 as planned future work; (4)~a
 multi-source ground truth protocol combining programmatic verdicts with
-LLM-judge consensus; (5)~a comparative evaluation of 6 systems---a
+LLM-judge consensus; (5)~a comparative evaluation of 7 systems---a
 naive heuristic baseline, a zero-config structural heuristic (Galea),
 two open-weight LLM judges, Claude Sonnet~4 as a proprietary LLM
-judge, and LangSmith with custom evaluator rules---revealing a stark
-configuration effort gap; and
+judge, LangSmith with custom evaluator rules, and Braintrust with
+custom scorers---revealing a stark configuration effort gap; and
 (6)~an open benchmark harness with cost-aware metrics. Our evaluation reveals
 a stark \emph{detection gap} with complementary profiles: the Galea heuristic
 achieves {100\%} detection rate on real \taubench failures with {0\%} false
@@ -236,18 +236,23 @@ Our contributions are:
     state checks) with three independent LLM judges, validated by
     inter-rater agreement metrics.
 
-  \item \textbf{Comparative evaluation.} An evaluation of 6 systems
+  \item \textbf{Comparative evaluation.} An evaluation of 7 systems
     (\S\ref{sec:systems}--\S\ref{sec:results})---a naive heuristic baseline,
     the Galea zero-config structural heuristic, two open-weight LLM judges
     (Llama~3.3~70B, Llama~4~Scout), Claude Sonnet~4 as a proprietary
-    LLM judge, and LangSmith with custom evaluator rules---measured on
-    detection rate, false positive rate, F1, category alignment, cost, and
-    configuration effort. Claude Sonnet~4 achieves the highest F1 on real
-    trajectories (0.800 on retail) and the highest category alignment (0.489)
-    of any evaluated system. LangSmith achieves only 22\% DR on synthetic
-    trajectories with 4 manually authored rules, illustrating the cost of
-    rule-based platform configuration. Evaluation of additional commercial
-    platforms (Braintrust) is planned as future work.
+    LLM judge, LangSmith with custom evaluator rules, and Braintrust with
+    custom scorers---measured on detection rate, false positive rate, F1,
+    category alignment, cost, and configuration effort. Claude Sonnet~4
+    achieves the highest F1 on real trajectories (0.800 on retail) and the
+    highest category alignment (0.489) of any evaluated system. LangSmith
+    and Braintrust both achieve only 22\% DR on synthetic trajectories when
+    given the same 4 manually authored rules, demonstrating that this gap is
+    attributable to \emph{rule coverage} rather than platform capability.
+    Braintrust additionally reveals a severe domain calibration problem:
+    its event-count threshold achieves 91.7\% DR on retail \taubench but
+    71.1\% FPR, rendering the configuration unusable without domain-specific
+    tuning. Evaluation of GPT-4.1 as an additional LLM judge is planned as
+    future work.
 
   \item \textbf{Open benchmark harness.} A reproducible evaluation framework
     with cost-aware metrics, confidence intervals, and statistical tests,
@@ -736,8 +741,8 @@ reflects accuracy, not systematic bias.
 \section{Evaluated Systems}
 \label{sec:systems}
 
-We evaluate 6 systems in this release and describe 2 additional
-planned systems (Table~\ref{tab:systems}).
+We evaluate 7 systems in this release and describe 1 additional
+planned system (Table~\ref{tab:systems}).
 
 \begin{table}[t]
 \centering
@@ -757,9 +762,9 @@ Llama 3.3 70B Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free ti
 Llama 4 Scout Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
 Claude Sonnet 4 Judge & LLM Judge & A & 2 & Two-stage prompt via Anthropic API (\$3/\$15 per MTok input/output) \\
 LangSmith             & Platform  & H & 4 & 4 custom eval rules ($\sim$80 LOC), $\sim$15 min setup; account required \\
+Braintrust            & Platform  & H & 4 & Same 4 scorers as LangSmith ($\sim$60 LOC), $\sim$15 min setup; account required \\
 \midrule
 GPT-4.1 Judge$^\dagger$  & LLM Judge & A & 2 & Requires paid OpenAI API \\
-Braintrust$^\dagger$  & Platform & H & 4 & Requires account + custom scorers \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -812,11 +817,21 @@ failure category requires explicit authorship, in contrast to LLM judges
 zero-config). This places LangSmith in a distinct configuration tier
 (Effort = 4) reflecting substantial per-deployment setup burden.
 
+\paragraph{Braintrust (evaluated).}
+Braintrust is a commercial evaluation platform for LLM applications that
+supports custom scorer functions written in JavaScript or Python. We
+configured the identical 4 failure-detection rules used for LangSmith
+(approximately 60 lines of code in Braintrust's scorer format), targeting
+the same failure categories: tool-loop detection and an event-count
+threshold. Setup required approximately 15 minutes including account
+creation, project setup, and scorer authorship. Crucially, this
+configuration replicates LangSmith's rules exactly, enabling a direct
+comparison of rule-driven platforms when holding the rule set constant.
+
 \paragraph{Planned systems (not yet evaluated).}
-Two additional systems are planned for future evaluation:
-GPT-4.1 judge (requiring paid OpenAI API access) and
-Braintrust (requiring platform account and custom scorer configuration).
-These are listed in Table~\ref{tab:systems} but excluded from all
+One additional system is planned for future evaluation:
+GPT-4.1 judge (requiring paid OpenAI API access).
+This system is listed in Table~\ref{tab:systems} but excluded from all
 results tables.
 
 % ==========================================================================
@@ -827,15 +842,15 @@ results tables.
 
 \subsection{Main Results}
 
-Table~\ref{tab:main_results} presents the primary evaluation results for the
-five evaluated systems.
+Table~\ref{tab:main_results} presents the primary evaluation results for all
+seven evaluated systems.
 Quality Detection Rate (QDR) is omitted because the current dataset uses
 binary pass/fail labels; the \texttt{degraded} tier requires quality
 rubrics not yet applied.
 
 \begin{table}[t]
 \centering
-\caption{Main results: per-dataset breakdown for all 6 evaluated systems.
+\caption{Main results: per-dataset breakdown for all 7 evaluated systems.
 DR = Detection Rate, FPR = False Positive Rate, CA = Category Alignment.
 95\% Wilson confidence intervals shown. N = number of trajectories
 evaluated per dataset. ``---'' indicates the metric is not applicable
@@ -874,6 +889,10 @@ system). \textbf{Bold} denotes best result per column within each dataset group.
 \midrule
 LangSmith
   & Synthetic & 50  & 22.0 {\scriptsize [12.8, 35.2]}            & ---               & 0.361 & --- \\
+\midrule
+\multirow{2}{*}{Braintrust}
+  & Synthetic & 50  & 22.0 {\scriptsize [12.8, 35.2]}            & ---               & 0.361 & --- \\
+  & Retail    & 50  & 91.7 {\scriptsize [74.2, 97.7]}            & 71.1 {\scriptsize [57.6, 81.8]}  & 0.544 & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -981,8 +1000,9 @@ Groq's free tier (\$0.00 per token) but face rate limits that constrain
 throughput. Claude Sonnet~4 is priced at \$3/MTok input and \$15/MTok output
 (Anthropic API list pricing). Tokens/traj = mean tokens consumed per trajectory.
 Galea Heuristic makes no LLM calls and runs entirely in-process.
-LangSmith dollar cost is \$0.00 (rule execution), but incurs 4 manually
-authored rules and $\sim$15 min of setup effort not captured in \$/traj.}
+LangSmith and Braintrust dollar cost is \$0.00 (rule execution), but each
+incurs 4 manually authored rules and $\sim$15 min of setup effort not captured
+in \$/traj.}
 \label{tab:cost}
 \small
 \begin{tabular}{@{}llrrrr@{}}
@@ -995,6 +1015,7 @@ Llama 3.3 70B      & prompt only    & 0.000 & 4.2     & 986   & 50 \\
 Llama 4 Scout      & prompt only    & 0.000 & 0.9--16.2\textsuperscript{*}     & 969--7,968\textsuperscript{*} & 100 \\
 Claude Sonnet 4    & prompt only    & $\sim$0.006 & 13.4--47.7\textsuperscript{\textdaggerdbl}     & 254--1,546\textsuperscript{\textdaggerdbl} & 70 \\
 LangSmith          & 4 rules, $\sim$80 LOC, $\sim$15 min & 0.000 & $<$0.01 & 0 & 50 \\
+Braintrust         & 4 scorers, $\sim$60 LOC, $\sim$15 min & 0.000 & $<$0.01 & 0 & 100 \\
 \bottomrule
 \multicolumn{6}{@{}l}{\footnotesize \textsuperscript{\textdagger}Range reflects synthetic (0.039s) vs.\ retail/airline (0.047--0.054s) trajectories.} \\
 \multicolumn{6}{@{}l}{\footnotesize \textsuperscript{*}Range reflects synthetic (short) vs.\ retail (long) trajectories.} \\
@@ -1117,6 +1138,16 @@ other failure category---hallucination (0/10), permission\_escalation (0/5),
 data\_leakage (0/5), infinite\_delegation (0/5), context\_overflow (0/5),
 planning\_failure (0/10)---is completely missed.
 
+\paragraph{Platform-agnostic rule coverage.}
+Braintrust was configured with the identical 4 rules (translated to Braintrust's
+scorer format, $\sim$60 LOC). It produces precisely the same 22.0\% DR on the
+synthetic dataset. This equivalence is not coincidental: it proves that the
+detection gap is a property of the \emph{rules}, not the \emph{platform}.
+LangSmith and Braintrust are effectively interchangeable when given the same
+rule set; what differs is syntax, not capability. This finding validates the
+\atfd config effort metric: the bottleneck for rule-driven platforms is always
+the coverage of the authored rules, regardless of which platform hosts them.
+
 This reveals a fundamental limitation of rule-driven platform monitoring:
 \emph{coverage scales with authorship}. Catching a new failure category
 requires writing a new rule. For production deployments spanning dozens of
@@ -1124,13 +1155,14 @@ failure modes, this becomes an ongoing engineering burden rather than a
 one-time setup cost.
 
 Table~\ref{tab:config_effort} makes the configuration effort comparison
-explicit across the three evaluation paradigms represented in this study.
+explicit across the four evaluation paradigms represented in this study.
 
 \begin{table}[h]
 \centering
 \caption{Configuration effort by evaluation paradigm. LLM judges and the
-Galea heuristic require no per-deployment rule authorship; LangSmith's
-coverage is bounded by the rules written.}
+Galea heuristic require no per-deployment rule authorship; LangSmith and
+Braintrust achieve identical coverage when given identical rules, confirming
+that the detection gap is about rule coverage, not platform capability.}
 \label{tab:config_effort}
 \small
 \begin{tabular}{@{}llrrl@{}}
@@ -1142,6 +1174,7 @@ Llama 3.3 70B      & LLM judge            & 0 & 0   & Prompt only; generalizes a
 Llama 4 Scout      & LLM judge            & 0 & 0   & Prompt only; generalizes across categories \\
 Claude Sonnet 4    & LLM judge            & 0 & 0   & Prompt only; generalizes across categories \\
 LangSmith          & Rule-driven platform & 4 & $\sim$15 & Each category requires explicit rule authorship \\
+Braintrust         & Rule-driven platform & 4 & $\sim$15 & Same rules as LangSmith $\Rightarrow$ same 22\% DR \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1186,6 +1219,37 @@ whether the output is sufficiently comprehensive.
 solution would look like. These findings corroborate practitioner reports
 that quality issues are underappreciated relative to hard
 crashes~\citep{inkeep2025context, arize2024failures}.
+
+\subsection{Domain Calibration Is Non-Trivial}
+\label{sec:analysis:calibration}
+
+Braintrust's retail results expose a critical practical failure mode for
+rule-driven platforms: \emph{domain mismatch}. The event-count threshold
+(flagging runs with $>$20 events) was designed to catch runaway trajectories.
+On the 50-trajectory synthetic dataset it contributes to modest overall DR
+with no FPR issue, because synthetic trajectories are short by construction.
+On the retail \taubench dataset, however, the same threshold fires on 71.1\%
+of \emph{passing} trajectories: normal retail customer-service conversations
+routinely exceed 20 events as agents look up orders, check policies, and
+confirm actions. The result is an 91.7\% DR paired with a 71.1\% FPR---a
+configuration that would flood any production alerting system with noise,
+rendering it operationally unusable.
+
+This finding has broad implications. A rule that performs acceptably on a
+development dataset (synthetic) can fail catastrophically when deployed
+against real traffic from a different domain (retail customer service). The
+calibration challenge is not limited to Braintrust: \emph{any} rule-driven
+system with numeric thresholds (step counts, event counts, token budgets)
+faces this problem when the threshold was set against one distribution and
+evaluated against another. Domain calibration therefore represents a hidden
+ongoing cost beyond the initial rule-authorship burden.
+
+Zero-config systems avoid this failure mode by design: the Galea heuristic
+achieves 0\% FPR on retail without any threshold tuning because its structural
+patterns are data-distribution-invariant (a genuine tool error looks the same
+regardless of conversation length). LLM judges similarly do not rely on
+numeric thresholds, though they introduce their own domain sensitivity via
+prompt-level assumptions about normal vs.\ abnormal behavior.
 
 \subsection{Error Analysis}
 
@@ -1246,12 +1310,14 @@ results.
 
 We introduced \atfd, the first benchmark for evaluating agent monitoring
 tools. Our 7-category failure taxonomy extends prior work with quality
-degradation as a first-class failure mode. Our evaluation of 6
+degradation as a first-class failure mode. Our evaluation of 7
 systems---a naive heuristic baseline, the Galea zero-config structural
-heuristic, two open-weight LLM judges, Claude Sonnet~4, and LangSmith
-with custom evaluator rules---on 1,162 trajectories from \taubench and
-synthetic sources reveals a striking \emph{complementarity} in detection
-profiles and an equally stark \emph{configuration effort gap}.
+heuristic, two open-weight LLM judges, Claude Sonnet~4, LangSmith
+with custom evaluator rules, and Braintrust with custom scorers---on
+1,162 trajectories from \taubench and synthetic sources reveals a
+striking \emph{complementarity} in detection profiles, an equally stark
+\emph{configuration effort gap}, and a novel \emph{domain calibration}
+failure mode.
 
 The Galea heuristic achieves 100\% DR on real \taubench failures with 0\%
 false positives using zero-config structural pattern matching. Open-weight
@@ -1272,15 +1338,20 @@ strings, but achieves only 8.3\% on telecom where failures are
 predominantly subtle---significantly below Galea's 100\% on comparable
 \taubench splits.
 
-LangSmith, evaluated with 4 manually authored rules ($\sim$80 LOC,
-$\sim$15 min setup), achieves only 22\% DR on synthetic trajectories---catching
-tool loops and a coarse event-count threshold while missing every semantic
-failure category (hallucination, safety violations, delegation failures). This
-result quantifies the configuration effort gap: rule-driven platforms require
-explicit authorship per failure category, making coverage a function of
-engineering investment rather than a property of the tool itself.
+LangSmith and Braintrust, each evaluated with the same 4 manually authored
+rules ($\sim$80 and $\sim$60 LOC respectively, $\sim$15 min setup each), both
+achieve 22\% DR on synthetic trajectories---catching tool loops and a coarse
+event-count threshold while missing every semantic failure category
+(hallucination, safety violations, delegation failures). Their identical results
+when given identical rules prove that this gap is attributable to
+\emph{rule coverage}, not platform capability. Braintrust further reveals a
+domain calibration problem: the same event-count threshold that is benign on
+synthetic data produces 71.1\% FPR on retail \taubench, where normal
+conversations regularly exceed the threshold. This makes the configuration
+operationally unusable without domain-specific tuning---a hidden cost that is
+not visible from synthetic evaluation alone.
 
-These findings establish three conclusions about agent failure detection.
+These findings establish four conclusions about agent failure detection.
 First, it is a genuinely difficult problem: open-weight LLM judges that
 achieve perfect detection on synthetic data fail badly on real traces, and
 even frontier models (Claude Sonnet~4) achieve category alignment below 0.5.
@@ -1292,16 +1363,21 @@ Galea+Claude ensemble represents the most promising direction for
 comprehensive agent monitoring. Third, configuration effort is a first-class
 evaluation dimension: zero-config approaches (Galea heuristic, LLM judges)
 generalize across failure categories without per-deployment authorship, while
-rule-driven platforms (LangSmith) scale coverage only with continued
-engineering investment.
+rule-driven platforms (LangSmith, Braintrust) scale coverage only with
+continued engineering investment---and since both platforms produce identical
+DR when given identical rules, the bottleneck is the rules, not the platform.
+Fourth, domain calibration is a hidden cost that does not appear in synthetic
+evaluation: Braintrust's event-count threshold achieves 91.7\% DR on retail
+but 71.1\% FPR, demonstrating that a rule set tuned for one distribution can
+be operationally unusable on a different domain without further calibration.
 
 \paragraph{Future work.}
 This initial release establishes the benchmark framework and baseline
-results. Immediate next steps include: (1)~evaluating additional proprietary LLM
-judges (GPT-4.1) and commercial platforms (Braintrust) to complete the
-planned system comparison, and evaluating LangSmith with a more comprehensive
-rule set (covering all 7 failure categories) to separate the effect of
-platform capability from configuration effort;
+results. Immediate next steps include: (1)~evaluating GPT-4.1 as an
+additional proprietary LLM judge to complete the planned system comparison,
+and evaluating LangSmith and Braintrust each with a more comprehensive
+rule set (covering all 7 failure categories) to measure the engineering
+investment required to close the coverage gap;
 (2)~evaluating the Galea full-stack system (with LLM-augmented analysis)
 beyond the heuristic-only configuration reported here;
 (3)~acquiring and integrating \swebench trajectories;
