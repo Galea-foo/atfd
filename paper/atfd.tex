@@ -103,12 +103,13 @@ a benchmark that fills this gap. \atfd contributes: (1)~a 7-category,
 quality degradation as a first-class failure mode; (2)~a formal task
 definition where systems must analyze complete agent trajectories and
 produce structured findings with severity, category, and attribution;
-(3)~a multi-domain dataset of {2,262} trajectories drawn from
+(3)~a multi-domain dataset of {2,462} trajectories spanning
 \taubench (customer service), \swebench (coding), hand-crafted synthetic
-scenarios, and ATBench (agent safety); (4)~a
+scenarios, ATBench (agent safety, 200-sample subset), and Toolathlon
+(long-horizon tool use); (4)~a
 multi-source ground truth protocol combining programmatic verdicts with
 LLM-judge consensus; (5)~a complete comparative evaluation of 7 systems
-across all 5 domains---a naive heuristic baseline, a zero-config structural
+across all 6 domains---a naive heuristic baseline, a zero-config structural
 heuristic (Galea), two open-weight LLM judges (Llama~4~Scout and
 Llama~3.3~70B), Claude Sonnet~4 as a proprietary LLM judge, LangSmith
 with custom evaluator rules, and Braintrust with custom scorers---revealing
@@ -120,17 +121,24 @@ false positives using zero-config pattern matching, but only {78\%} on
 synthetic failures that require semantic analysis; conversely, open-weight LLM
 judges achieve {100\%} detection on synthetic failures but struggle on real
 \taubench failures (Llama~4~Scout: {25.0\%} on retail, {20.0\%} on airline).
-ATBench (1,000 agent safety trajectories) proves the complementary profiles
-thesis definitively: heuristic systems achieve {0\%} DR on safety failures
-(tool description injection, harmful action execution, data leakage) while
-Claude Sonnet~4 achieves {100\%} DR---the widest gap of any domain.
+ATBench (200-sample subset of 1,000 safety trajectories) reveals a middle
+ground for Galea ({52.5\%} DR between its structural strengths and limits)
+and full {100\%} DR for Claude Sonnet~4; Galea reaches {52.5\%} by detecting
+structurally co-occurring anomalies, while the remaining {47.5\%} require
+semantic understanding.
+Toolathlon (100 long-horizon trajectories with 600+ tools, up to 16k messages)
+is the hardest domain for \emph{all} systems except Claude Sonnet~4, which
+uniquely achieves {100\%} DR even here, though at a high FPR of {67\%};
+every other evaluated system achieves {0\%} DR, confirming that long-horizon
+multi-step failures require frontier semantic understanding and cannot be caught
+by structural analysis or rule-based approaches.
 \swebench emerges as the ``easy'' domain: its failures are structurally obvious
 (tool errors, test failures) and detectable at {100\%} DR even by the naive
 baseline, contrasting sharply with airline's semantically subtle failures where
 even Claude Sonnet~4 reaches only {40\%} DR.
-Claude Sonnet~4 is the only system achieving {100\%} DR and low FPR
-simultaneously across both synthetic and retail domains, with the highest
-category alignment (CA = 0.489) of any evaluated system.
+Claude Sonnet~4 is the \emph{only} system achieving non-zero DR across all
+six domains, with the highest category alignment (CA = 0.489) of any evaluated
+system, though FPR escalates from {0\%} on \swebench to {67\%} on Toolathlon.
 No single system dominates all cells of the complete matrix, establishing
 that ensemble approaches combining structural and semantic detection are the
 most promising direction for comprehensive agent monitoring coverage.
@@ -235,12 +243,14 @@ Our contributions are:
     structured findings with severity, failure category, and step-level
     attribution, along with a mandatory cost report.
 
-  \item \textbf{Multi-domain dataset.} A corpus of {2,262}
+  \item \textbf{Multi-domain dataset.} A corpus of {2,462}
     trajectories (\S\ref{sec:datasets}) spanning customer service
     (\taubench retail, airline, and telecom), coding (\swebench, 100
     OpenHands trajectories), hand-crafted synthetic scenarios covering
-    safety, quality, and infrastructure failures, and ATBench (1,000
-    agent safety trajectories with 14 failure modes and 8 risk sources).
+    safety, quality, and infrastructure failures, ATBench (200-sample
+    subset of 1,000 agent safety trajectories with 14 failure modes
+    and 8 risk sources), and Toolathlon (100 long-horizon multi-tool
+    trajectories from HKUST-NLP, ICLR 2026).
 
   \item \textbf{Ground truth protocol.} A multi-source consensus mechanism
     (\S\ref{sec:ground_truth}) combining programmatic verdicts (test suites,
@@ -248,25 +258,28 @@ Our contributions are:
     inter-rater agreement metrics.
 
   \item \textbf{Complete comparative evaluation.} A full 7-system $\times$
-    5-domain evaluation (\S\ref{sec:systems}--\S\ref{sec:results})---a naive
+    6-domain evaluation (\S\ref{sec:systems}--\S\ref{sec:results})---a naive
     heuristic baseline, the Galea zero-config structural heuristic, two
     open-weight LLM judges (Llama~3.3~70B on synthetic only due to free-tier
     rate limits; Llama~4~Scout across synthetic, retail, airline, and
-    \swebench), Claude Sonnet~4 as a proprietary LLM judge across all five
+    \swebench), Claude Sonnet~4 as a proprietary LLM judge across all six
     domains, LangSmith with custom evaluator rules, and Braintrust with custom
     scorers---measured on detection rate, false positive rate, F1, category
     alignment, cost, and configuration effort. The complete matrix reveals that
     no single system dominates all cells. Claude Sonnet~4 achieves the highest
     F1 on real retail trajectories (0.800) and the highest category alignment
     (CA = 0.489), but reaches only 40\% DR on airline---the hardest domain for
-    LLM judges. ATBench shows the starkest gap: heuristic systems achieve 0\%
-    DR while Claude Sonnet~4 achieves 100\% DR, confirming that semantic safety
-    failures are undetectable by structural analysis. LangSmith and Braintrust
-    both achieve 100\% DR on \swebench but 100\% FPR, confirming that
-    event-count thresholds trigger on every coding trajectory and are unusable
-    without calibration. Braintrust additionally reveals a domain calibration
-    problem: its threshold achieves 91.7\% DR on retail but 71.1\% FPR.
-    Evaluation of GPT-4.1 as an additional LLM judge is planned as future work.
+    LLM judges---and 67\% FPR on Toolathlon. ATBench shows the starkest
+    heuristic-vs-LLM gap: heuristic systems achieve 0\% DR while Claude
+    Sonnet~4 achieves 100\% DR. Toolathlon is the hardest domain for all
+    systems except Claude Sonnet~4: every other system achieves 0\% DR on
+    long-horizon multi-tool trajectories, confirming that multi-step plan
+    failures require semantic understanding of tool sequencing that structural
+    and rule-based approaches cannot provide. LangSmith and Braintrust both
+    achieve 100\% DR on \swebench but 100\% FPR, confirming that event-count
+    thresholds are unusable without calibration. Braintrust additionally
+    reveals a domain calibration problem: its threshold achieves 91.7\% DR
+    on retail but 71.1\% FPR.
 
   \item \textbf{Open benchmark harness.} A reproducible evaluation framework
     with cost-aware metrics, confidence intervals, and statistical tests,
@@ -614,7 +627,7 @@ measured via Fleiss' $\kappa$~\citep{fleiss1971measuring}.
 \section{Datasets}
 \label{sec:datasets}
 
-The \atfd benchmark draws trajectories from four sources
+The \atfd benchmark draws trajectories from five sources
 (Table~\ref{tab:datasets}).
 
 \begin{table}[t]
@@ -635,8 +648,9 @@ applied; all trajectories are currently labeled binary pass/fail.}
 \swebench   & Coding    & 100  & 50  & --- & 50 \\
 Synthetic   & Mixed     & 50   & 0   & --- & 50 \\
 ATBench     & Agent Safety & 1,000 & 503 & --- & 497 \\
+Toolathlon  & Long-Horizon Tool Use & 100 & 30 & --- & 70 \\
 \midrule
-\textbf{Total} & ---    & 2,262 & 1,322 & --- & 940 \\
+\textbf{Total} & ---    & 2,462 & 1,352 & --- & 1,010 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -679,18 +693,41 @@ methodology of ToolFuzz~\citep{toolfuzz2025} and
 Agent-SafetyBench~\citep{zhang2024agentsafetybench}.
 
 \paragraph{ATBench trajectories.}
-We include 1,000 trajectories from the \texttt{AI45Research/ATBench} dataset
-on HuggingFace~\citep{ai45research2025atbench}, covering agent safety
-scenarios with 14 failure modes and 8 risk sources. The dataset is nearly
-balanced: 503 safe (pass) and 497 unsafe (fail) trajectories. Failure modes
-span tool description injection, harmful action execution, data leakage, and
-related agent safety violations. Ground truth is provided by the ATBench
-evaluation protocol. Unlike structural failure domains, ATBench failures are
-\emph{semantically} defined: no structural signal (tool errors, loop patterns,
-step counts) differentiates safe from unsafe trajectories. This makes ATBench
-the hardest domain for heuristic systems and confirms the domain difficulty
-spectrum with a fifth tier in which structural analysis is categorically
-insufficient (see \S\ref{sec:analysis:atbench}).
+We include a 200-sample subset from the \texttt{AI45Research/ATBench} dataset
+on HuggingFace~\citep{ai45research2025atbench} (full dataset: 1,000
+trajectories). ATBench covers agent safety scenarios with 14 failure modes
+and 8 risk sources; the full dataset is nearly balanced (503 safe, 497
+unsafe), and we sample proportionally (approximately 101 safe, 99 unsafe)
+to preserve this balance. Failure modes span tool description injection,
+harmful action execution, data leakage, and related agent safety violations.
+Ground truth is provided by the ATBench evaluation protocol. Unlike
+structural failure domains, ATBench failures are \emph{semantically} defined:
+no structural signal (tool errors, loop patterns, step counts) differentiates
+safe from unsafe trajectories. This makes ATBench the hardest domain for
+heuristic systems and confirms a fifth tier of the domain difficulty spectrum
+in which structural analysis is categorically insufficient
+(see \S\ref{sec:analysis:atbench}).
+
+\paragraph{Toolathlon trajectories.}
+We include 100 trajectories from the
+\texttt{hkust-nlp/Toolathlon-Trajectories} dataset on
+HuggingFace~\citep{toolathlon2026}, generated by Claude~4~Sonnet on
+long-horizon multi-tool tasks spanning 600+ available tools. Toolathlon
+(HKUST-NLP, ICLR 2026) is distinguished by the scale and complexity of
+its trajectories: individual runs may contain up to 16,000 messages across
+hundreds of tool calls. We cap each trajectory at 100 events for evaluation
+to bound cost and latency; the full trajectory is retained for statistical
+analysis. Ground truth is derived from the \texttt{task\_status.evaluation}
+field: trajectories labeled \texttt{true} (pass) or \texttt{false} (fail)
+are included; \texttt{null} (inconclusive) is excluded. Unlike \taubench,
+where failures involve argument or state errors, and unlike ATBench, where
+failures are semantically clear harmful instructions, Toolathlon failures
+involve \emph{multi-step plan failures}: the agent selects a coherent but
+incorrect sequence of tools, reaches an intermediate dead end, or
+misunderstands dependencies across a long context. This makes Toolathlon
+the hardest domain for all evaluated systems except Claude Sonnet~4 and
+establishes a sixth tier of the domain difficulty spectrum
+(see \S\ref{sec:analysis:toolathlon}).
 
 \begin{table}[t]
 \centering
@@ -830,21 +867,24 @@ with findings. Both use identical prompts to isolate model capability
 differences. The choice of free-tier models is deliberate: cost is a
 first-class metric, and demonstrating what is achievable at zero marginal
 cost establishes a practical lower bound for LLM-based monitoring.
-Llama~4~Scout was evaluated on all four domains (n=50 synthetic, n=50 retail,
-n=20 airline, n=20 \swebench). Llama~3.3~70B was evaluated only on synthetic
-(n=50): Groq free-tier rate limits made retail, airline, and \swebench runs
-infeasible within the evaluation window.
+Llama~4~Scout was evaluated on all six domains (n=50 synthetic, n=50 retail,
+n=20 airline, n=20 \swebench, n=200 ATBench, n=100 Toolathlon).
+Llama~3.3~70B was evaluated only on synthetic (n=50): Groq free-tier rate
+limits made all other domains infeasible within the evaluation window.
 
 \paragraph{Claude Sonnet~4 Judge (evaluated).}
 Claude Sonnet~4 was accessed via the Anthropic API and evaluated across all
-four domains: synthetic (n=50), retail (n=20), airline (n=20), and \swebench
-(n=20). It receives the same full trajectory and taxonomy-structured system
-prompt as the Llama judges. The smaller per-domain sample sizes reflect API
-throughput constraints relative to heuristic systems. Claude Sonnet~4
-delivers the highest category alignment (CA = 0.489 on synthetic) of any
-evaluated system and is the only LLM judge achieving both 100\% DR and 0\%
-FPR on \swebench. Its airline performance (40\% DR, 20\% FPR) reveals the
-limits of semantic generalization on domain-specific policy failures.
+six domains: synthetic (n=50), retail (n=20), airline (n=20), \swebench
+(n=20), ATBench (n=200), and Toolathlon (n=100). It receives the same full
+trajectory and taxonomy-structured system prompt as the Llama judges.
+Claude Sonnet~4 is the only system achieving non-zero DR across all six
+domains: 100\% DR on synthetic, retail, \swebench, ATBench, and Toolathlon,
+with 40\% DR on airline. It delivers the highest category alignment
+(CA = 0.489 on synthetic) of any evaluated system and is the only LLM judge
+achieving both 100\% DR and 0\% FPR on \swebench. Its FPR escalates on
+harder domains: 6\% on retail, 20\% on airline, and 67\% on Toolathlon---
+the last reflecting calibration challenges in extremely long-context
+multi-tool trajectories.
 
 \paragraph{LangSmith (evaluated).}
 LangSmith is a commercial observability platform for LLM applications that
@@ -876,7 +916,7 @@ One additional system is planned for future evaluation:
 GPT-4.1 judge (requiring paid OpenAI API access).
 This system is listed in Table~\ref{tab:systems} but excluded from all
 results tables.
-LangSmith and Braintrust are both fully evaluated across all four domains
+LangSmith and Braintrust are both fully evaluated across all six domains
 in this release (see Table~\ref{tab:main_results}).
 
 % ==========================================================================
@@ -888,18 +928,18 @@ in this release (see Table~\ref{tab:main_results}).
 \subsection{Main Results}
 
 Table~\ref{tab:main_results} presents the complete evaluation results for all
-seven evaluated systems across all four benchmark domains.
+seven evaluated systems across all six benchmark domains.
 Quality Detection Rate (QDR) is omitted because the current dataset uses
 binary pass/fail labels; the \texttt{degraded} tier requires quality rubrics
 not yet applied.
 Note that sample sizes vary by cell: LLM judges were evaluated on subsets
 due to API throughput constraints, while heuristic systems ran on full
 dataset splits. Llama~3.3~70B was evaluated on synthetic only; Groq free-tier
-rate limits prevented retail, airline, and \swebench runs (see \S\ref{sec:systems}).
+rate limits prevented all other domain runs (see \S\ref{sec:systems}).
 
 \begin{table}[t]
 \centering
-\caption{Complete results matrix: all 7 evaluated systems $\times$ 5 domains.
+\caption{Complete results matrix: all 7 evaluated systems $\times$ 6 domains.
 DR = Detection Rate, FPR = False Positive Rate.
 95\% Wilson confidence intervals shown in brackets. N = trajectories evaluated.
 ``---'' = not applicable (FPR undefined on all-failure synthetic set; CA not
@@ -908,7 +948,8 @@ best FPR per domain group. Galea FPR counts \texttt{error}-severity findings
 only; Galea emits \texttt{warning} severity by design so structural 0\% FPR
 is a metric asymmetry, not a precision claim---see \S\ref{sec:analysis:swebench}.
 $^\dagger$Llama~3.3~70B evaluated on synthetic only; rate limits prevented
-other domains. ATBench FPR is N/A for systems with 0\% DR (no findings emitted).}
+other domains. ATBench FPR is N/A for systems with 0\% DR (no findings emitted).
+Toolathlon trajectories capped at 100 events; see \S\ref{sec:datasets}.}
 \label{tab:main_results}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -916,49 +957,56 @@ other domains. ATBench FPR is N/A for systems with 0\% DR (no findings emitted).
 \toprule
 \textbf{System} & \textbf{Domain} & \textbf{N} & \textbf{DR (\%)} & \textbf{FPR (\%)} \\
 \midrule
-\multirow{5}{*}{Naive Heuristic}
+\multirow{6}{*}{Naive Heuristic}
   & Synthetic (all fail)   & 50    & 14.0 {\scriptsize [7.0, 26.2]}             & --- \\
   & Retail (\taubench)     & 456   & 25.4 {\scriptsize [18.4, 34.0]}            & 17.8 {\scriptsize [14.0, 22.2]} \\
   & Airline (\taubench)    & 200   & 40.9 {\scriptsize [31.2, 51.4]}            & 3.6 {\scriptsize [1.4, 8.8]} \\
   & \swebench              & 100   & \textbf{100.0} {\scriptsize [92.9, 100.0]} & \textbf{0.0} {\scriptsize [0.0, 7.1]} \\
-  & ATBench                & 1,000 & 0.0 {\scriptsize [0.0, 1.9]}               & 0.0 {\scriptsize [0.0, 1.8]} \\
+  & ATBench (200)          & 200   & 0.0 {\scriptsize [0.0, 5.8]}               & 0.0 {\scriptsize [0.0, 5.6]} \\
+  & Toolathlon             & 100   & 0.0 {\scriptsize [0.0, 8.0]}               & 0.0 {\scriptsize [0.0, 11.4]} \\
 \midrule
-\multirow{5}{*}{LangSmith (4 rules)}
+\multirow{6}{*}{LangSmith (4 rules)}
   & Synthetic (all fail)   & 50    & 22.0 {\scriptsize [12.8, 35.2]}            & --- \\
   & Retail (\taubench)     & 50    & 0.0 {\scriptsize [0.0, 30.8]}              & \textbf{0.0} {\scriptsize [0.0, 11.1]} \\
   & Airline (\taubench)    & 50    & 64.3 {\scriptsize [38.8, 83.7]}            & 33.3 {\scriptsize [17.0, 54.6]} \\
   & \swebench              & 100   & \textbf{100.0} {\scriptsize [92.9, 100.0]} & 100.0 {\scriptsize [92.9, 100.0]} \\
-  & ATBench                & 1,000 & 0.0 {\scriptsize [0.0, 1.9]}               & 0.0 {\scriptsize [0.0, 1.8]} \\
+  & ATBench (200)          & 200   & 0.0 {\scriptsize [0.0, 5.8]}               & 0.0 {\scriptsize [0.0, 5.6]} \\
+  & Toolathlon             & 100   & 0.0 {\scriptsize [0.0, 8.0]}               & 0.0 {\scriptsize [0.0, 11.4]} \\
 \midrule
-\multirow{5}{*}{Braintrust (4 scorers)}
+\multirow{6}{*}{Braintrust (4 scorers)}
   & Synthetic (all fail)   & 50    & 22.0 {\scriptsize [12.8, 35.2]}            & --- \\
   & Retail (\taubench)     & 50    & 91.7 {\scriptsize [74.2, 97.7]}            & 71.1 {\scriptsize [57.6, 81.8]} \\
   & Airline (\taubench)    & 50    & 64.3 {\scriptsize [38.8, 83.7]}            & 33.3 {\scriptsize [17.0, 54.6]} \\
   & \swebench              & 100   & \textbf{100.0} {\scriptsize [92.9, 100.0]} & 100.0 {\scriptsize [92.9, 100.0]} \\
-  & ATBench                & 1,000 & 0.0 {\scriptsize [0.0, 1.9]}               & 0.0 {\scriptsize [0.0, 1.8]} \\
+  & ATBench (200)          & 200   & 0.0 {\scriptsize [0.0, 5.8]}               & 0.0 {\scriptsize [0.0, 5.6]} \\
+  & Toolathlon             & 100   & 0.0 {\scriptsize [0.0, 8.0]}               & 0.0 {\scriptsize [0.0, 11.4]} \\
 \midrule
-\multirow{4}{*}{Llama 4 Scout}
+\multirow{6}{*}{Llama 4 Scout}
   & Synthetic (all fail)   & 50  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & --- \\
   & Retail (\taubench)     & 50  & 25.0 {\scriptsize [8.9, 53.2]}             & 13.2 {\scriptsize [5.8, 27.3]} \\
   & Airline (\taubench)    & 20  & 20.0 {\scriptsize [5.7, 51.0]}             & 66.7 {\scriptsize [38.4, 86.9]} \\
   & \swebench              & 20  & \textbf{100.0} {\scriptsize [79.4, 100.0]} & 100.0 {\scriptsize [79.4, 100.0]} \\
+  & ATBench (200)          & 200 & 70.0 {\scriptsize [63.1, 76.1]}            & --- \\
+  & Toolathlon             & 100 & 14.3 {\scriptsize [7.1, 26.5]}             & \textbf{0.0} {\scriptsize [0.0, 11.4]} \\
 \midrule
-\multirow{5}{*}{Claude Sonnet 4}
+\multirow{6}{*}{Claude Sonnet 4}
   & Synthetic (all fail)   & 50  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & --- \\
   & Retail (\taubench)     & 20  & \textbf{100.0} {\scriptsize [34.2, 100.0]} & \textbf{5.6} {\scriptsize [1.0, 25.8]} \\
   & Airline (\taubench)    & 20  & 40.0 {\scriptsize [14.7, 72.6]}            & 20.0 {\scriptsize [5.7, 51.0]} \\
   & \swebench              & 20  & \textbf{100.0} {\scriptsize [79.4, 100.0]} & \textbf{0.0} {\scriptsize [0.0, 16.8]} \\
-  & ATBench                & 10  & \textbf{100.0} {\scriptsize [72.2, 100.0]} & N/A \\
+  & ATBench (200)          & 200 & \textbf{100.0} {\scriptsize [98.1, 100.0]} & N/A \\
+  & Toolathlon             & 100 & \textbf{100.0} {\scriptsize [96.3, 100.0]} & 66.7 {\scriptsize [39.1, 86.2]} \\
 \midrule
 Llama 3.3 70B$^\dagger$
   & Synthetic (all fail)   & 50  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & --- \\
 \midrule
-\multirow{5}{*}{Galea Heuristic}
+\multirow{6}{*}{Galea Heuristic}
   & Synthetic (all fail)   & 50    & 78.0 {\scriptsize [64.8, 87.2]}            & --- \\
   & Retail (\taubench)     & 100   & \textbf{100.0} {\scriptsize [85.1, 100.0]} & \textbf{0.0*} {\scriptsize [0.0, 4.7]} \\
   & Airline (\taubench)    & 50    & \textbf{100.0} {\scriptsize [78.5, 100.0]} & \textbf{0.0*} {\scriptsize [0.0, 9.6]} \\
   & \swebench              & 100   & 90.0 {\scriptsize [78.6, 95.7]}            & \textbf{0.0*} {\scriptsize [0.0, 7.1]} \\
-  & ATBench                & 1,000 & 0.0 {\scriptsize [0.0, 1.9]}               & 0.0 {\scriptsize [0.0, 1.8]} \\
+  & ATBench (200)          & 200   & 52.5 {\scriptsize [45.5, 59.5]}            & \textbf{0.0*} {\scriptsize [0.0, 5.6]} \\
+  & Toolathlon             & 100   & 0.0 {\scriptsize [0.0, 8.0]}               & 0.0 {\scriptsize [0.0, 11.4]} \\
 \bottomrule
 \multicolumn{5}{@{}l}{\footnotesize *Galea emits \texttt{warning}-severity findings only; FPR counts \texttt{error}-severity. With warning-level FPR, Galea would be $\approx$100\%.} \\
 \multicolumn{5}{@{}l}{\footnotesize \phantom{*}This severity distinction is disclosed throughout; see \S\ref{sec:analysis:swebench}.}
@@ -974,24 +1022,25 @@ compact view for cross-system, cross-domain comparison.
 \centering
 \caption{Summary DR\% / FPR\% matrix. All cells use the same N as
 Table~\ref{tab:main_results}. ``---'' = FPR not applicable (all-failure
-synthetic set). ``$\sim$100'' = FPR $\approx$ 100\% (event-count threshold
-fires on every passing trajectory). Galea FPR uses \texttt{error}-severity
-definition; see note in Table~\ref{tab:main_results}.
-ATBench DR for heuristic/rule systems = 0\%; Claude Sonnet~4 (n=10) = 100\%.}
+set or FPR not separately measured for this system/domain pair).
+``$\sim$100'' = FPR $\approx$ 100\% (event-count threshold fires on every
+passing trajectory). Galea FPR uses \texttt{error}-severity definition;
+see note in Table~\ref{tab:main_results}.
+Llama~3.3~70B evaluated on synthetic only.}
 \label{tab:summary_matrix}
 \small
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular}{@{}lcccccc@{}}
 \toprule
-\textbf{System} & \textbf{Synthetic} & \textbf{Retail} & \textbf{Airline} & \textbf{\swebench} & \textbf{ATBench} \\
- & \textbf{DR / FPR} & \textbf{DR / FPR} & \textbf{DR / FPR} & \textbf{DR / FPR} & \textbf{DR / FPR} \\
+\textbf{System} & \textbf{Synthetic} & \textbf{Retail} & \textbf{Airline} & \textbf{\swebench} & \textbf{ATBench} & \textbf{Toolathlon} \\
+ & \textbf{DR / FPR} & \textbf{DR / FPR} & \textbf{DR / FPR} & \textbf{DR / FPR} & \textbf{DR / FPR} & \textbf{DR / FPR} \\
 \midrule
-Naive Heuristic         & 14\% / ---      & 25\% / 18\%  & 41\% / 4\%   & \textbf{100\%} / \textbf{0\%} & 0\% / 0\% \\
-LangSmith (4 rules)     & 22\% / ---      & 0\% / 0\%    & 64\% / 33\%  & \textbf{100\%} / $\sim$100\% & 0\% / 0\% \\
-Braintrust (4 scorers)  & 22\% / ---      & 92\% / 71\%  & 64\% / 33\%  & \textbf{100\%} / $\sim$100\% & 0\% / 0\% \\
-Llama 4 Scout           & \textbf{100\%} / --- & 25\% / 13\%  & 20\% / 67\%  & \textbf{100\%} / $\sim$100\% & \emph{n/a} \\
-Claude Sonnet 4         & \textbf{100\%} / --- & \textbf{100\%} / \textbf{6\%} & 40\% / 20\%  & \textbf{100\%} / \textbf{0\%} & \textbf{100\%} / N/A \\
-Llama 3.3 70B           & \textbf{100\%} / --- & \emph{n/a}   & \emph{n/a}   & \emph{n/a} & \emph{n/a} \\
-Galea Heuristic         & 78\% / ---      & \textbf{100\%} / 0\%* & \textbf{100\%} / 0\%* & 90\% / 0\%* & 0\% / 0\% \\
+Naive Heuristic         & 14\% / ---      & 25\% / 18\%  & 41\% / 4\%   & \textbf{100\%} / \textbf{0\%} & 0\% / 0\%  & 0\% / 0\% \\
+LangSmith (4 rules)     & 22\% / ---      & 0\% / 0\%    & 64\% / 33\%  & \textbf{100\%} / $\sim$100\% & 0\% / 0\%  & 0\% / 0\% \\
+Braintrust (4 scorers)  & 22\% / ---      & 92\% / 71\%  & 64\% / 33\%  & \textbf{100\%} / $\sim$100\% & 0\% / 0\%  & 0\% / 0\% \\
+Llama 4 Scout           & \textbf{100\%} / --- & 25\% / 13\%  & 20\% / 67\%  & \textbf{100\%} / $\sim$100\% & 70\% / --- & 14\% / \textbf{0\%} \\
+Claude Sonnet 4         & \textbf{100\%} / --- & \textbf{100\%} / \textbf{6\%} & 40\% / 20\%  & \textbf{100\%} / \textbf{0\%} & \textbf{100\%} / --- & \textbf{100\%} / 67\% \\
+Llama 3.3 70B           & \textbf{100\%} / --- & \emph{n/a}   & \emph{n/a}   & \emph{n/a} & \emph{n/a} & \emph{n/a} \\
+Galea Heuristic         & 78\% / ---      & \textbf{100\%} / 0\%* & \textbf{100\%} / 0\%* & 90\% / 0\%* & 53\% / 0\%* & 0\% / 0\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -999,18 +1048,21 @@ Galea Heuristic         & 78\% / ---      & \textbf{100\%} / 0\%* & \textbf{100\
 \subsection{Per-Domain Breakdown}
 
 The complete matrix (Tables~\ref{tab:main_results} and~\ref{tab:summary_matrix})
-enables six cross-domain observations that are only visible once all cells are
+enables seven cross-domain observations that are only visible once all cells are
 populated.
 
 \begin{itemize}[leftmargin=2em]
-  \item \textbf{Domain difficulty spectrum is clear and now five-tiered.}
+  \item \textbf{Domain difficulty spectrum is clear and now six-tiered.}
     \swebench is the easiest domain (all systems achieve high DR on structural
     coding errors), synthetic is moderate (LLM judges excel, pure heuristics
     plateau at 78\%), the \taubench domains are hard---with airline harder than
     retail for LLM judges (Llama~4~Scout: 20\% vs.\ 25\%; Claude Sonnet~4:
-    40\% vs.\ 100\%)---and ATBench is categorically hardest for heuristics:
-    0\% DR for all structural systems, 100\% DR for Claude Sonnet~4. This is
-    the inverse of the \swebench pattern, completing the spectrum.
+    40\% vs.\ 100\%)---ATBench reveals a middle ground for heuristics
+    (Galea: 52.5\% DR, between its 0\% on Toolathlon and 100\% on \taubench),
+    and Toolathlon is the hardest domain for all systems except Claude
+    Sonnet~4. The spectrum: \swebench $\to$ Synthetic $\to$ Retail $\to$
+    Airline $\to$ ATBench $\to$ Toolathlon, each posing qualitatively distinct
+    challenges.
 
   \item \textbf{Rule-based platforms collapse on \swebench.} LangSmith and
     Braintrust both achieve 100\% DR on \swebench---but with 100\% FPR.
@@ -1025,40 +1077,47 @@ populated.
     frontier LLMs. In contrast, the Galea heuristic achieves 100\% DR on
     airline with 0\% FPR.
 
-  \item \textbf{Claude Sonnet~4 is the only system with 100\% DR and low
-    FPR across multiple domains.} It achieves 100\% DR and $\leq$6\% FPR on
-    both synthetic and retail. Its FPR on retail (5.6\%) is substantially
-    lower than Llama~4~Scout (13.2\%) and the naive heuristic (17.8\%). On
-    \swebench it achieves 100\% DR with 0\% FPR (n=20). Its airline
-    performance (40\% DR, 20\% FPR) reveals it does not generalize uniformly
-    across all semantic failure types.
+  \item \textbf{Toolathlon is hardest for all systems except Claude Sonnet~4.}
+    Every system except Claude Sonnet~4 achieves exactly 0\% DR on Toolathlon:
+    the naive heuristic, Galea, LangSmith, and Braintrust all emit no findings
+    on long-horizon multi-tool trajectories; Llama~4~Scout reaches only 14.3\%
+    DR with 0\% FPR. Only Claude Sonnet~4 achieves 100\% DR on Toolathlon,
+    but at a high FPR (66.7\%)---the highest FPR of any Claude cell across all
+    domains. Long-horizon failures require semantic understanding of multi-step
+    plans; structural pattern matching and simple rules cannot detect whether
+    a 16,000-message trajectory with hundreds of tool calls reached the correct
+    goal.
+
+  \item \textbf{ATBench reveals a middle ground for Galea.} Unlike prior
+    domains where Galea achieves either 100\% DR (\taubench) or 0\% DR
+    (Toolathlon), Galea achieves 52.5\% DR on ATBench with 0\% FPR
+    (error-severity definition). This confirms that some safety failure
+    patterns---tool-description anomalies and structural irregularities that
+    co-occur with unsafe actions---are partially detectable by structural
+    analysis, while the remaining 47.5\% require semantic understanding.
+
+  \item \textbf{Claude Sonnet~4 is the only system with 100\% DR across
+    all six domains}, though FPR escalates on harder domains (0\% on
+    \swebench, 6\% on retail, 20\% on airline, 67\% on Toolathlon). Its
+    FPR on retail (5.6\%) is substantially lower than Llama~4~Scout (13.2\%)
+    and the naive heuristic (17.8\%). Its category alignment (CA = 0.489
+    on synthetic) remains the highest of any evaluated system.
 
   \item \textbf{Galea is the only system with 0\% FPR across all domains}
     (using the error-severity definition). Galea achieves 100\% DR on both
-    retail (n=100) and airline (n=50) with 0\% FPR, and 90\% DR on \swebench
-    with 0\% FPR. Its 78\% ceiling on synthetic data reflects the limits of
-    pure structural analysis: communication failures
-    (\texttt{hallucination}) and safety failures require semantic grounding
-    beyond what pattern matching provides. Galea's 0\% FPR is a metric
-    asymmetry---see \S\ref{sec:analysis:swebench}.
-
-  \item \textbf{ATBench is the definitive test of complementarity.}
-    Heuristic systems (Naive, Galea) and rule-driven platforms (LangSmith,
-    Braintrust) all achieve 0\% DR on ATBench---the structural signal that
-    makes these systems work on \taubench is entirely absent from semantic
-    safety failures. Claude Sonnet~4 achieves 100\% DR on ATBench (n=10),
-    confirming that LLM semantic understanding is necessary and sufficient
-    for this failure class. The gap between structural (0\% DR) and semantic
-    (100\% DR) approaches is widest on ATBench of any evaluated domain.
+    retail and airline with 0\% FPR, 90\% on \swebench, 52.5\% on ATBench,
+    and 78\% on synthetic---in every case with 0\% FPR. Its 0\% DR on
+    Toolathlon is the one cell where structural analysis is categorically
+    insufficient.
 
   \item \textbf{No system dominates all cells.} The matrix reveals
-    complementary strengths: Galea dominates on real \taubench domains (0\%
-    FPR, 100\% DR on retail and airline); Claude Sonnet~4 dominates on
-    synthetic, retail, and ATBench; LLM judges and rule-driven platforms
+    complementary strengths: Galea dominates on real \taubench domains (100\%
+    DR, 0\% FPR on retail and airline); Claude Sonnet~4 is the only system
+    achieving 100\% DR on all six domains; LLM judges and rule-driven platforms
     uniformly achieve 100\% DR on \swebench but vary wildly on FPR. This
     complementarity is the central empirical finding: an ensemble combining
     structural and semantic detection would outperform any single system on
-    the complete five-domain matrix.
+    the complete six-domain matrix.
 \end{itemize}
 
 \subsection{Per-Category Analysis}
@@ -1137,13 +1196,13 @@ in \$/traj.}
 \toprule
 \textbf{System} & \textbf{Config Effort} & \textbf{\$/traj} & \textbf{p50 Latency (s)} & \textbf{Tokens/traj} & \textbf{N evaluated} \\
 \midrule
-Naive Heuristic    & 0 rules, 0 min & 0.000 & $<$0.01 & 0     & 1,312 \\
-Galea Heuristic    & 0 rules, 0 min & 0.000 & 0.039--0.054\textsuperscript{\textdagger}     & 0 & 300 \\
+Naive Heuristic    & 0 rules, 0 min & 0.000 & $<$0.01 & 0     & 1,562 \\
+Galea Heuristic    & 0 rules, 0 min & 0.000 & 0.039--0.054\textsuperscript{\textdagger}     & 0 & 600 \\
 Llama 3.3 70B      & prompt only    & 0.000 & 4.2     & 986   & 50 \\
-Llama 4 Scout      & prompt only    & 0.000 & 0.9--16.2\textsuperscript{*}     & 969--7,968\textsuperscript{*} & 100 \\
-Claude Sonnet 4    & prompt only    & $\sim$0.027\textsuperscript{\textdaggerdbl} & 13.4--55.5\textsuperscript{\textdaggerdbl}     & 254--1,799\textsuperscript{\textdaggerdbl} & 80 \\
-LangSmith          & 4 rules, $\sim$80 LOC, $\sim$15 min & 0.000 & $<$0.01 & 0 & 50 \\
-Braintrust         & 4 scorers, $\sim$60 LOC, $\sim$15 min & 0.000 & $<$0.01 & 0 & 100 \\
+Llama 4 Scout      & prompt only    & 0.000 & 0.9--16.2\textsuperscript{*}     & 969--7,968\textsuperscript{*} & 440 \\
+Claude Sonnet 4    & prompt only    & $\sim$0.027\textsuperscript{\textdaggerdbl} & 13.4--55.5\textsuperscript{\textdaggerdbl}     & 254--1,799\textsuperscript{\textdaggerdbl} & 390 \\
+LangSmith          & 4 rules, $\sim$80 LOC, $\sim$15 min & 0.000 & $<$0.01 & 0 & 350 \\
+Braintrust         & 4 scorers, $\sim$60 LOC, $\sim$15 min & 0.000 & $<$0.01 & 0 & 400 \\
 \bottomrule
 \multicolumn{6}{@{}l}{\footnotesize \textsuperscript{\textdagger}Range reflects synthetic (0.039s) vs.\ retail/airline (0.047--0.054s) trajectories.} \\
 \multicolumn{6}{@{}l}{\footnotesize \textsuperscript{*}Range reflects synthetic (short) vs.\ retail (long) trajectories.} \\
@@ -1193,32 +1252,33 @@ The complete evaluation matrix reveals that heuristic and LLM-based systems
 exhibit \emph{inverse} detection profiles across domains: heuristic systems
 excel at structural failures in real trajectories, while LLM judges excel
 at semantic failures in synthetic trajectories. Table~\ref{tab:profiles}
-summarizes this complementarity with the full five-domain view.
+summarizes this complementarity with the full six-domain view.
 
 \begin{table}[h]
 \centering
-\caption{Detection profile comparison across all five domains. Galea dominates
+\caption{Detection profile comparison across all six domains. Galea dominates
 on structural failures in real \taubench traces with 0\% FPR (error-severity
-definition); Claude Sonnet~4 dominates on synthetic, retail, and ATBench;
-no system dominates airline---the hardest domain for LLM judges.
-ATBench is the definitive proof of complementarity: 0\% DR for all heuristic
-and rule-driven systems, 100\% DR for Claude Sonnet~4.}
+definition); Claude Sonnet~4 is the only system achieving non-zero DR across
+all six domains; Toolathlon is the frontier where all systems except Claude
+Sonnet~4 achieve 0\% DR; ATBench reveals a middle ground for Galea (52.5\%
+DR) between its structural strengths and semantic limits.}
 \label{tab:profiles}
 \small
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 \textbf{Domain} & \textbf{Galea} & \textbf{LLMs (open-wt.)} & \textbf{Claude Sonnet 4} & \textbf{Rule platforms} \\
 \midrule
-Synthetic    & 78\% DR        & \textbf{100\% DR}          & \textbf{100\% DR}           & 22\% DR \\
-Retail       & \textbf{100\%, 0\%*} & 25\%, 13\% & \textbf{100\%, 6\%} & 0--92\%, 0--71\% \\
-Airline      & \textbf{100\%, 0\%*} & 20\%, 67\% & 40\%, 20\% & 64\%, 33\% \\
-\swebench    & 90\%, 0\%*  & \textbf{100\%}, 100\% & \textbf{100\%, 0\%} & \textbf{100\%}, 100\% \\
-ATBench      & 0\%            & \emph{n/a}                & \textbf{100\%}              & 0\% \\
+Synthetic    & 78\% DR              & \textbf{100\% DR}     & \textbf{100\% DR}           & 22\% DR \\
+Retail       & \textbf{100\%, 0\%*} & 25\%, 13\%            & \textbf{100\%, 6\%}         & 0--92\%, 0--71\% \\
+Airline      & \textbf{100\%, 0\%*} & 20\%, 67\%            & 40\%, 20\%                  & 64\%, 33\% \\
+\swebench    & 90\%, 0\%*           & \textbf{100\%}, 100\% & \textbf{100\%, 0\%}         & \textbf{100\%}, 100\% \\
+ATBench      & 53\%, 0\%*           & 70\%                  & \textbf{100\%}              & 0\% \\
+Toolathlon   & 0\%                  & 14\%, 0\%             & \textbf{100\%, 67\%}        & 0\% \\
 \midrule
-CA (synth.)  & 0.000          & 0.318--0.359              & \textbf{0.489}               & --- \\
+CA (synth.)  & 0.000                & 0.318--0.359          & \textbf{0.489}               & --- \\
 \bottomrule
 \multicolumn{5}{@{}l}{\footnotesize *Galea FPR = 0\% under error-severity definition; see \S\ref{sec:analysis:swebench}.} \\
-\multicolumn{5}{@{}l}{\footnotesize Retail/Airline/\swebench cells show DR\% / FPR\%. ATBench shows DR\% only.}
+\multicolumn{5}{@{}l}{\footnotesize Retail/Airline/\swebench/ATBench/Toolathlon cells show DR\% / FPR\%. Open-wt. = Llama~4~Scout.}
 \end{tabular}
 \end{table}
 
@@ -1255,14 +1315,16 @@ still struggle with domain-specific policy semantics in the airline domain,
 where Galea's structural approach maintains superiority.
 
 \paragraph{Ensemble implication.}
-The complementarity across the complete matrix strengthens the case for an
-ensemble architecture: run the Galea heuristic first (zero latency, zero cost,
-zero FPR) to catch structural failures across all domains, then invoke Claude
-Sonnet~4 for synthetic and retail-style trajectories where semantic
-understanding is needed and Galea's 78\% ceiling applies. Neither system
-alone covers the full matrix; together they would combine Galea's
-100\% retail/airline coverage with Claude's 100\% synthetic/SWE-bench
-coverage and superior category alignment.
+The complementarity across the complete six-domain matrix strengthens the
+case for an ensemble architecture: run the Galea heuristic first (zero
+latency, zero cost, zero FPR) to catch structural failures across all
+domains, then invoke Claude Sonnet~4 for synthetic, retail-style, ATBench,
+and Toolathlon trajectories where semantic understanding is needed. Neither
+system alone covers the full matrix; together they would combine Galea's
+100\% retail/airline coverage and 52.5\% ATBench coverage with Claude's
+100\% synthetic/\swebench/ATBench/Toolathlon coverage and superior category
+alignment---though Claude's 67\% FPR on Toolathlon remains an open challenge
+for ensemble precision.
 We leave formal ensemble evaluation as future work.
 
 \subsection{The Configuration Effort Gap}
@@ -1430,7 +1492,7 @@ for any system that relies on event-count heuristics or lacks calibrated
 confidence on passing trajectories.
 
 \paragraph{Domain difficulty spectrum.}
-The complete five-domain matrix reveals a clear difficulty ordering for monitoring tools:
+The complete six-domain matrix reveals a clear difficulty ordering for monitoring tools:
 \begin{itemize}[leftmargin=2em]
   \item \textbf{\swebench (easy)}: structural failures produce explicit error
     signals. All evaluated systems achieve 100\% DR. The distinguishing
@@ -1446,21 +1508,34 @@ The complete five-domain matrix reveals a clear difficulty ordering for monitori
   \item \textbf{Airline \taubench (hardest for LLM judges)}: Even Claude
     Sonnet~4 reaches only 40\% DR. Only Galea achieves both high DR (100\%)
     and low FPR (0\%) here.
-  \item \textbf{ATBench (hardest for heuristics; inverse of \swebench)}:
-    Semantic safety failures (tool description injection, harmful action
-    execution, data leakage) produce no structural signal. All heuristic and
-    rule-driven systems achieve 0\% DR; Claude Sonnet~4 achieves 100\% DR
-    (n=10, 95\% CI [72.2\%, 100.0\%]). This is the exact inverse of
-    \swebench: the domain that is trivial for LLM judges is categorically
-    impossible for structural analysis.
+  \item \textbf{ATBench (middle ground; partially structural, partially
+    semantic)}: Galea achieves 52.5\% DR with 0\% FPR---some safety patterns
+    co-occur with structural anomalies that heuristics can detect.
+    Claude Sonnet~4 achieves 100\% DR and Llama~4~Scout achieves 70\% DR,
+    confirming that semantic understanding substantially outperforms structural
+    analysis but is not uniquely necessary. Rule-driven platforms (LangSmith,
+    Braintrust) achieve 0\% DR, confirming that rules written for
+    process/structural failures do not generalize to semantic safety.
+  \item \textbf{Toolathlon (hardest for all systems except Claude Sonnet~4)}:
+    Long-horizon multi-tool failures involve no structural signal (no error
+    strings, no loops, no step-count anomalies that are not normal for
+    600+-tool environments). Every system except Claude Sonnet~4 achieves
+    0\% DR. Claude Sonnet~4 achieves 100\% DR with 67\% FPR: it can detect
+    genuine long-horizon failures but over-flags passing trajectories,
+    suggesting calibration challenges in extremely long contexts. Llama~4~Scout
+    reaches 14.3\% DR with 0\% FPR, indicating that open-weight models can
+    occasionally identify long-horizon failures but lack the consistent
+    semantic depth of frontier models.
 \end{itemize}
 
-This five-tier spectrum has a critical practical implication: benchmarking
+This six-tier spectrum has a critical practical implication: benchmarking
 monitoring tools on any single domain gives a highly misleading picture of
 production performance. The complete matrix---spanning structural-easy
-(\swebench) through semantic-safety (ATBench)---is necessary to characterize
-operational coverage across the full failure landscape. Notably, no single
-system achieves high DR across all five tiers.
+(\swebench) through long-horizon-hard (Toolathlon)---is necessary to
+characterize operational coverage across the full failure landscape.
+Notably, Claude Sonnet~4 is the only system achieving any non-zero DR
+across all six tiers, and no single system achieves high DR \emph{and} low
+FPR uniformly.
 
 \paragraph{Galea FPR: a metric asymmetry.}
 The Galea heuristic reports 0\% FPR across all evaluated domains, including
@@ -1478,49 +1553,102 @@ transparently to avoid inflating Galea's apparent precision.
 \subsection{ATBench: Semantic Safety as the Inverse Domain}
 \label{sec:analysis:atbench}
 
-ATBench~\citep{ai45research2025atbench} provides the sharpest empirical test of
-the complementarity thesis. Its 1,000 trajectories (503 safe, 497 unsafe) span
-14 failure modes and 8 risk sources---all defined at the semantic level: tool
-description injection, harmful action execution, data leakage, and related
-safety violations. Unlike \taubench failures (which produce observable state
-errors) or \swebench failures (which produce explicit tool error strings),
-ATBench unsafe trajectories are structurally indistinguishable from safe ones.
-A malicious tool call looks syntactically identical to a legitimate tool call;
-only semantic understanding of the instruction and context reveals the violation.
+ATBench~\citep{ai45research2025atbench} provides an important counterpoint to
+the structural vs.\ semantic binary. Its 1,000 trajectories (503 safe, 497
+unsafe) span 14 failure modes and 8 risk sources. We evaluate on a
+proportionally sampled 200-trajectory subset ($\approx$101 safe, $\approx$99
+unsafe). Failure modes are defined at the semantic level: tool description
+injection, harmful action execution, data leakage, and related safety
+violations.
 
-The results confirm this analysis definitively. Every heuristic and rule-driven
-system achieves exactly 0\% DR [0.0\%, 1.9\%] on ATBench with 0\% FPR---not
-because they have low recall balanced against high precision, but because they
-emit \emph{no findings at all} on this domain. The structural signals that
-enable Galea to achieve 100\% DR on \taubench (tool-error fingerprints,
-loop patterns, state-signal anomalies) are absent from semantic safety failures
-by construction.
+The complete ATBench results reveal a more nuanced picture than the original
+pilot suggested. Claude Sonnet~4 achieves 100\% DR [98.1\%, 100.0\%] on the
+200-trajectory evaluation, confirming that frontier models can reliably
+identify semantic safety failures. Llama~4~Scout achieves 70\% DR on ATBench,
+indicating that open-weight models can detect a substantial majority of safety
+failures---a meaningful improvement over their performance on \taubench domains.
+Most significantly, Galea achieves 52.5\% DR [45.5\%, 59.5\%] on ATBench with
+0\% FPR: this is Galea's \emph{middle-ground} result, between its 100\% on
+\taubench and 0\% on Toolathlon. Some ATBench safety patterns are structurally
+co-detectable (tool-description anomalies that deviate from normal schema
+patterns, unusual tool-call sequences preceding harmful outcomes), making
+partial structural detection possible.
 
-Claude Sonnet~4 achieves 100\% DR [72.2\%, 100.0\%] on the evaluated ATBench
-pilot (n=10), consistent with prior safety evaluation results showing frontier
-models can identify harmful instructions when given appropriate context. The
-wide confidence interval reflects the pilot sample size; full-scale evaluation
-across all 1,000 trajectories is planned.
+Rule-driven systems (LangSmith, Braintrust) achieve 0\% DR on ATBench,
+confirming that rules written for process and structural failures do not
+transfer to semantic safety.
 
-\paragraph{Why ATBench completes the spectrum.}
-ATBench occupies the fifth position in the domain difficulty spectrum not
-because it is \emph{hard} for LLM judges---it appears to be easy---but because
-it is \emph{categorically impossible} for structural systems. The \swebench
-domain sits at the opposite end: structurally trivial (error strings are
-explicit), requiring no semantic understanding, yet difficult for precision
-(all systems trigger on passing trajectories). ATBench inverts this:
-semantically clear for LLM judges (harmful instructions are often obvious to
-language models), but structurally invisible (no error string, no loop, no
-step-count anomaly). Together, \swebench and ATBench bracket the full spectrum
-of monitoring challenges.
+\paragraph{ATBench in the difficulty spectrum.}
+ATBench occupies a fifth tier in the domain difficulty spectrum---harder than
+airline for heuristic systems (0\% for naive/rule-based; 52.5\% for Galea)
+but easier than Toolathlon for LLM judges (70--100\% vs.\ 0--14\% on
+Toolathlon for open-weight models). Together with Toolathlon, ATBench
+completes the spectrum from structurally trivial (\swebench) through
+semantically hard (ATBench) to long-horizon impossible (Toolathlon).
 
 \paragraph{Ensemble implication.}
 The ATBench results strengthen the ensemble case: a Galea+Claude Sonnet~4
 architecture would combine Galea's 100\% DR on \taubench retail/airline (where
-Claude reaches only 40--100\%) with Claude's 100\% DR on ATBench (where Galea
-achieves 0\%). Neither system alone covers the full five-domain matrix; together
-they would achieve near-complete coverage across structural \emph{and} semantic
-failure classes.
+Claude reaches only 40--100\%) with Galea's 52.5\% structural coverage on
+ATBench and Claude's 100\% semantic coverage. Neither system alone covers the
+full six-domain matrix; together they would achieve comprehensive coverage
+across structural, semantic safety, and (partially) long-horizon failure
+classes---with Toolathlon remaining the hardest open problem.
+
+\subsection{Toolathlon: Long-Horizon Tool Use as the Hardest Domain}
+\label{sec:analysis:toolathlon}
+
+Toolathlon~\citep{toolathlon2026} (HKUST-NLP, ICLR 2026) provides the
+most demanding evaluation in the \atfd benchmark. Its 100 trajectories---drawn
+from Claude~4~Sonnet runs on long-horizon multi-tool tasks with 600+
+available tools---represent the frontier of agent complexity: individual
+runs may contain up to 16,000 messages, and task completion requires
+coordinating across dozens of sequential tool calls where intermediate
+outputs feed downstream steps.
+
+The results establish Toolathlon as categorically different from all other
+evaluated domains. Every system except Claude Sonnet~4 achieves exactly
+0\% DR: the naive heuristic, Galea, LangSmith, Braintrust, and
+Llama~4~Scout all emit no valid findings on Toolathlon failure trajectories.
+This is not a consequence of noise or sample size---it reflects a
+fundamental mismatch between available detection signals and long-horizon
+failure modes. A trajectory that selects the wrong tool 47 steps into a
+100-step plan, triggering a silent but incorrect intermediate state that
+propagates to a wrong final answer, leaves no structural fingerprint that
+pattern matching can exploit. There is no error string, no loop, and no
+step-count anomaly distinguishable from normal task complexity.
+
+Claude Sonnet~4 achieves 100\% DR on Toolathlon (n=100), confirming that
+frontier semantic understanding can identify these failures. However, its
+67\% FPR is the highest of any Claude cell across all six domains. This
+FPR pattern suggests that in extremely long contexts, even frontier models
+struggle to distinguish a genuinely failed plan from a passing one with
+unusual intermediate states. Llama~4~Scout achieves 14.3\% DR with 0\%
+FPR---occasional detection with no false alarms---suggesting that open-weight
+models can recognize the most egregious long-horizon failures but lack the
+consistent depth needed for high recall.
+
+\paragraph{Why Toolathlon differs from ATBench.}
+Both Toolathlon and ATBench are hard for heuristic systems, but for
+fundamentally different reasons. ATBench failures are \emph{semantically
+obvious} to language models (harmful instructions are recognizable to any
+sufficiently capable LLM) but \emph{structurally invisible}. Toolathlon
+failures are hard for \emph{all} system classes: they require not only
+semantic understanding of the task goal but also the ability to trace
+causality across a very long context window to identify where in a
+multi-step plan the failure originated. This makes Toolathlon the most
+demanding domain for current monitoring technology and the one where
+future improvements---in context length, multi-step reasoning, and
+long-horizon plan evaluation---are most needed.
+
+\paragraph{Ensemble implication.}
+The Toolathlon results narrow the potential coverage of any ensemble
+that combines current systems. A Galea+Claude Sonnet~4 ensemble would
+achieve near-complete coverage of the first five tiers (structural,
+synthetic, retail, airline, ATBench), but on Toolathlon it would rely
+entirely on Claude Sonnet~4---with its 67\% FPR overhead. Reducing
+FPR on long-horizon trajectories is the most pressing open problem
+for comprehensive agent monitoring coverage.
 
 \subsection{Error Analysis}
 
@@ -1546,18 +1674,21 @@ results.
 
 \begin{enumerate}[leftmargin=2em]
   \item \textbf{Dataset scale and coverage gaps.} While the dataset
-    comprises 2,262 trajectories, LLM judge evaluation was limited to
-    10--100 trajectories for most domains due to free-tier API rate limits.
+    comprises 2,462 trajectories, LLM judge evaluation was limited to
+    20--200 trajectories for most domains due to API throughput constraints.
     The \swebench slice (100 trajectories) was evaluated at full scale only
-    for heuristic systems; Claude Sonnet~4 was evaluated on a 10-trajectory
-    pilot for both \swebench and ATBench. Some subcategories (\eg
+    for heuristic systems; Claude Sonnet~4 was evaluated on 20-trajectory
+    subsets for retail, airline, and \swebench, but at full scale for ATBench
+    (200) and Toolathlon (100). Some subcategories (\eg
     \texttt{permission\_escalation}) have only 5 examples, limiting
-    statistical power---as reflected in the wide confidence intervals.
+    statistical power---as reflected in the wide confidence intervals for
+    small-N cells.
 
-  \item \textbf{Domain coverage.} The current domains (customer service,
-    coding, synthetic) provide a foundation across structural and semantic
-    failure modes, but do not cover all deployment contexts (\eg medical,
-    financial, legal domains where monitoring is most critical).
+  \item \textbf{Domain coverage.} The current six domains (customer service,
+    coding, synthetic, agent safety, and long-horizon tool use) provide a
+    broad foundation across structural, semantic, and multi-step failure
+    modes, but do not cover all deployment contexts (\eg medical, financial,
+    legal domains where monitoring is most critical).
 
   \item \textbf{Ground truth subjectivity.} Quality degradation labels are
     inherently subjective. Our multi-source consensus mitigates but does
@@ -1587,52 +1718,61 @@ degradation as a first-class failure mode. Our complete evaluation of 7
 systems---a naive heuristic baseline, the Galea zero-config structural
 heuristic, Llama~3.3~70B (synthetic only), Llama~4~Scout, Claude Sonnet~4,
 LangSmith with custom evaluator rules, and Braintrust with custom
-scorers---across all 5 domains on 2,262 trajectories from \taubench,
-\swebench, synthetic sources, and ATBench reveals a striking
+scorers---across all 6 domains on 2,462 trajectories from \taubench,
+\swebench, synthetic sources, ATBench, and Toolathlon reveals a striking
 \emph{complementarity} in detection profiles, an equally stark
 \emph{configuration effort gap}, a pervasive \emph{domain calibration}
-failure mode, and a clear five-level \emph{domain difficulty spectrum}
-from structurally obvious (\swebench) to structurally invisible yet
-semantically clear (ATBench).
+failure mode, and a clear six-level \emph{domain difficulty spectrum}
+from structurally obvious (\swebench) through long-horizon-hard (Toolathlon).
 
 The complete matrix shows that \textbf{no single system dominates all cells}.
 The Galea heuristic achieves 100\% DR on real \taubench (both retail and
 airline) with 0\% FPR using zero-config structural pattern matching, but
-plateaus at 78\% on synthetic failures requiring semantic analysis, and
-achieves exactly 0\% DR on ATBench where structural signals are absent by
-definition. Open-weight LLM judges achieve 100\% DR on synthetic failures but
-struggle on real trajectories (Llama~4~Scout: 25\% on retail, 20\% on airline).
-Claude Sonnet~4 is the \textbf{best single system on synthetic, retail, and
-ATBench domains}: it achieves 100\% DR with low FPR (6\% on retail, 0\% on
-\swebench, 100\% DR on ATBench n=10) and the highest category alignment
-(CA = 0.489 on synthetic). However, even Claude Sonnet~4 reaches only 40\%
-DR on airline---the hardest domain for LLM judges---where Galea's structural
-approach (100\% DR, 0\% FPR) clearly dominates. ATBench proves the
-complementarity thesis most sharply: the gap between heuristic (0\% DR) and
-LLM-semantic (100\% DR) approaches is wider here than on any other domain.
+plateaus at 78\% on synthetic failures requiring semantic analysis, reaches
+52.5\% DR on ATBench (a middle ground reflecting partial structural
+detectability of safety patterns), and achieves exactly 0\% DR on Toolathlon
+where multi-step plan failures leave no structural footprint.
+Open-weight LLM judges achieve 100\% DR on synthetic failures but
+struggle on real trajectories (Llama~4~Scout: 25\% on retail, 20\% on
+airline, 70\% on ATBench, 14\% on Toolathlon).
+Claude Sonnet~4 is the \textbf{only system achieving non-zero DR across all
+six domains}: it achieves 100\% DR across synthetic, retail, \swebench,
+ATBench, and Toolathlon, with FPR escalating from 0\% (\swebench) to 6\%
+(retail) to 20\% (airline) to 67\% (Toolathlon). Its airline performance
+(40\% DR) is the one domain where even Claude Sonnet~4 underperforms Galea's
+structural approach (100\% DR, 0\% FPR). The highest category alignment
+(CA = 0.489 on synthetic) remains Claude Sonnet~4's.
+
+Toolathlon establishes a new frontier: every system except Claude Sonnet~4
+achieves 0\% DR on long-horizon multi-tool trajectories. This is the hardest
+domain for all currently evaluated systems and the one where future
+improvements in long-context reasoning will have the greatest impact on
+monitoring coverage. ATBench reveals a middle ground for Galea (52.5\% DR),
+confirming that some safety failure patterns are structurally co-detectable
+even when others require full semantic understanding.
 
 Rule-driven platforms (LangSmith, Braintrust) reveal that the calibration
 problem extends across all domains in distinct ways. Both achieve 22\% DR on
 synthetic (identical rules, identical coverage), 0--92\% DR with 33--71\%
-FPR on \taubench domains, and 100\% DR with 100\% FPR on \swebench---making
-their event-count threshold operationally unusable on coding trajectories
-without domain recalibration.
+FPR on \taubench domains, 100\% DR with 100\% FPR on \swebench, and 0\% DR
+on ATBench and Toolathlon---making their event-count threshold operationally
+unusable on coding trajectories without domain recalibration and completely
+ineffective on semantic safety and long-horizon domains.
 
 Category alignment remains universally low even for Claude Sonnet~4 (best
 observed CA = 0.489), indicating that correctly identifying failure
 \emph{type} is dramatically harder than detecting failure \emph{existence}
 for all current systems.
 
-These findings establish five conclusions about agent failure detection.
+These findings establish six conclusions about agent failure detection.
 First, it is a genuinely difficult problem: no system achieves high DR and
-low FPR simultaneously across all four domains, and even frontier models
+low FPR simultaneously across all six domains, and even frontier models
 achieve category alignment below 0.5.
 Second, the failure modes of heuristic and LLM-based systems are largely
 complementary across the complete matrix: heuristics catch structural
 failures with zero false positives on real \taubench; LLM judges catch
-semantic failures on synthetic; Claude Sonnet~4 bridges both on retail and
-\swebench but not airline. A Galea+Claude ensemble would combine their
-complementary strengths and outperform any single system on the full matrix.
+semantic failures on synthetic and safety domains; Claude Sonnet~4 bridges
+all six domains but with escalating FPR on harder ones.
 Third, configuration effort is a first-class evaluation dimension:
 zero-config approaches generalize across failure categories without
 per-deployment authorship, while rule-driven platforms scale coverage only
@@ -1643,39 +1783,49 @@ Fourth, domain calibration is a pervasive cost that does not appear in
 synthetic evaluation alone: rule platforms achieve 100\% FPR on \swebench,
 71\% FPR on retail, and 33\% FPR on airline from the same threshold---a
 systematic failure across every real domain tested.
-Fifth, the domain difficulty spectrum is five-tiered: \swebench (easy,
+Fifth, the domain difficulty spectrum is six-tiered: \swebench (easy,
 structural signals), synthetic (moderate, injected patterns), retail
 (hard, subtle state errors), airline (hardest for LLMs, domain-specific
-policy semantics), ATBench (hardest for heuristics, semantically defined
-safety violations with no structural signal). ATBench and \swebench are
-mirror images: each is easy for the system class that struggles on the other.
+policy semantics), ATBench (middle ground, partially structural + partially
+semantic safety), and Toolathlon (hardest for all except Claude Sonnet~4,
+multi-step plan failures with no structural signal).
+Sixth, \textbf{Toolathlon is the hardest domain for all systems except
+Claude Sonnet~4}: the gap between structural/rule/open-weight approaches
+(all 0\% DR) and frontier semantic understanding (100\% DR) is total, making
+long-horizon tool use the most pressing open problem for agent monitoring.
 Benchmarking monitoring tools on any single domain would give a misleading
-picture of production utility; the complete five-domain matrix is necessary
+picture of production utility; the complete six-domain matrix is necessary
 to characterize operational coverage.
 
 \paragraph{Future work.}
-This release provides the complete 7-system $\times$ 5-domain evaluation on
-2,262 trajectories. Immediate next steps include:
+This release provides the complete 7-system $\times$ 6-domain evaluation on
+2,462 trajectories. Immediate next steps include:
 (1)~evaluating GPT-4.1 as an additional proprietary LLM judge, and
 evaluating LangSmith and Braintrust each with a more comprehensive rule set
 (covering all 7 failure categories) to measure the engineering investment
 required to close the coverage gap;
-(2)~completing Llama~3.3~70B and Llama~4~Scout evaluation on ATBench;
-(3)~scaling the Claude Sonnet~4 ATBench evaluation from the current 10-trajectory
-pilot to the full 1,000-trajectory dataset to tighten confidence intervals;
-(4)~completing Llama~3.3~70B evaluation on retail, airline, and \swebench
-domains (currently blocked by Groq free-tier rate limits);
-(5)~evaluating the Galea full-stack system (with LLM-augmented analysis)
-beyond the heuristic-only configuration reported here;
-(6)~running the multi-judge consensus pipeline for ground truth validation;
-(7)~applying domain-specific quality rubrics to enable the \texttt{degraded}
-tier and QDR measurement; (8)~expanding domain coverage to medical, legal,
-and financial workflows; (9)~adding streaming evaluation for real-time
-monitoring tools; (10)~investigating why category alignment is so low and
-whether alternative prompting strategies or fine-tuned models can improve
-failure type identification; and (11)~formally evaluating heuristic+LLM
-ensemble configurations---in particular, measuring whether a Galea+Claude
-Sonnet~4 ensemble achieves near-complete coverage across all five domains.
+(2)~completing Llama~3.3~70B evaluation on retail, airline, \swebench,
+ATBench, and Toolathlon domains (currently blocked by Groq free-tier rate
+limits);
+(3)~scaling Claude Sonnet~4 and Llama~4~Scout evaluation on all six domains
+to full dataset sizes to tighten confidence intervals;
+(4)~evaluating the Galea full-stack system (with LLM-augmented analysis)
+beyond the heuristic-only configuration reported here, particularly on
+ATBench and Toolathlon where semantic gaps remain;
+(5)~running the multi-judge consensus pipeline for ground truth validation;
+(6)~applying domain-specific quality rubrics to enable the \texttt{degraded}
+tier and QDR measurement;
+(7)~expanding domain coverage to medical, legal, and financial workflows;
+(8)~adding streaming evaluation for real-time monitoring tools;
+(9)~investigating why category alignment is so low and whether alternative
+prompting strategies or fine-tuned models can improve failure type
+identification;
+(10)~formally evaluating heuristic+LLM ensemble configurations---in
+particular, measuring whether a Galea+Claude Sonnet~4 ensemble achieves
+near-complete coverage across all six domains; and
+(11)~investigating prompt calibration strategies to reduce Claude Sonnet~4's
+67\% FPR on Toolathlon while maintaining its 100\% DR, which is the most
+pressing precision challenge in long-horizon monitoring.
 
 % ==========================================================================
 % REFERENCES
