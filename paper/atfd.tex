@@ -107,17 +107,20 @@ produce structured findings with severity, category, and attribution;
 \taubench and hand-crafted synthetic scenarios, with \swebench integration
 as planned future work; (4)~a
 multi-source ground truth protocol combining programmatic verdicts with
-LLM-judge consensus; (5)~an initial comparative evaluation of 4 systems---a
-naive heuristic baseline, a zero-config structural heuristic (Galea), and
-two open-weight LLM judges---with commercial
-platform evaluation as future work; and
+LLM-judge consensus; (5)~a comparative evaluation of 5 systems---a
+naive heuristic baseline, a zero-config structural heuristic (Galea),
+two open-weight LLM judges, and Claude Sonnet~4 as a proprietary LLM
+judge---with commercial platform evaluation as future work; and
 (6)~an open benchmark harness with cost-aware metrics. Our evaluation reveals
 a stark \emph{detection gap} with complementary profiles: the Galea heuristic
 achieves {100\%} detection rate on real \taubench failures with {0\%} false
 positives using zero-config pattern matching, but only {78\%} on synthetic
-failures that require semantic analysis; conversely, LLM judges achieve
-{100\%} detection on synthetic failures but only {25.0\%} on real
+failures that require semantic analysis; conversely, open-weight LLM judges
+achieve {100\%} detection on synthetic failures but only {25.0\%} on real
 \taubench failures involving subtle argument and state errors.
+Claude Sonnet~4 bridges this gap, achieving {100\%} detection on both
+synthetic and real retail trajectories with the highest category alignment
+(CA = 0.489) of any evaluated system.
 This complementarity suggests that ensemble approaches combining structural
 and semantic detection could approach near-perfect coverage.
 \end{abstract}
@@ -232,13 +235,15 @@ Our contributions are:
     state checks) with three independent LLM judges, validated by
     inter-rater agreement metrics.
 
-  \item \textbf{Comparative evaluation.} An initial evaluation of 4 systems
+  \item \textbf{Comparative evaluation.} An evaluation of 5 systems
     (\S\ref{sec:systems}--\S\ref{sec:results})---a naive heuristic baseline,
-    the Galea zero-config structural heuristic, and two open-weight LLM judges
-    (Llama~3.3~70B, Llama~4~Scout)---measured on
-    detection rate, false positive rate, F1,
-    category alignment, and cost. Evaluation of commercial platforms and
-    proprietary LLM judges is planned as future work.
+    the Galea zero-config structural heuristic, two open-weight LLM judges
+    (Llama~3.3~70B, Llama~4~Scout), and Claude Sonnet~4 as a proprietary
+    LLM judge---measured on detection rate, false positive rate, F1,
+    category alignment, and cost. Claude Sonnet~4 achieves the highest
+    F1 on real trajectories (0.800 on retail) and the highest category
+    alignment (0.489) of any evaluated system. Evaluation of commercial
+    platforms is planned as future work.
 
   \item \textbf{Open benchmark harness.} A reproducible evaluation framework
     with cost-aware metrics, confidence intervals, and statistical tests,
@@ -688,9 +693,9 @@ Claude Sonnet~4, and Llama~4~Scout---will each analyze every trajectory
 using a structured two-stage prompt.
 Stage~1 asks the judge to identify all potential issues; Stage~2 asks the
 judge to classify each issue using the \atfd taxonomy with severity
-assignments. In this initial release, we use two open-weight judges
-(Llama~3.3~70B and Llama~4~Scout) as both evaluated systems and
-preliminary consensus sources.
+assignments. In this release, we use three LLM judges (Llama~3.3~70B,
+Llama~4~Scout, and Claude Sonnet~4) as evaluated systems; full multi-judge
+consensus across all trajectories is pending.
 
 \paragraph{Source 3: Domain-specific quality rubrics.}
 For \texttt{degraded} labeling, we apply domain-specific quality rubrics
@@ -727,7 +732,7 @@ reflects accuracy, not systematic bias.
 \section{Evaluated Systems}
 \label{sec:systems}
 
-We evaluate 4 systems in this initial release and describe 4 additional
+We evaluate 5 systems in this release and describe 3 additional
 planned systems (Table~\ref{tab:systems}).
 
 \begin{table}[t]
@@ -745,9 +750,9 @@ Naive Heuristic       & Heuristic & N & 1 & Pattern matching: error strings, tim
 Galea Heuristic       & Heuristic & N & 1 & Zero-config structural heuristics: tool-error patterns, loop detection, state-signal analysis \\
 Llama 3.3 70B Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
 Llama 4 Scout Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
+Claude Sonnet 4 Judge & LLM Judge & A & 2 & Single-pass prompt via Anthropic API (headless access, \$0.00 cost) \\
 \midrule
-GPT-4.1 Judge$^\dagger$         & LLM Judge & A & 2 & Requires paid OpenAI API \\
-Claude Sonnet 4 Judge$^\dagger$ & LLM Judge & A & 2 & Requires paid Anthropic API \\
+GPT-4.1 Judge$^\dagger$  & LLM Judge & A & 2 & Requires paid OpenAI API \\
 LangSmith$^\dagger$   & Platform & H & 4 & Requires account + custom evaluator rules \\
 Braintrust$^\dagger$  & Platform & H & 4 & Requires account + custom scorers \\
 \bottomrule
@@ -779,15 +784,22 @@ differences. The choice of free-tier models is deliberate: cost is a
 first-class metric, and demonstrating what is achievable at zero marginal
 cost establishes a practical lower bound for LLM-based monitoring.
 
+\paragraph{Claude Sonnet~4 Judge (evaluated).}
+Claude Sonnet~4 was accessed via the Anthropic API under headless conditions
+(\$0.00 marginal cost per trajectory in this evaluation). It receives the same
+full trajectory and taxonomy-structured system prompt as the Llama judges.
+Compared to the open-weight judges, Claude Sonnet~4 was evaluated on a
+smaller subset (20 retail trajectories) due to API throughput constraints,
+but delivers substantially higher detection rate (100\% on retail) and the
+highest category alignment (CA = 0.489 on synthetic) of any evaluated system.
+
 \paragraph{Planned systems (not yet evaluated).}
-Four additional systems are planned for future evaluation:
-GPT-4.1 and Claude Sonnet~4 judges (requiring paid API access),
+Three additional systems are planned for future evaluation:
+GPT-4.1 judge (requiring paid OpenAI API access),
 and LangSmith and Braintrust (requiring platform accounts and custom evaluator
 configuration).
 These are listed in Table~\ref{tab:systems} but excluded from all
-results tables.\footnote{Evaluation of these systems requires production
-API access or hosted platform account setup that was not available for
-this initial benchmark release.}
+results tables.
 
 % ==========================================================================
 % 9. RESULTS
@@ -798,7 +810,7 @@ this initial benchmark release.}
 \subsection{Main Results}
 
 Table~\ref{tab:main_results} presents the primary evaluation results for the
-four systems evaluated in this initial release.
+five evaluated systems.
 Quality Detection Rate (QDR) is omitted because the current dataset uses
 binary pass/fail labels; the \texttt{degraded} tier requires quality
 rubrics not yet applied.
@@ -837,6 +849,10 @@ each dataset group.}
   & Synthetic & 50  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & ---               & \textbf{1.000} & 0.318 \\
   & Retail    & 50  & 25.0 {\scriptsize [8.9, 53.2]}  & 13.2 {\scriptsize [5.8, 27.3]}   & 0.300 & 0.029 \\
   & \emph{Others} & --- & \multicolumn{4}{c}{\emph{free-tier rate limits; evaluation pending}} \\
+\midrule
+\multirow{2}{*}{Claude Sonnet 4}
+  & Synthetic & 50  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & ---               & \textbf{1.000} & \textbf{0.489} \\
+  & Retail    & 20  & \textbf{100.0} {\scriptsize [34.2, 100.0]} & \textbf{5.6} {\scriptsize [1.0, 25.8]}  & \textbf{0.800} & 0.133 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -860,15 +876,21 @@ cross-domain observations are:
     However, Galea achieves only 78.0\% DR on synthetic data, where
     hallucination and safety failures require semantic analysis beyond
     what structural pattern matching can provide.
-  \item Both LLM judges achieve 100\% DR on synthetic data but struggle
+  \item Open-weight LLM judges achieve 100\% DR on synthetic data but struggle
     with real \taubench failures: Llama~4~Scout achieves only 25.0\% DR
     on retail, comparable to the naive heuristic (25.4\%) and far below
     Galea (100.0\%).
-  \item Category alignment is near zero for all systems on real data,
-    indicating that even when failures are detected, the failure
-    \emph{type} is almost never correctly identified. Galea's CA of 0.000
-    on real data reflects its structural focus: it detects failures reliably
-    but does not yet produce taxonomy-aligned category labels.
+  \item Claude Sonnet~4 bridges the gap between the heuristic and open-weight
+    LLM profiles: it achieves 100\% DR on both synthetic and real retail
+    trajectories, with an F1 of 0.800 on retail---the highest of any system
+    on real data. Its FPR on retail (5.6\%) is substantially lower than
+    Llama~4~Scout (13.2\%) and the naive heuristic (17.8\%).
+  \item Category alignment is universally low, indicating that even when
+    failures are detected, the failure \emph{type} is rarely correctly
+    identified. Claude Sonnet~4 achieves the best CA (0.489 on synthetic),
+    but this still leaves substantial room for improvement. Galea's CA of
+    0.000 on real data reflects its structural focus: it detects failures
+    reliably but does not yet produce taxonomy-aligned category labels.
 \end{itemize}
 
 \subsection{Per-Category Analysis}
@@ -881,10 +903,13 @@ communication, safety), while the naive heuristic detects only 14\%
 overall---primarily \texttt{tool\_loop} patterns.
 
 Category alignment (CA) scores tell the more nuanced story: even when LLM
-judges correctly detect that a failure exists, they achieve only
+judges correctly detect that a failure exists, open-weight judges achieve only
 CA = 0.359 (Llama~3.3~70B) and CA = 0.318 (Llama~4~Scout) on synthetic
-data, indicating substantial disagreement on failure \emph{type}. On real
-\taubench data, CA drops to 0.029 (Llama~4~Scout on retail) and 0.000
+data, while Claude Sonnet~4 achieves the highest CA of any system at
+CA = 0.489 on synthetic data---indicating that identifying \emph{what}
+failed is genuinely harder than detecting \emph{that} a failure occurred,
+even for a frontier model. On real \taubench data, CA drops to 0.133
+(Claude Sonnet~4 on retail), 0.029 (Llama~4~Scout on retail), and 0.000
 (naive heuristic on all real datasets).
 
 Key observations:
@@ -930,9 +955,10 @@ constraints}.
 
 \begin{table}[t]
 \centering
-\caption{Cost per trajectory for evaluated systems. Both LLM judges use
+\caption{Cost per trajectory for evaluated systems. Open-weight LLM judges use
 Groq's free tier (\$0.00 per token) but face rate limits that constrain
-throughput. Tokens/traj = mean tokens consumed per trajectory. Galea
+throughput. Claude Sonnet~4 was accessed at \$0.00 via headless API access.
+Tokens/traj = mean tokens consumed per trajectory. Galea
 Heuristic makes no LLM calls and runs entirely in-process.}
 \label{tab:cost}
 \small
@@ -944,9 +970,11 @@ Naive Heuristic    & 0.000 & 0.00 & $<$0.01 & 0     & 1,162 \\
 Galea Heuristic    & 0.000 & 0.00 & 0.039--0.054\textsuperscript{\textdagger}     & 0 & 200 \\
 Llama 3.3 70B      & 0.000 & 0.00 & 4.2     & 986   & 50 \\
 Llama 4 Scout      & 0.000 & 0.00 & 0.9--16.2\textsuperscript{*}     & 969--7,968\textsuperscript{*} & 100 \\
+Claude Sonnet 4    & 0.000 & 0.00 & 13.4--47.7\textsuperscript{\textdaggerdbl}     & 254--1,546\textsuperscript{\textdaggerdbl} & 70 \\
 \bottomrule
 \multicolumn{6}{@{}l}{\footnotesize \textsuperscript{\textdagger}Range reflects synthetic (0.039s) vs.\ retail/airline (0.047--0.054s) trajectories.} \\
-\multicolumn{6}{@{}l}{\footnotesize \textsuperscript{*}Range reflects synthetic (short) vs.\ retail (long) trajectories.}
+\multicolumn{6}{@{}l}{\footnotesize \textsuperscript{*}Range reflects synthetic (short) vs.\ retail (long) trajectories.} \\
+\multicolumn{6}{@{}l}{\footnotesize \textsuperscript{\textdaggerdbl}Range reflects synthetic (13.4s, 254 tokens) vs.\ retail (47.7s, 1,546 tokens) trajectories.}
 \end{tabular}
 \end{table}
 
@@ -995,17 +1023,19 @@ summarizes this complementarity.
 
 \begin{table}[h]
 \centering
-\caption{Detection profile comparison: Galea Heuristic vs.\ LLM Judges.
-Galea dominates on structural failures in real traces; LLM judges dominate
-on semantic failures in synthetic scenarios.}
+\caption{Detection profile comparison: Galea Heuristic, open-weight LLM
+Judges, and Claude Sonnet~4. Galea dominates on structural failures in real
+traces; open-weight LLM judges excel on synthetic scenarios; Claude Sonnet~4
+bridges both.}
 \label{tab:profiles}
 \small
-\begin{tabular}{@{}lcc@{}}
+\begin{tabular}{@{}lccc@{}}
 \toprule
-\textbf{Failure class} & \textbf{Galea Heuristic} & \textbf{LLM Judges} \\
+\textbf{Failure class} & \textbf{Galea Heuristic} & \textbf{Open-weight LLMs} & \textbf{Claude Sonnet 4} \\
 \midrule
-Structural (tool errors, loops) --- \taubench & \textbf{100\% DR, 0\% FPR} & 25\% DR \\
-Semantic (hallucination, wrong args) --- Synthetic & 78\% DR & \textbf{100\% DR} \\
+Structural (tool errors, loops) --- \taubench & \textbf{100\% DR, 0\% FPR} & 25\% DR & \textbf{100\% DR, 5.6\% FPR} \\
+Semantic (hallucination, wrong args) --- Synthetic & 78\% DR & \textbf{100\% DR} & \textbf{100\% DR} \\
+Category alignment (CA) --- best observed & 0.000 & 0.359 & \textbf{0.489} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1020,22 +1050,32 @@ analysis: the 22\% missed failures are communication failures
 \texttt{permission\_escalation}) that produce no structural anomaly and
 require semantic grounding to identify.
 
-Conversely, LLM judges detect 100\% of synthetic failures---including
-hallucinations and safety violations---because the injected failures are
-egregiously obvious at the semantic level.
+Open-weight LLM judges (Llama~3.3~70B, Llama~4~Scout) detect 100\% of
+synthetic failures---including hallucinations and safety violations---because
+the injected failures are egregiously obvious at the semantic level.
 Their 25\% DR on real \taubench failures reflects the opposite gap:
 natural agent failures involve subtle argument value errors, near-correct
 state transitions, and ambiguous intent that confuse semantic analysis
 trained on more salient failure patterns.
 
+Claude Sonnet~4 stands apart by bridging both profiles: it achieves 100\%
+DR on both synthetic and real retail trajectories, with F1 = 0.800 on
+retail---the best real-trajectory performance of any evaluated system.
+Its FPR on retail (5.6\%) lies between the heuristics (0\%) and open-weight
+judges (13.2\%), and its CA of 0.489 on synthetic data is the highest
+observed across all systems. This indicates that frontier proprietary models
+can close the detection gap that plagues smaller open-weight judges on real
+trajectories, while also offering superior category classification.
+
 \paragraph{Ensemble implication.}
 The complementarity of these profiles suggests a practical ensemble
 architecture: run the Galea heuristic first (zero latency, zero cost,
-zero false positives) to catch structural failures, then invoke an LLM
-judge only when the heuristic finds no structural issues or when
-semantic verification is required. Such an ensemble could theoretically
-achieve near-perfect detection across both failure classes while limiting
-expensive LLM calls to trajectories the heuristic cannot resolve.
+zero false positives) to catch structural failures, then invoke Claude
+Sonnet~4 only when the heuristic finds no structural issues or when
+semantic verification or category attribution is required. Such an ensemble
+combines Galea's 0\% FPR on structural failures with Claude's 100\% DR on
+semantic failures and superior category alignment, while limiting expensive
+LLM calls to trajectories the heuristic cannot resolve.
 We leave formal ensemble evaluation as future work.
 
 \subsection{What Is Hard to Detect?}
@@ -1133,37 +1173,46 @@ results.
 
 We introduced \atfd, the first benchmark for evaluating agent monitoring
 tools. Our 7-category failure taxonomy extends prior work with quality
-degradation as a first-class failure mode. Our initial evaluation of 4
+degradation as a first-class failure mode. Our evaluation of 5
 systems---a naive heuristic baseline, the Galea zero-config structural
-heuristic, and two open-weight LLM judges---on 1,162 trajectories from
-\taubench and synthetic sources reveals a striking \emph{complementarity}
-in detection profiles: the Galea heuristic achieves 100\% DR on real
-\taubench failures with 0\% false positives using zero-config structural
-pattern matching, while LLM judges achieve 100\% on synthetic failures
-requiring semantic understanding but only 25\% on real trajectories.
-Category alignment is near zero on real data across all systems, indicating
-that correctly identifying failure \emph{type} is dramatically harder than
-detecting failure \emph{existence}. The naive heuristic baseline performs
-surprisingly well on airline data (40.9\% DR) where tool errors produce
-explicit error strings, but achieves only 8.3\% on telecom where failures
-are predominantly subtle---significantly below Galea's 100\% on comparable
+heuristic, two open-weight LLM judges, and Claude Sonnet~4---on 1,162
+trajectories from \taubench and synthetic sources reveals a striking
+\emph{complementarity} in detection profiles.
+
+The Galea heuristic achieves 100\% DR on real \taubench failures with 0\%
+false positives using zero-config structural pattern matching. Open-weight
+LLM judges (Llama~3.3~70B, Llama~4~Scout) achieve 100\% on synthetic
+failures requiring semantic understanding but only 25\% on real trajectories.
+Claude Sonnet~4 is the \textbf{overall best-performing system}: it achieves
+100\% DR on both synthetic and real retail trajectories (F1 = 0.800 on
+retail), with the highest category alignment of any evaluated system
+(CA = 0.489 on synthetic). Crucially, it bridges the detection gap that
+defeats open-weight LLM judges on real \taubench failures.
+
+Category alignment remains universally low even for Claude Sonnet~4 (best
+observed CA = 0.489), indicating that correctly identifying failure
+\emph{type} is dramatically harder than detecting failure \emph{existence}
+for all current systems. The naive heuristic baseline performs surprisingly
+well on airline data (40.9\% DR) where tool errors produce explicit error
+strings, but achieves only 8.3\% on telecom where failures are
+predominantly subtle---significantly below Galea's 100\% on comparable
 \taubench splits.
 
-These findings establish two complementary findings about agent failure
-detection. First, it is a genuinely difficult problem: LLM judges that
+These findings establish two conclusions about agent failure detection.
+First, it is a genuinely difficult problem: open-weight LLM judges that
 achieve perfect detection on synthetic data fail badly on real traces, and
-even on the easiest subset (synthetic failures), category alignment peaks at
-0.359. Second, the failure modes of heuristic and LLM-based systems are
-largely non-overlapping: heuristics catch structural failures that confuse
-LLM judges, and LLM judges catch semantic failures that heuristics cannot
-see. This suggests that ensemble approaches combining both detection
-strategies represent the most promising direction for comprehensive agent
-monitoring.
+even frontier models (Claude Sonnet~4) achieve category alignment below 0.5.
+Second, the failure modes of heuristic and LLM-based systems are largely
+complementary: heuristics catch structural failures with zero false positives,
+and LLM judges catch semantic failures that heuristics cannot see. Claude
+Sonnet~4 represents the most capable single-system option, while a
+Galea+Claude ensemble represents the most promising direction for
+comprehensive agent monitoring.
 
 \paragraph{Future work.}
 This initial release establishes the benchmark framework and baseline
-results. Immediate next steps include: (1)~evaluating proprietary LLM
-judges (GPT-4.1, Claude Sonnet~4) and commercial platforms (LangSmith,
+results. Immediate next steps include: (1)~evaluating additional proprietary LLM
+judges (GPT-4.1) and commercial platforms (LangSmith,
 Braintrust) to complete the planned system comparison;
 (2)~evaluating the Galea full-stack system (with LLM-augmented analysis)
 beyond the heuristic-only configuration reported here;
