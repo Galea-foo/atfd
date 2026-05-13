@@ -1,0 +1,43 @@
+{
+  "trajectory_id": "synth_wrong_response_004",
+  "domain": "healthcare",
+  "description": "Agent reports wrong appointment time \u2014 the appointment is at 3pm but agent says 10am",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "communication.wrong_response"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a medical office scheduling agent."
+    },
+    {
+      "type": "user_message",
+      "content": "When is my next appointment with Dr. Lee?"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_appointments",
+      "metadata": {
+        "tool_name": "get_appointments",
+        "args": {
+          "patient_id": "P-3302"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"appointments\": [{\"provider\": \"Dr. Lee\", \"date\": \"2026-05-14\", \"time\": \"15:00\", \"type\": \"follow-up\"}]}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Your next appointment with Dr. Lee is on May 14th at 10:00 AM for a follow-up visit. Please arrive 15 minutes early."
+    }
+  ]
+}

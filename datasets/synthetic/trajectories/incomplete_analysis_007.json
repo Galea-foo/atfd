@@ -1,0 +1,44 @@
+{
+  "trajectory_id": "synth_incomplete_analysis_007",
+  "domain": "airline",
+  "description": "Agent evaluates flight delay compensation eligibility but only checks delay duration, not the cause or applicable regulations",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.incomplete_analysis"
+    ]
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are an airline customer rights agent. Evaluate compensation eligibility under EU261, DOT rules, and carrier policy. Consider delay cause, duration, distance, and advance notice."
+    },
+    {
+      "type": "user_message",
+      "content": "My flight from London to New York was delayed 5 hours. Am I entitled to compensation?"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_flight_details",
+      "metadata": {
+        "tool_name": "get_flight_details",
+        "args": {
+          "flight": "BA-178",
+          "date": "2026-05-08"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"flight\": \"BA-178\", \"origin\": \"LHR\", \"destination\": \"JFK\", \"scheduled_departure\": \"10:00\", \"actual_departure\": \"15:00\", \"delay_hours\": 5, \"delay_cause\": \"extraordinary_circumstances_volcanic_ash\", \"distance_km\": 5540, \"eu261_applicable\": true, \"advance_notice_given\": false, \"carrier\": \"British Airways\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Based on the 5-hour delay on your London to New York flight, you are likely entitled to compensation. For flights over 3,500km with delays of 4+ hours, compensation can be up to 600 euros under EU261.\n\nI recommend filing a claim with British Airways for the maximum amount."
+    }
+  ]
+}

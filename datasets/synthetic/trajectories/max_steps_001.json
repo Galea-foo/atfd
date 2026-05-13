@@ -1,0 +1,99 @@
+{
+  "trajectory_id": "synth_max_steps_001",
+  "domain": "coding",
+  "description": "Agent exceeds maximum step limit trying to fix a recursive dependency chain",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.max_steps"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    10
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a dependency resolution agent. Maximum steps allowed: 5."
+    },
+    {
+      "type": "user_message",
+      "content": "Resolve the circular dependency between packages A, B, and C."
+    },
+    {
+      "type": "tool_call",
+      "content": "analyze_deps",
+      "metadata": {
+        "tool_name": "analyze_deps",
+        "args": {
+          "package": "A"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"package\": \"A\", \"depends_on\": [\"B\", \"C\"]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "analyze_deps",
+      "metadata": {
+        "tool_name": "analyze_deps",
+        "args": {
+          "package": "B"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"package\": \"B\", \"depends_on\": [\"C\", \"A\"]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "analyze_deps",
+      "metadata": {
+        "tool_name": "analyze_deps",
+        "args": {
+          "package": "C"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"package\": \"C\", \"depends_on\": [\"A\"]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "resolve_cycle",
+      "metadata": {
+        "tool_name": "resolve_cycle",
+        "args": {
+          "packages": [
+            "A",
+            "B",
+            "C"
+          ]
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"unresolved\", \"message\": \"Cannot break cycle without refactoring. Suggest extracting shared module.\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "analyze_deps",
+      "metadata": {
+        "tool_name": "analyze_deps",
+        "args": {
+          "package": "A"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"MaxStepsExceeded: Agent has exceeded the maximum of 5 tool calls. Execution terminated.\"}"
+    }
+  ]
+}

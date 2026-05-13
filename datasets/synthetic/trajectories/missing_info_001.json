@@ -1,0 +1,58 @@
+{
+  "trajectory_id": "synth_missing_info_001",
+  "domain": "retail",
+  "description": "Agent processes a refund but never tells the customer the refund amount or expected timeline",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "communication.missing_info"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    6
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a retail returns agent. Always inform customers of: refund amount, refund method, and expected processing time."
+    },
+    {
+      "type": "user_message",
+      "content": "Please process a refund for order #29001."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_order_details",
+      "metadata": {
+        "tool_name": "get_order_details",
+        "args": {
+          "order_id": "29001"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"order_id\": \"29001\", \"total\": 156.50, \"payment_method\": \"visa_ending_4821\", \"items\": [\"wireless keyboard\", \"mouse pad\"]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "process_refund",
+      "metadata": {
+        "tool_name": "process_refund",
+        "args": {
+          "order_id": "29001",
+          "amount": 156.5
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"refund_id\": \"REF-8832\", \"amount\": 156.50, \"method\": \"original_payment\", \"processing_days\": 5}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Your refund has been processed. Is there anything else I can help you with?"
+    }
+  ]
+}

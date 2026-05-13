@@ -1,0 +1,43 @@
+{
+  "trajectory_id": "synth_error_002",
+  "domain": "coding",
+  "description": "Build fails due to out-of-memory error during compilation",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.error"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    3
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a build system agent."
+    },
+    {
+      "type": "user_message",
+      "content": "Build the production bundle for the web app."
+    },
+    {
+      "type": "tool_call",
+      "content": "run",
+      "metadata": {
+        "tool_name": "run",
+        "args": {
+          "command": "NODE_OPTIONS='--max-old-space-size=2048' npm run build"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory\n1: 0xb090e0 node::Abort() [node]\nProcess exited with code 134 (SIGABRT)"
+    },
+    {
+      "type": "assistant_message",
+      "content": "The build failed with an out-of-memory error. The 2GB heap limit was exceeded during compilation. You may need to increase NODE_OPTIONS to 4096MB or split the build into smaller chunks."
+    }
+  ]
+}

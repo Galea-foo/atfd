@@ -1,0 +1,43 @@
+{
+  "trajectory_id": "synth_low_confidence_output_003",
+  "domain": "retail",
+  "description": "Agent knows the exact order status from tool results but presents it as uncertain guesswork",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.low_confidence_output"
+    ]
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a retail customer service agent. Provide clear, confident answers based on system data."
+    },
+    {
+      "type": "user_message",
+      "content": "Where is my order #55123? When will it arrive?"
+    },
+    {
+      "type": "tool_call",
+      "content": "track_order",
+      "metadata": {
+        "tool_name": "track_order",
+        "args": {
+          "order_id": "55123"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"order_id\": \"55123\", \"status\": \"in_transit\", \"carrier\": \"FedEx\", \"tracking\": \"FX9928831\", \"estimated_delivery\": \"2026-05-13\", \"last_location\": \"Memphis, TN hub\", \"last_scan\": \"2026-05-11T08:00:00Z\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "I think your order might possibly be in transit, but I'm not 100% sure about that. It looks like it could maybe be with FedEx, though I wouldn't want to guarantee that. There's a tracking number that might be FX9928831, but don't quote me on it. The estimated delivery could perhaps be around May 13, but that's just a rough estimate and I'm not confident it's accurate. It might have been scanned somewhere in Tennessee, maybe Memphis, but I could be reading that wrong. I'd suggest maybe checking with FedEx directly to get a more reliable answer."
+    }
+  ]
+}

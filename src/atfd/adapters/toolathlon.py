@@ -36,6 +36,8 @@ class ToolathlonAdapter(DatasetAdapter):
             failure_cats = ["infrastructure.max_steps"] if running == "max_turn_exceeded" else ["infrastructure.error"]
 
         messages = sim.get("messages", [])
+        if isinstance(messages, str):
+            messages = json.loads(messages)
         # Cap at 100 events (these trajectories can have 16k+ messages)
         events: list[Event] = []
         for i, msg in enumerate(messages[:100]):

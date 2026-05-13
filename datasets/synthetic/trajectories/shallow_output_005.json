@@ -1,0 +1,60 @@
+{
+  "trajectory_id": "synth_shallow_output_005",
+  "domain": "airline",
+  "description": "Agent asked about rebooking options lists only one alternative flight when five are available",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.shallow_output"
+    ]
+  },
+  "failure_event_indices": [
+    6
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are an airline rebooking agent. When presenting alternatives, show all available options with times, connections, and fare differences."
+    },
+    {
+      "type": "user_message",
+      "content": "My flight AA-1120 SFO to JFK was cancelled. What are my rebooking options?"
+    },
+    {
+      "type": "tool_call",
+      "content": "search_flights",
+      "metadata": {
+        "tool_name": "search_flights",
+        "args": {
+          "origin": "SFO",
+          "destination": "JFK",
+          "date": "2026-05-11",
+          "class": "economy"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"flights\": [{\"flight\": \"AA-1455\", \"depart\": \"10:30\", \"arrive\": \"19:00\", \"stops\": 0, \"fare_diff\": 0}, {\"flight\": \"UA-220\", \"depart\": \"11:15\", \"arrive\": \"20:45\", \"stops\": 0, \"fare_diff\": 0}, {\"flight\": \"DL-890\", \"depart\": \"13:00\", \"arrive\": \"22:30\", \"stops\": 1, \"fare_diff\": -25}, {\"flight\": \"AA-1780\", \"depart\": \"15:45\", \"arrive\": \"00:15+1\", \"stops\": 0, \"fare_diff\": 0}, {\"flight\": \"JB-504\", \"depart\": \"17:30\", \"arrive\": \"02:00+1\", \"stops\": 0, \"fare_diff\": -40}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_booking",
+      "metadata": {
+        "tool_name": "get_booking",
+        "args": {
+          "flight": "AA-1120"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"booking_ref\": \"XK7J3M\", \"passenger\": \"Rachel Kim\", \"class\": \"economy\", \"original_fare\": 320}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "I'm sorry about your cancelled flight, Rachel. I found an alternative: AA-1455 departing at 10:30 and arriving at 19:00 nonstop, at no additional cost. Would you like me to rebook you on that?"
+    }
+  ]
+}

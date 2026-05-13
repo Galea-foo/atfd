@@ -796,3 +796,39 @@ Papers are grouped by research area. Each entry includes: full citation, one-sen
 | 34 | arize2024failures | Production obs. | Blog | 2024 |
 | 35 | responsibleai2025incidents | Production obs. | Blog | 2025 |
 | 36 | owasp2025agentic | Agent safety | OWASP | 2025 |
+| 37 | trail2025 | Trajectory failure detection | arXiv | 2025 |
+| 38 | trajad2025 | Trajectory failure detection | arXiv | 2026 |
+| 39 | silentfailures2025 | Trajectory failure detection | arXiv | 2025 |
+| 40 | agentrx2026 | Trajectory failure detection | arXiv | 2026 |
+
+---
+
+## 7. Trajectory-Level Failure Detection (concurrent work)
+
+### TRAIL (Deshpande et al., 2025)
+- **Citation:** arXiv:2505.08638
+- **BibKey:** trail2025
+- **Summary:** Benchmarks LLM capability at trace-level analysis for agentic workflow debugging. 148 annotated traces from GAIA and SWE-Bench, 841 errors across a 20-category taxonomy. Best model (Gemini-2.5-Pro) achieves 11% joint accuracy.
+- **Relevance to ATFD:** TRAIL evaluates *models* (LLMs-as-judges); ATFD evaluates *tools* (heterogeneous systems including non-LLM tools). Complementary: TRAIL asks "can LLMs debug traces?" while ATFD asks "can monitoring tools detect failures?"
+- **Key finding:** Even frontier models achieve very low joint accuracy on trace analysis, suggesting the task is genuinely hard.
+
+### TrajAD / TrajBench (Liu et al., 2026)
+- **Citation:** arXiv:2602.06443
+- **BibKey:** trajad2025
+- **Summary:** Generates 60,000 trajectories via perturb-and-complete on AgentBank. Trains a specialized anomaly detector (TrajAD) achieving 85% F1.
+- **Relevance to ATFD:** TrajAD *trains* a detector model on synthetic perturbations; ATFD *evaluates* existing production tools on real trajectories. Different evaluation targets.
+- **Key finding:** Synthetic perturbation can generate large-scale trajectory failure data, but may not represent real production failure distributions.
+
+### Silent Failures (Pathak et al., 2025)
+- **Citation:** arXiv:2511.04032
+- **BibKey:** silentfailures2025
+- **Summary:** 4,275 labeled multi-agent trajectories. Trains ML classifiers (XGBoost, SVDD) reaching 96-98% accuracy on silent failure detection.
+- **Relevance to ATFD:** Trains classifiers; ATFD evaluates tools. Their "silent failure" concept aligns with ATFD's quality degradation category.
+- **Key finding:** ML classifiers can detect silent failures with high accuracy, but require training data and don't generalize across domains without retraining.
+
+### AgentRx (Barke et al., Microsoft Research, 2026)
+- **Citation:** arXiv:2602.02475
+- **BibKey:** agentrx2026
+- **Summary:** Automated diagnostic framework for AI agent failures. 115 failed trajectories across 3 domains (tau-bench retail, Magentic-One, Flash incident response). 9-category failure taxonomy with step-level annotations. Evaluates constraint synthesis + trajectory walking for root cause identification.
+- **Relevance to ATFD:** AgentRx *diagnoses* individual failures (pinpoints critical step); ATFD evaluates whether monitoring tools can *detect* failures. AgentRx trajectories included in ATFD's corpus with category mapping.
+- **Key finding:** Automated diagnosis via constraint synthesis achieves high accuracy on structured API workflows but struggles on open-ended multi-agent tasks.

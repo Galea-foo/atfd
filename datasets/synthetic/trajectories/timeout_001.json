@@ -1,0 +1,44 @@
+{
+  "trajectory_id": "synth_timeout_001",
+  "domain": "retail",
+  "description": "Order lookup times out after waiting too long for the inventory service to respond",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.timeout"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    3
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a retail customer service agent."
+    },
+    {
+      "type": "user_message",
+      "content": "Can you check if the blue jacket in size L is in stock?"
+    },
+    {
+      "type": "tool_call",
+      "content": "check_inventory",
+      "metadata": {
+        "tool_name": "check_inventory",
+        "args": {
+          "product": "blue_jacket",
+          "size": "L"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"TimeoutError: Request to inventory service timed out after 30000ms\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "I'm sorry, I'm unable to check inventory right now due to a system timeout. Please try again in a few minutes or contact us at 1-800-SHOP."
+    }
+  ]
+}

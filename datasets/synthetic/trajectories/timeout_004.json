@@ -1,0 +1,45 @@
+{
+  "trajectory_id": "synth_timeout_004",
+  "domain": "healthcare",
+  "description": "Electronic prescribing system times out when sending a prescription to the pharmacy",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.timeout"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    3
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a clinical agent handling prescription submissions."
+    },
+    {
+      "type": "user_message",
+      "content": "Send the amoxicillin prescription for patient MRN-29001 to their pharmacy."
+    },
+    {
+      "type": "tool_call",
+      "content": "send_prescription",
+      "metadata": {
+        "tool_name": "send_prescription",
+        "args": {
+          "mrn": "29001",
+          "medication": "amoxicillin 500mg",
+          "pharmacy": "Walgreens-Main"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"TimeoutError: E-prescribing gateway timed out after 45s. Prescription may or may not have been received by pharmacy. Ref: RX-PEND-4412.\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "The electronic prescription submission timed out. Reference: RX-PEND-4412. I recommend calling the pharmacy directly at Walgreens-Main to confirm whether they received the amoxicillin prescription for MRN-29001."
+    }
+  ]
+}

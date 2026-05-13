@@ -1,0 +1,90 @@
+{
+  "trajectory_id": "synth_suboptimal_approach_006",
+  "domain": "retail",
+  "description": "Agent processes a multi-item return by creating separate return requests instead of using the batch return endpoint",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.suboptimal_approach"
+    ]
+  },
+  "failure_event_indices": [
+    4,
+    6,
+    8
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a retail returns agent. Tools available: create_return (single item), create_batch_return (multiple items at once)."
+    },
+    {
+      "type": "user_message",
+      "content": "I want to return three items from order #77001: the jacket, the scarf, and the gloves."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_order_details",
+      "metadata": {
+        "tool_name": "get_order_details",
+        "args": {
+          "order_id": "77001"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"order_id\": \"77001\", \"items\": [{\"id\": \"I-1\", \"name\": \"jacket\", \"price\": 120}, {\"id\": \"I-2\", \"name\": \"scarf\", \"price\": 35}, {\"id\": \"I-3\", \"name\": \"gloves\", \"price\": 28}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "create_return",
+      "metadata": {
+        "tool_name": "create_return",
+        "args": {
+          "order_id": "77001",
+          "item_id": "I-1"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"return_id\": \"R-4401\", \"status\": \"created\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "create_return",
+      "metadata": {
+        "tool_name": "create_return",
+        "args": {
+          "order_id": "77001",
+          "item_id": "I-2"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"return_id\": \"R-4402\", \"status\": \"created\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "create_return",
+      "metadata": {
+        "tool_name": "create_return",
+        "args": {
+          "order_id": "77001",
+          "item_id": "I-3"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"return_id\": \"R-4403\", \"status\": \"created\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "All three returns have been created. Return IDs: R-4401 (jacket), R-4402 (scarf), R-4403 (gloves). You'll receive prepaid shipping labels via email."
+    }
+  ]
+}

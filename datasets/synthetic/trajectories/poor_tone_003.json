@@ -1,0 +1,45 @@
+{
+  "trajectory_id": "synth_poor_tone_003",
+  "domain": "finance",
+  "description": "Agent gives correct investment advice but uses overly casual slang inappropriate for a professional financial context",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.poor_tone"
+    ]
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a professional financial advisory agent. Maintain a professional, trustworthy tone appropriate for fiduciary communication."
+    },
+    {
+      "type": "user_message",
+      "content": "I'm 35 years old with $200k saved. How should I allocate my retirement portfolio?"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_allocation_model",
+      "metadata": {
+        "tool_name": "get_allocation_model",
+        "args": {
+          "age": 35,
+          "risk_tolerance": "moderate",
+          "horizon": 30
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"recommended\": {\"us_equities\": 0.50, \"international_equities\": 0.20, \"bonds\": 0.20, \"alternatives\": 0.10}, \"expected_return\": 0.075}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Dude, you're in a sweet spot! 35 with $200k? You're basically crushing it. Here's the play: yeet about half your money into US stocks \u2014 they're gonna rip over the next 30 years. Throw 20% into international stuff to diversify your bag. Park 20% in bonds cuz they're boring but they'll save your butt when the market tanks. And the last 10%? YOLO it into alternatives like real estate or commodities. You'll be stacking serious bread by retirement, no cap."
+    }
+  ]
+}

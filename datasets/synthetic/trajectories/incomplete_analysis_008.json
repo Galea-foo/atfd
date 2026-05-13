@@ -1,0 +1,43 @@
+{
+  "trajectory_id": "synth_incomplete_analysis_008",
+  "domain": "healthcare",
+  "description": "Agent assesses fall risk for elderly patient but only considers medication side effects, ignoring mobility, cognitive status, home environment, and vision",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.incomplete_analysis"
+    ]
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a geriatric care agent. Assess fall risk comprehensively: medications, mobility/gait, cognitive status, vision, home environment, and prior fall history."
+    },
+    {
+      "type": "user_message",
+      "content": "Assess fall risk for patient MRN-41200, 84-year-old female, lives alone."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_patient_record",
+      "metadata": {
+        "tool_name": "get_patient_record",
+        "args": {
+          "mrn": "41200"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"age\": 84, \"sex\": \"F\", \"living_situation\": \"alone\", \"medications\": [\"lorazepam 0.5mg nightly\", \"amlodipine 5mg\", \"furosemide 40mg\"], \"mobility\": \"uses walker, unsteady gait\", \"cognitive_status\": \"mild cognitive impairment (MMSE 22/30)\", \"vision\": \"cataracts bilateral, last eye exam 3 years ago\", \"prior_falls\": 3, \"home_assessment\": \"not completed\", \"orthostatic_hypotension\": true}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Fall Risk Assessment \u2014 Patient MRN-41200:\n\nThis patient has medication-related fall risk. She is on lorazepam (benzodiazepine \u2014 sedation/dizziness), amlodipine (can cause orthostatic hypotension), and furosemide (diuretic \u2014 dehydration risk).\n\n**Recommendation:** Review benzodiazepine use with the prescriber; consider tapering lorazepam. Monitor blood pressure for orthostatic changes.\n\nRisk level: Moderate."
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "trajectory_id": "synth_timeout_005",
+  "domain": "airline",
+  "description": "Seat selection times out during high-traffic booking period",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.timeout"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    3
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are an airline booking agent."
+    },
+    {
+      "type": "user_message",
+      "content": "I'd like to select seat 4A on flight BA-442."
+    },
+    {
+      "type": "tool_call",
+      "content": "select_seat",
+      "metadata": {
+        "tool_name": "select_seat",
+        "args": {
+          "flight": "BA-442",
+          "seat": "4A",
+          "booking_ref": "LM77PP"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"RequestTimeout: Seat inventory service unavailable. High traffic detected. Retry after 120s.\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "I'm unable to complete the seat selection right now \u2014 the system is experiencing high traffic. Please try again in about 2 minutes, or I can attempt the selection for you then."
+    }
+  ]
+}

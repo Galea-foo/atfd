@@ -1,0 +1,57 @@
+{
+  "trajectory_id": "synth_shallow_output_004",
+  "domain": "retail",
+  "description": "Agent asked to compare product options gives a single bullet point instead of a full comparison across dimensions",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.shallow_output"
+    ]
+  },
+  "failure_event_indices": [
+    6
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a product comparison assistant. Help customers make informed decisions by comparing products across price, features, durability, reviews, and warranty."
+    },
+    {
+      "type": "user_message",
+      "content": "I'm choosing between the ProMax 5000 and the EliteGrind 700 espresso machines. Can you do a detailed comparison?"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_product_details",
+      "metadata": {
+        "tool_name": "get_product_details",
+        "args": {
+          "product_id": "PM-5000"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"name\": \"ProMax 5000\", \"price\": 899.99, \"rating\": 4.6, \"reviews\": 1243, \"warranty\": \"3 years\", \"features\": [\"15-bar pressure\", \"built-in grinder\", \"milk frother\", \"programmable\", \"self-cleaning\"], \"weight\": \"18 lbs\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_product_details",
+      "metadata": {
+        "tool_name": "get_product_details",
+        "args": {
+          "product_id": "EG-700"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"name\": \"EliteGrind 700\", \"price\": 749.99, \"rating\": 4.3, \"reviews\": 876, \"warranty\": \"2 years\", \"features\": [\"19-bar pressure\", \"built-in grinder\", \"steam wand\", \"manual controls\"], \"weight\": \"22 lbs\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Between the two, the ProMax 5000 is $899.99 and the EliteGrind 700 is $749.99. The ProMax is more expensive but has a higher rating. I'd recommend the ProMax 5000."
+    }
+  ]
+}

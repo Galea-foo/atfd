@@ -1,0 +1,63 @@
+{
+  "trajectory_id": "synth_wrong_tool_002",
+  "domain": "finance",
+  "description": "Agent uses transfer_funds when customer asked for a balance inquiry",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "action.wrong_tool"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    2
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a banking agent. Tools: get_balance, transfer_funds, get_transactions, create_alert."
+    },
+    {
+      "type": "user_message",
+      "content": "Can you check how much is in my savings account?"
+    },
+    {
+      "type": "tool_call",
+      "content": "transfer_funds",
+      "metadata": {
+        "tool_name": "transfer_funds",
+        "args": {
+          "from_account": "savings",
+          "to_account": "checking",
+          "amount": 0
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"Transfer amount must be greater than 0\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "I'm having trouble checking your balance. Let me try another way."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_balance",
+      "metadata": {
+        "tool_name": "get_balance",
+        "args": {
+          "account": "savings"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"account\": \"savings\", \"balance\": 15420.33}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Your savings account balance is $15,420.33."
+    }
+  ]
+}

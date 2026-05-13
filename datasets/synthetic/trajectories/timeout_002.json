@@ -1,0 +1,43 @@
+{
+  "trajectory_id": "synth_timeout_002",
+  "domain": "coding",
+  "description": "CI pipeline times out during test execution after exceeding the 30-minute limit",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.timeout"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    3
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a CI/CD management agent. Pipeline timeout is 30 minutes."
+    },
+    {
+      "type": "user_message",
+      "content": "Run the full test suite for the PR #452."
+    },
+    {
+      "type": "tool_call",
+      "content": "run",
+      "metadata": {
+        "tool_name": "run",
+        "args": {
+          "command": "ci-runner --pr=452 --suite=full"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"Pipeline exceeded maximum execution time of 1800s. 312/450 tests completed before timeout. Last running test: test_data_migration_large_dataset (running for 840s).\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "The test pipeline timed out after 30 minutes. 312 of 450 tests completed. The bottleneck appears to be test_data_migration_large_dataset which was running for 14 minutes when the timeout hit."
+    }
+  ]
+}

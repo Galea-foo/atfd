@@ -14,8 +14,8 @@ def test_taxonomy_has_7_categories():
     assert len(all_categories()) == 7
 
 
-def test_taxonomy_has_23_subcategories():
-    assert len(all_subcategories()) == 23
+def test_taxonomy_has_24_subcategories():
+    assert len(all_subcategories()) == 24
 
 
 def test_category_names():

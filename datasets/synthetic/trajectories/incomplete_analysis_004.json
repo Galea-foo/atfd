@@ -1,0 +1,57 @@
+{
+  "trajectory_id": "synth_incomplete_analysis_004",
+  "domain": "retail",
+  "description": "Agent analyzes customer churn data but only looks at pricing, ignoring product quality, support experience, and competitor factors",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.incomplete_analysis"
+    ]
+  },
+  "failure_event_indices": [
+    6
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a business analytics agent. Analyze churn holistically across pricing, product quality, customer support, competitive landscape, and user experience."
+    },
+    {
+      "type": "user_message",
+      "content": "Our Q1 churn rate jumped from 4% to 9%. Analyze the root causes."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_churn_data",
+      "metadata": {
+        "tool_name": "get_churn_data",
+        "args": {
+          "quarter": "Q1-2026"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"churn_rate\": 0.09, \"churned_customers\": 450, \"exit_survey_reasons\": {\"too_expensive\": 120, \"poor_support\": 95, \"switched_competitor\": 88, \"product_bugs\": 72, \"missing_features\": 45, \"other\": 30}, \"avg_ticket_resolution_time\": \"48h\", \"nps_score\": 22, \"competitor_launched\": \"RivalCo launched similar product at 30% lower price in Jan\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_pricing_history",
+      "metadata": {
+        "tool_name": "get_pricing_history",
+        "args": {
+          "period": "2025-Q4_to_2026-Q1"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"price_change\": {\"date\": \"2026-01-15\", \"old_price\": 29.99, \"new_price\": 39.99, \"increase\": \"33%\"}}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Churn Analysis \u2014 Q1 2026:\n\nThe primary driver of the churn increase is the 33% price hike from $29.99 to $39.99 implemented in January. 120 of 450 churned customers cited pricing as their reason for leaving.\n\n**Recommendation:** Consider reverting the price increase or introducing a lower-cost tier to retain price-sensitive customers. A 33% increase in a single quarter is aggressive and likely drove the bulk of the churn spike."
+    }
+  ]
+}

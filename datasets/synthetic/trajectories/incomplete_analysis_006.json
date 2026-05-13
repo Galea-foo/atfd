@@ -1,0 +1,59 @@
+{
+  "trajectory_id": "synth_incomplete_analysis_006",
+  "domain": "coding",
+  "description": "Agent performs a performance review of a service but only measures response time, ignoring throughput, error rate, memory usage, and database query patterns",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.incomplete_analysis"
+    ]
+  },
+  "failure_event_indices": [
+    6
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a performance engineering agent. Analyze service performance holistically: latency (p50/p95/p99), throughput, error rate, resource utilization, and database query efficiency."
+    },
+    {
+      "type": "user_message",
+      "content": "Users are complaining the checkout service is slow. Do a full performance analysis."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_latency_metrics",
+      "metadata": {
+        "tool_name": "get_latency_metrics",
+        "args": {
+          "service": "checkout",
+          "period": "24h"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"p50\": 450, \"p95\": 2100, \"p99\": 8500, \"unit\": \"ms\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_service_metrics",
+      "metadata": {
+        "tool_name": "get_service_metrics",
+        "args": {
+          "service": "checkout",
+          "period": "24h"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"requests_per_sec\": 250, \"error_rate\": 0.034, \"cpu_usage\": 0.85, \"memory_usage\": 0.92, \"db_queries_per_request\": 47, \"slow_queries\": 12, \"connection_pool_exhaustion_events\": 8}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Performance Analysis \u2014 Checkout Service:\n\nThe checkout service has a median response time of 450ms, which is acceptable. However, the p95 latency is 2.1 seconds and p99 is 8.5 seconds, indicating significant tail latency.\n\n**Recommendation:** Investigate the cause of the p95/p99 spikes. Consider adding caching to reduce response times for slower requests."
+    }
+  ]
+}

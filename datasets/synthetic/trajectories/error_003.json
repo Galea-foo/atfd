@@ -1,0 +1,43 @@
+{
+  "trajectory_id": "synth_error_003",
+  "domain": "finance",
+  "description": "Authentication service returns 503 during account login attempt",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.error"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    3
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a banking agent. Authenticate users before accessing their accounts."
+    },
+    {
+      "type": "user_message",
+      "content": "I need to check my account balance."
+    },
+    {
+      "type": "tool_call",
+      "content": "authenticate_user",
+      "metadata": {
+        "tool_name": "authenticate_user",
+        "args": {
+          "session_token": "tok_abc123"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"ServiceUnavailable: Auth service returned HTTP 503. Retry-After: 300. Incident: INC-77241\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "I'm unable to verify your identity right now due to a system outage in our authentication service (Incident: INC-77241). Please try again in about 5 minutes, or visit your nearest branch for immediate access."
+    }
+  ]
+}

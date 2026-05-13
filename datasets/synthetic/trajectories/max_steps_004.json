@@ -1,0 +1,82 @@
+{
+  "trajectory_id": "synth_max_steps_004",
+  "domain": "healthcare",
+  "description": "Agent hits step limit while gathering records from multiple hospital systems for a patient transfer",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.max_steps"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    9
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a patient transfer coordination agent. Step limit: 4 tool calls."
+    },
+    {
+      "type": "user_message",
+      "content": "Prepare the transfer packet for patient MRN-44001 going to St. Mary's Hospital."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_patient_record",
+      "metadata": {
+        "tool_name": "get_patient_record",
+        "args": {
+          "mrn": "44001"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"mrn\": \"44001\", \"name\": \"Robert Kim\", \"diagnosis\": \"acute MI\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_lab_results",
+      "metadata": {
+        "tool_name": "get_lab_results",
+        "args": {
+          "mrn": "44001",
+          "range": "last_48h"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"labs\": [{\"test\": \"troponin\", \"value\": 4.2}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_imaging",
+      "metadata": {
+        "tool_name": "get_imaging",
+        "args": {
+          "mrn": "44001"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"studies\": [{\"type\": \"echo\", \"findings\": \"EF 35%\"}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_medications",
+      "metadata": {
+        "tool_name": "get_medications",
+        "args": {
+          "mrn": "44001"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"MaxStepsExceeded: 4 tool calls reached. Transfer packet incomplete \u2014 medication list, nursing notes, and insurance info not gathered.\"}"
+    }
+  ]
+}

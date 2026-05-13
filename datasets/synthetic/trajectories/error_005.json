@@ -1,0 +1,45 @@
+{
+  "trajectory_id": "synth_error_005",
+  "domain": "airline",
+  "description": "GDS (Global Distribution System) returns a cryptic error during fare search",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.error"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    3
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are an airline booking agent."
+    },
+    {
+      "type": "user_message",
+      "content": "Find me flights from Tokyo to London next Monday."
+    },
+    {
+      "type": "tool_call",
+      "content": "search_flights",
+      "metadata": {
+        "tool_name": "search_flights",
+        "args": {
+          "origin": "NRT",
+          "destination": "LHR",
+          "date": "2026-05-18"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"GDS Error: AMADEUS HOST UNAVAILABLE - ERR*LINK DOWN*HOST NRT-A. Fare search cannot be completed. Contact GDS support.\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "I'm unable to search for flights right now \u2014 our booking system connection to the Tokyo hub is currently down. Please try again in a few minutes, or I can search from an alternative departure airport if that helps."
+    }
+  ]
+}

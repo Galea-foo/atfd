@@ -1,0 +1,43 @@
+{
+  "trajectory_id": "synth_poor_tone_002",
+  "domain": "healthcare",
+  "description": "Agent provides accurate medical information but uses alarming and anxiety-inducing language",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.poor_tone"
+    ]
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a patient-facing health information agent. Communicate clearly, calmly, and compassionately. Avoid alarming language."
+    },
+    {
+      "type": "user_message",
+      "content": "My blood test shows my cholesterol is 240. What does that mean?"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_health_reference",
+      "metadata": {
+        "tool_name": "get_health_reference",
+        "args": {
+          "topic": "cholesterol_levels"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"desirable\": \"<200\", \"borderline_high\": \"200-239\", \"high\": \">=240\", \"management\": \"lifestyle changes, possible medication, regular monitoring\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Yikes, 240 is officially in the HIGH category. That's a big red flag for your heart health. You're basically a ticking time bomb for heart disease and stroke at this point. You NEED to see your doctor IMMEDIATELY before things get worse. Seriously, don't wait on this one \u2014 the damage could already be happening right now as we speak."
+    }
+  ]
+}

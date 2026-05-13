@@ -1,0 +1,59 @@
+{
+  "trajectory_id": "synth_missing_action_001",
+  "domain": "retail",
+  "description": "Agent processes a return but never generates the shipping label the customer needs",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "action.missing_action"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    6
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a retail returns agent. Return process: 1) create return, 2) generate shipping label, 3) email confirmation. All three steps required."
+    },
+    {
+      "type": "user_message",
+      "content": "I want to return the blender from order #38001."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_order_details",
+      "metadata": {
+        "tool_name": "get_order_details",
+        "args": {
+          "order_id": "38001"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"order_id\": \"38001\", \"items\": [{\"id\": \"I-44\", \"name\": \"ProBlend Blender\", \"price\": 89.99}], \"status\": \"delivered\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "create_return",
+      "metadata": {
+        "tool_name": "create_return",
+        "args": {
+          "order_id": "38001",
+          "item_id": "I-44",
+          "reason": "customer_return"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"return_id\": \"R-6621\", \"status\": \"created\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Your return has been created! Return ID: R-6621. Once we receive the blender, we'll process your refund of $89.99 within 5-7 business days. Is there anything else I can help with?"
+    }
+  ]
+}

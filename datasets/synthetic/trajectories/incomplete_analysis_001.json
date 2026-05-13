@@ -1,0 +1,57 @@
+{
+  "trajectory_id": "synth_incomplete_analysis_001",
+  "domain": "finance",
+  "description": "M&A due diligence skips regulatory risk and IP assessment entirely",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.incomplete_analysis"
+    ]
+  },
+  "failure_event_indices": [
+    6
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are an M&A due diligence agent. Cover all standard dimensions: financial, operational, regulatory, IP, legal, market, and human capital."
+    },
+    {
+      "type": "user_message",
+      "content": "Conduct a due diligence review of Acme Biotech for our potential $50M acquisition."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_financials",
+      "metadata": {
+        "tool_name": "get_financials",
+        "args": {
+          "company": "Acme Biotech"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"revenue\": 12000000, \"ebitda\": 2400000, \"debt\": 5000000, \"cash\": 3200000, \"growth_rate\": 0.15}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_company_profile",
+      "metadata": {
+        "tool_name": "get_company_profile",
+        "args": {
+          "company": "Acme Biotech"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"industry\": \"biotechnology\", \"employees\": 85, \"founded\": 2019, \"products\": [\"gene therapy platform\", \"diagnostic kit\"], \"patents\": 12, \"pending_fda_approvals\": 2, \"regulatory_investigations\": 1, \"key_person_dependency\": \"high \u2014 CTO holds all IP knowledge\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Due Diligence Summary \u2014 Acme Biotech:\n\n**Financial Assessment:**\nRevenue is $12M with 15% growth and $2.4M EBITDA. Debt of $5M is manageable against $3.2M cash. The $50M valuation implies ~4.2x revenue, which is reasonable for biotech.\n\n**Operational Assessment:**\n85 employees, founded 2019. Two product lines: a gene therapy platform and a diagnostic kit. Growth trajectory is healthy.\n\n**Recommendation:** The financials support the acquisition at the proposed price. Proceed with standard closing procedures."
+    }
+  ]
+}

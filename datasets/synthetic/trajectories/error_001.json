@@ -1,0 +1,43 @@
+{
+  "trajectory_id": "synth_error_001",
+  "domain": "retail",
+  "description": "Database connection error prevents order retrieval",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.error"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    3
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a retail customer service agent."
+    },
+    {
+      "type": "user_message",
+      "content": "Where is my order #33221?"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_order_details",
+      "metadata": {
+        "tool_name": "get_order_details",
+        "args": {
+          "order_id": "33221"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"DatabaseError: Connection refused to orders-db-primary:5432. SQLSTATE 08001. All connection pool slots exhausted.\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "I'm sorry, I'm experiencing a system error and unable to look up your order right now. Our technical team has been notified. Please try again shortly or call us at 1-800-SHOP for immediate assistance."
+    }
+  ]
+}

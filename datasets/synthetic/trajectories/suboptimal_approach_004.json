@@ -1,0 +1,108 @@
+{
+  "trajectory_id": "synth_suboptimal_approach_004",
+  "domain": "finance",
+  "description": "Agent calculates compound interest by looping year-by-year in separate tool calls instead of using the compound interest formula",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.suboptimal_approach"
+    ]
+  },
+  "failure_event_indices": [
+    2,
+    4,
+    6,
+    8,
+    10
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a financial planning agent. Tools: calculate_compound_interest (accepts principal, rate, years), calculate_simple_year."
+    },
+    {
+      "type": "user_message",
+      "content": "If I invest $10,000 at 7% annual compound interest, what will I have after 5 years?"
+    },
+    {
+      "type": "tool_call",
+      "content": "calculate_simple_year",
+      "metadata": {
+        "tool_name": "calculate_simple_year",
+        "args": {
+          "principal": 10000,
+          "rate": 0.07
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"end_balance\": 10700}"
+    },
+    {
+      "type": "tool_call",
+      "content": "calculate_simple_year",
+      "metadata": {
+        "tool_name": "calculate_simple_year",
+        "args": {
+          "principal": 10700,
+          "rate": 0.07
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"end_balance\": 11449}"
+    },
+    {
+      "type": "tool_call",
+      "content": "calculate_simple_year",
+      "metadata": {
+        "tool_name": "calculate_simple_year",
+        "args": {
+          "principal": 11449,
+          "rate": 0.07
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"end_balance\": 12250.43}"
+    },
+    {
+      "type": "tool_call",
+      "content": "calculate_simple_year",
+      "metadata": {
+        "tool_name": "calculate_simple_year",
+        "args": {
+          "principal": 12250.43,
+          "rate": 0.07
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"end_balance\": 13107.96}"
+    },
+    {
+      "type": "tool_call",
+      "content": "calculate_simple_year",
+      "metadata": {
+        "tool_name": "calculate_simple_year",
+        "args": {
+          "principal": 13107.96,
+          "rate": 0.07
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"end_balance\": 14025.52}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "After 5 years at 7% compound interest, your $10,000 investment would grow to approximately $14,025.52."
+    }
+  ]
+}

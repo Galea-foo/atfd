@@ -1,0 +1,43 @@
+{
+  "trajectory_id": "synth_wrong_response_003",
+  "domain": "finance",
+  "description": "Agent reports the wrong account balance \u2014 swaps checking and savings amounts",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "communication.wrong_response"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a banking agent. Report account information accurately."
+    },
+    {
+      "type": "user_message",
+      "content": "What are my checking and savings balances?"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_balances",
+      "metadata": {
+        "tool_name": "get_balances",
+        "args": {
+          "customer_id": "C-8821"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"checking\": 3240.50, \"savings\": 18750.00}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Here are your balances:\n- Checking: $18,750.00\n- Savings: $3,240.50\n\nWould you like to make any transfers?"
+    }
+  ]
+}

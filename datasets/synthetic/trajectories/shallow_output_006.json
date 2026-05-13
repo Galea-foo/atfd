@@ -1,0 +1,45 @@
+{
+  "trajectory_id": "synth_shallow_output_006",
+  "domain": "finance",
+  "description": "Agent provides a tax estimate that only considers federal income tax, ignoring state tax, FICA, capital gains, and deductions",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.shallow_output"
+    ]
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a tax planning agent. Provide comprehensive tax liability estimates covering all relevant tax categories."
+    },
+    {
+      "type": "user_message",
+      "content": "Estimate my total 2025 tax liability. I'm a California resident, W-2 income $180k, sold $40k in stocks at a gain, and have a rental property."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_tax_info",
+      "metadata": {
+        "tool_name": "get_tax_info",
+        "args": {
+          "tax_year": 2025,
+          "state": "CA",
+          "filing_status": "single"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"federal_brackets\": [{\"rate\": 0.10, \"up_to\": 11600}, {\"rate\": 0.12, \"up_to\": 47150}, {\"rate\": 0.22, \"up_to\": 100525}, {\"rate\": 0.24, \"up_to\": 191950}], \"ca_brackets\": [{\"rate\": 0.01, \"up_to\": 10412}, {\"rate\": 0.02, \"up_to\": 24684}, {\"rate\": 0.04, \"up_to\": 38959}, {\"rate\": 0.06, \"up_to\": 54081}, {\"rate\": 0.08, \"up_to\": 68350}, {\"rate\": 0.093, \"up_to\": 349137}], \"standard_deduction\": 14600, \"fica_rate\": 0.0765, \"cap_gains_rate\": 0.15}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Based on your $180,000 W-2 income, your estimated federal income tax is approximately $33,400 after the standard deduction. That's your estimated total tax liability for 2025."
+    }
+  ]
+}

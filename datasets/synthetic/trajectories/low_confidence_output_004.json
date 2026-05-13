@@ -1,0 +1,44 @@
+{
+  "trajectory_id": "synth_low_confidence_output_004",
+  "domain": "coding",
+  "description": "Agent correctly identifies a null pointer bug but frames the fix as highly uncertain",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.low_confidence_output"
+    ]
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a debugging assistant. Clearly identify bugs and provide definitive fixes."
+    },
+    {
+      "type": "user_message",
+      "content": "Getting a NullPointerException on line 28 of UserService.java in production. Help!"
+    },
+    {
+      "type": "tool_call",
+      "content": "read_file",
+      "metadata": {
+        "tool_name": "read_file",
+        "args": {
+          "path": "src/UserService.java",
+          "lines": "25-32"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"content\": \"User user = userRepository.findById(userId); // line 27\\nString email = user.getEmail().toLowerCase(); // line 28\\nnotificationService.send(email, message);\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Hmm, I'm not really sure, but I think maybe the issue could possibly be on line 28? It might be the case that `user` could potentially be null when `findById` doesn't find a match, which might lead to the NPE when calling `getEmail()`, though I'm not entirely confident about that diagnosis. Or perhaps `getEmail()` might return null and then `toLowerCase()` could maybe throw? I'm honestly not sure which one it is. You could potentially try adding a null check, something like `if (user != null)` but I'm not sure if that's the right approach. There might be better solutions. I'd maybe suggest trying it and seeing if it helps, but I wouldn't want to guarantee anything."
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "trajectory_id": "synth_suboptimal_approach_005",
+  "domain": "healthcare",
+  "description": "Agent queries patient allergies, then medications, then conditions in three separate calls instead of using the patient summary endpoint",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.suboptimal_approach"
+    ]
+  },
+  "failure_event_indices": [
+    4,
+    6
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a clinical agent. Tools: get_patient_summary (returns all data), get_allergies, get_medications, get_conditions."
+    },
+    {
+      "type": "user_message",
+      "content": "Give me a quick overview of patient MRN-55123 before their appointment."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_allergies",
+      "metadata": {
+        "tool_name": "get_allergies",
+        "args": {
+          "mrn": "55123"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"allergies\": [\"penicillin\", \"sulfa\"]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_medications",
+      "metadata": {
+        "tool_name": "get_medications",
+        "args": {
+          "mrn": "55123"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"medications\": [\"metformin 500mg\", \"lisinopril 10mg\", \"atorvastatin 20mg\"]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_conditions",
+      "metadata": {
+        "tool_name": "get_conditions",
+        "args": {
+          "mrn": "55123"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"conditions\": [\"Type 2 diabetes\", \"hypertension\", \"hyperlipidemia\"]}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Patient MRN-55123 overview:\n- Allergies: Penicillin, Sulfa\n- Medications: Metformin 500mg, Lisinopril 10mg, Atorvastatin 20mg\n- Conditions: Type 2 Diabetes, Hypertension, Hyperlipidemia\n\nReady for their appointment."
+    }
+  ]
+}

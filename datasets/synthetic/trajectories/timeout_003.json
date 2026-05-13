@@ -1,0 +1,45 @@
+{
+  "trajectory_id": "synth_timeout_003",
+  "domain": "finance",
+  "description": "Payment processing times out during a high-value wire transfer",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.timeout"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    3
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a banking agent. Handle timeout errors gracefully \u2014 never assume the transaction completed."
+    },
+    {
+      "type": "user_message",
+      "content": "Transfer $25,000 to my savings account."
+    },
+    {
+      "type": "tool_call",
+      "content": "transfer_funds",
+      "metadata": {
+        "tool_name": "transfer_funds",
+        "args": {
+          "from": "checking",
+          "to": "savings",
+          "amount": 25000
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"GatewayTimeout: The payment processing service did not respond within 60s. Transaction status unknown. Transaction ref: TXN-PENDING-8821.\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "The transfer request timed out and we're unable to confirm if it went through. Reference number TXN-PENDING-8821. Please do not retry \u2014 check your account balances or contact support to verify the status."
+    }
+  ]
+}

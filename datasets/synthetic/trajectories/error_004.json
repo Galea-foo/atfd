@@ -1,0 +1,45 @@
+{
+  "trajectory_id": "synth_error_004",
+  "domain": "healthcare",
+  "description": "HL7 interface engine crashes while processing a lab order",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.error"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    3
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a clinical orders agent."
+    },
+    {
+      "type": "user_message",
+      "content": "Place a stat CBC order for patient MRN-19002."
+    },
+    {
+      "type": "tool_call",
+      "content": "place_lab_order",
+      "metadata": {
+        "tool_name": "place_lab_order",
+        "args": {
+          "mrn": "19002",
+          "test": "CBC",
+          "priority": "stat"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"InterfaceError: HL7 message rejected by lab system. MSA|AR|Invalid segment ZPM at position 12. Order not transmitted.\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "The lab order failed to transmit due to a system interface error. The HL7 message was rejected. Please submit the order manually through the lab portal or call the lab directly for this stat CBC on MRN-19002."
+    }
+  ]
+}

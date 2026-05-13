@@ -1,0 +1,110 @@
+{
+  "trajectory_id": "synth_suboptimal_approach_007",
+  "domain": "coding",
+  "description": "Agent fixes a bug by patching each affected file individually instead of running the project's automated migration script",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.suboptimal_approach"
+    ]
+  },
+  "failure_event_indices": [
+    4,
+    6,
+    8,
+    10
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a code maintenance agent. The project has a migration script at scripts/migrate-api-v2.sh that updates all v1 API calls to v2 format."
+    },
+    {
+      "type": "user_message",
+      "content": "We need to update all API v1 calls to v2 format across the project."
+    },
+    {
+      "type": "tool_call",
+      "content": "run",
+      "metadata": {
+        "tool_name": "run",
+        "args": {
+          "command": "grep -rl 'api/v1' src/"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "src/services/auth.ts\nsrc/services/billing.ts\nsrc/services/users.ts\nsrc/services/orders.ts"
+    },
+    {
+      "type": "tool_call",
+      "content": "edit_file",
+      "metadata": {
+        "tool_name": "edit_file",
+        "args": {
+          "file": "src/services/auth.ts",
+          "search": "api/v1",
+          "replace": "api/v2"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"updated\", \"replacements\": 3}"
+    },
+    {
+      "type": "tool_call",
+      "content": "edit_file",
+      "metadata": {
+        "tool_name": "edit_file",
+        "args": {
+          "file": "src/services/billing.ts",
+          "search": "api/v1",
+          "replace": "api/v2"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"updated\", \"replacements\": 5}"
+    },
+    {
+      "type": "tool_call",
+      "content": "edit_file",
+      "metadata": {
+        "tool_name": "edit_file",
+        "args": {
+          "file": "src/services/users.ts",
+          "search": "api/v1",
+          "replace": "api/v2"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"updated\", \"replacements\": 2}"
+    },
+    {
+      "type": "tool_call",
+      "content": "edit_file",
+      "metadata": {
+        "tool_name": "edit_file",
+        "args": {
+          "file": "src/services/orders.ts",
+          "search": "api/v1",
+          "replace": "api/v2"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"updated\", \"replacements\": 4}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Done! I've updated all 14 occurrences of api/v1 to api/v2 across the four affected files."
+    }
+  ]
+}

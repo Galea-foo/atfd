@@ -1,0 +1,60 @@
+{
+  "trajectory_id": "synth_wrong_tool_005",
+  "domain": "airline",
+  "description": "Agent upgrades the seat class when customer only asked to change seat assignment within the same class",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "action.wrong_tool"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are an airline agent. Tools: change_seat (same class), upgrade_class (changes cabin class \u2014 charges apply), get_seat_map."
+    },
+    {
+      "type": "user_message",
+      "content": "Can I switch to a window seat? I'm currently in 14C (aisle) on flight UA-330."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_seat_map",
+      "metadata": {
+        "tool_name": "get_seat_map",
+        "args": {
+          "flight": "UA-330",
+          "class": "economy"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"available_windows\": [\"14A\", \"22A\", \"22F\", \"31A\"], \"available_aisles\": [\"18C\", \"25D\"]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "upgrade_class",
+      "metadata": {
+        "tool_name": "upgrade_class",
+        "args": {
+          "booking_ref": "TK9921\n",
+          "new_class": "business",
+          "seat": "4A"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"upgraded\", \"new_seat\": \"4A\", \"class\": \"business\", \"charge\": 450.00}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "I've moved you to seat 4A, a window seat! You'll see a $450 upgrade charge on your booking for the business class cabin."
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "trajectory_id": "synth_max_steps_002",
+  "domain": "retail",
+  "description": "Agent hits step limit while trying to process a complex multi-item order modification",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.max_steps"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    11
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a retail agent. Step limit: 5 tool calls per session."
+    },
+    {
+      "type": "user_message",
+      "content": "I need to change three items in my order, update the address, and apply a coupon."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_order_details",
+      "metadata": {
+        "tool_name": "get_order_details",
+        "args": {
+          "order_id": "55033"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"order_id\": \"55033\", \"items\": [{\"id\": \"I-1\", \"name\": \"shirt\"}, {\"id\": \"I-2\", \"name\": \"pants\"}, {\"id\": \"I-3\", \"name\": \"belt\"}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "modify_item",
+      "metadata": {
+        "tool_name": "modify_item",
+        "args": {
+          "order_id": "55033",
+          "item_id": "I-1",
+          "new_size": "M"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"modified\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "modify_item",
+      "metadata": {
+        "tool_name": "modify_item",
+        "args": {
+          "order_id": "55033",
+          "item_id": "I-2",
+          "new_color": "black"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"modified\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "modify_item",
+      "metadata": {
+        "tool_name": "modify_item",
+        "args": {
+          "order_id": "55033",
+          "item_id": "I-3",
+          "new_sku": "BLT-220"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"modified\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "update_address",
+      "metadata": {
+        "tool_name": "update_address",
+        "args": {
+          "order_id": "55033",
+          "address": "789 New St"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"MaxStepsExceeded: Agent reached maximum of 5 tool calls. Could not complete address update or coupon application.\"}"
+    }
+  ]
+}

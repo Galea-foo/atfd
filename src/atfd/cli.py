@@ -32,7 +32,7 @@ def download(dataset):
     "groq-llama-70b", "groq-llama4-scout", "groq-qwen3-32b",
     "openrouter-gemma4", "openrouter-nemotron",
     "galea", "galea-llm",
-    "claude-headless",
+    "claude-headless", "codex-headless",
 ]), required=True)
 @click.option("--dataset", type=click.Choice(["tau-bench", "swe-bench", "synthetic", "all"]), default="all")
 @click.option("--domain", type=str, default=None)
@@ -99,6 +99,9 @@ def _make_judge(judge_key):
     elif judge_key == "claude-headless":
         from atfd.judges.claude_headless import ClaudeHeadlessJudge
         return ClaudeHeadlessJudge(model="sonnet")
+    elif judge_key == "codex-headless":
+        from atfd.judges.codex_headless import CodexHeadlessJudge
+        return CodexHeadlessJudge()
     elif judge_key == "galea":
         from atfd.judges.galea import GaleaJudge
         return GaleaJudge(mode="heuristic")

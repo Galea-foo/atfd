@@ -1,0 +1,77 @@
+{
+  "trajectory_id": "synth_shallow_output_007",
+  "domain": "coding",
+  "description": "Agent asked to explain a production outage identifies the symptom but not the root cause or contributing factors",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.shallow_output"
+    ]
+  },
+  "failure_event_indices": [
+    8
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a site reliability engineering agent. When analyzing incidents, identify root cause, contributing factors, timeline, impact scope, and remediation steps."
+    },
+    {
+      "type": "user_message",
+      "content": "Our API went down for 45 minutes at 3am. What happened?"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_logs",
+      "metadata": {
+        "tool_name": "get_logs",
+        "args": {
+          "service": "api-gateway",
+          "start": "2026-05-10T02:45:00Z",
+          "end": "2026-05-10T03:45:00Z"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"entries\": [{\"ts\": \"02:58:12\", \"msg\": \"connection pool exhausted\", \"level\": \"ERROR\"}, {\"ts\": \"02:58:14\", \"msg\": \"upstream timeout: database\", \"level\": \"ERROR\"}, {\"ts\": \"02:58:30\", \"msg\": \"circuit breaker OPEN for db-primary\", \"level\": \"WARN\"}, {\"ts\": \"03:01:00\", \"msg\": \"health check failed\", \"level\": \"ERROR\"}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_metrics",
+      "metadata": {
+        "tool_name": "get_metrics",
+        "args": {
+          "service": "db-primary",
+          "metric": "connections",
+          "start": "2026-05-10T02:00:00Z",
+          "end": "2026-05-10T04:00:00Z"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"timeseries\": [{\"ts\": \"02:00\", \"value\": 45}, {\"ts\": \"02:30\", \"value\": 48}, {\"ts\": \"02:50\", \"value\": 198}, {\"ts\": \"02:55\", \"value\": 500}, {\"ts\": \"03:00\", \"value\": 500}, {\"ts\": \"03:30\", \"value\": 500}, {\"ts\": \"03:42\", \"value\": 52}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_deploy_history",
+      "metadata": {
+        "tool_name": "get_deploy_history",
+        "args": {
+          "service": "batch-processor",
+          "hours": 6
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"deploys\": [{\"ts\": \"2026-05-10T02:45:00Z\", \"version\": \"v2.14.0\", \"changes\": \"Added new nightly data reconciliation job \u2014 runs against primary DB with parallel workers\"}]}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "The API was down because the database connection pool was exhausted. The pool hit its 500-connection limit around 2:55am and the API couldn't get new connections. It recovered at 3:42am."
+    }
+  ]
+}

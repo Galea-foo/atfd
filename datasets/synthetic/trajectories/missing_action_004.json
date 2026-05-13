@@ -1,0 +1,46 @@
+{
+  "trajectory_id": "synth_missing_action_004",
+  "domain": "healthcare",
+  "description": "Agent updates a patient's medication dosage in the chart but never notifies the pharmacy to update the prescription",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "action.missing_action"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a clinical agent. When dosage changes: 1) update patient chart, 2) send updated prescription to pharmacy, 3) document change reason."
+    },
+    {
+      "type": "user_message",
+      "content": "Dr. Kim ordered an increase of lisinopril from 10mg to 20mg for patient MRN-72001."
+    },
+    {
+      "type": "tool_call",
+      "content": "update_medication",
+      "metadata": {
+        "tool_name": "update_medication",
+        "args": {
+          "mrn": "72001",
+          "medication": "lisinopril",
+          "new_dose": "20mg",
+          "ordered_by": "Dr. Kim"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"updated\", \"medication\": \"lisinopril\", \"old_dose\": \"10mg\", \"new_dose\": \"20mg\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Done. I've updated the patient chart for MRN-72001 \u2014 lisinopril has been changed from 10mg to 20mg per Dr. Kim's order."
+    }
+  ]
+}

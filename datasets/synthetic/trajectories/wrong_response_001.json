@@ -1,0 +1,43 @@
+{
+  "trajectory_id": "synth_wrong_response_001",
+  "domain": "retail",
+  "description": "Agent quotes the wrong price to the customer \u2014 shows price from a different product",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "communication.wrong_response"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a retail customer service agent."
+    },
+    {
+      "type": "user_message",
+      "content": "How much does the ProMax 5000 espresso machine cost?"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_product_details",
+      "metadata": {
+        "tool_name": "get_product_details",
+        "args": {
+          "product_id": "PM-5000"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"name\": \"ProMax 5000\", \"price\": 899.99, \"category\": \"espresso_machines\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "The ProMax 5000 espresso machine is priced at $649.99. Would you like to add it to your cart?"
+    }
+  ]
+}

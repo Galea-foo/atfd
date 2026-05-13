@@ -1,0 +1,57 @@
+{
+  "trajectory_id": "synth_wrong_tool_001",
+  "domain": "retail",
+  "description": "Agent uses cancel_order when customer wanted to modify the shipping address",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "action.wrong_tool"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a retail customer service agent. Tools: modify_order, cancel_order, get_order_details."
+    },
+    {
+      "type": "user_message",
+      "content": "I need to change the delivery address on order #40021 to 55 Maple Drive."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_order_details",
+      "metadata": {
+        "tool_name": "get_order_details",
+        "args": {
+          "order_id": "40021"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"order_id\": \"40021\", \"status\": \"processing\", \"address\": \"10 Oak Lane\", \"items\": [\"headphones\"]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "cancel_order",
+      "metadata": {
+        "tool_name": "cancel_order",
+        "args": {
+          "order_id": "40021"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"cancelled\", \"refund_initiated\": true}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "I've cancelled your order #40021. You can now place a new order with the correct address at 55 Maple Drive!"
+    }
+  ]
+}

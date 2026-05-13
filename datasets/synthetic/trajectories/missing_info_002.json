@@ -1,0 +1,60 @@
+{
+  "trajectory_id": "synth_missing_info_002",
+  "domain": "airline",
+  "description": "Agent rebooks passenger but does not mention the connection or layover details",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "communication.missing_info"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    6
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are an airline rebooking agent. When rebooking, inform passenger of: all flight legs, connection times, gate changes, and any fare differences."
+    },
+    {
+      "type": "user_message",
+      "content": "My direct flight LAX to JFK was cancelled. Can you rebook me?"
+    },
+    {
+      "type": "tool_call",
+      "content": "search_flights",
+      "metadata": {
+        "tool_name": "search_flights",
+        "args": {
+          "origin": "LAX",
+          "destination": "JFK",
+          "date": "2026-05-11"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"flights\": [{\"flight\": \"AA-1220\", \"legs\": [{\"segment\": \"LAX-DFW\", \"depart\": \"11:00\", \"arrive\": \"16:30\"}, {\"segment\": \"DFW-JFK\", \"depart\": \"18:00\", \"arrive\": \"22:15\"}], \"connection_time\": \"1h30m\", \"total_duration\": \"11h15m\"}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "rebook_passenger",
+      "metadata": {
+        "tool_name": "rebook_passenger",
+        "args": {
+          "old_booking": "LX99MM",
+          "new_flight": "AA-1220"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"rebooked\", \"new_booking_ref\": \"AA77KK\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "You've been rebooked on flight AA-1220 departing at 11:00 AM. Your new booking reference is AA77KK. Have a great flight!"
+    }
+  ]
+}

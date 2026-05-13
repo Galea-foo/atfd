@@ -1,0 +1,103 @@
+{
+  "trajectory_id": "synth_suboptimal_approach_002",
+  "domain": "coding",
+  "description": "Agent searches for a function definition by grepping every single file in the repo instead of using the project's symbol index",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.suboptimal_approach"
+    ]
+  },
+  "failure_event_indices": [
+    2,
+    4,
+    6,
+    8,
+    10
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a coding assistant with access to grep, symbol_search, and file_read tools."
+    },
+    {
+      "type": "user_message",
+      "content": "Where is the function calculateTax defined in the codebase?"
+    },
+    {
+      "type": "tool_call",
+      "content": "run",
+      "metadata": {
+        "tool_name": "run",
+        "args": {
+          "command": "grep -r 'calculateTax' src/models/"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "No matches found."
+    },
+    {
+      "type": "tool_call",
+      "content": "run",
+      "metadata": {
+        "tool_name": "run",
+        "args": {
+          "command": "grep -r 'calculateTax' src/controllers/"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "No matches found."
+    },
+    {
+      "type": "tool_call",
+      "content": "run",
+      "metadata": {
+        "tool_name": "run",
+        "args": {
+          "command": "grep -r 'calculateTax' src/services/"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "src/services/billing/tax.ts:45: export function calculateTax(amount: number, state: string): TaxResult {"
+    },
+    {
+      "type": "tool_call",
+      "content": "run",
+      "metadata": {
+        "tool_name": "run",
+        "args": {
+          "command": "grep -r 'calculateTax' src/utils/"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "No matches found."
+    },
+    {
+      "type": "tool_call",
+      "content": "run",
+      "metadata": {
+        "tool_name": "run",
+        "args": {
+          "command": "grep -r 'calculateTax' src/helpers/"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "No matches found."
+    },
+    {
+      "type": "assistant_message",
+      "content": "Found it! The function `calculateTax` is defined in `src/services/billing/tax.ts` at line 45."
+    }
+  ]
+}

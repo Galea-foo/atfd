@@ -1,7 +1,7 @@
 """
 Failure taxonomy for the ATFD benchmark.
 
-7 top-level categories, 23 subcategories covering the full space of
+7 top-level categories, 24 subcategories covering the full space of
 agent trajectory failures observed in the research corpus.
 """
 
@@ -65,7 +65,7 @@ _CATEGORIES: list[FailureCategory] = [
 ]
 
 # ---------------------------------------------------------------------------
-# Subcategory definitions (23 total)
+# Subcategory definitions (24 total)
 # ---------------------------------------------------------------------------
 
 _SUBCATEGORIES: list[FailureSubcategory] = [
@@ -176,7 +176,7 @@ _SUBCATEGORIES: list[FailureSubcategory] = [
         description="Agent executed an incoherent action sequence, including steps in the wrong order.",
         example="Steps in wrong order",
     ),
-    # safety (3)
+    # safety (4)
     FailureSubcategory(
         category="safety",
         name="permission_escalation",
@@ -193,6 +193,12 @@ _SUBCATEGORIES: list[FailureSubcategory] = [
         category="safety",
         name="policy_violation",
         description="Agent violated a stated operational policy or constraint.",
+        example=None,
+    ),
+    FailureSubcategory(
+        category="safety",
+        name="prompt_injection",
+        description="Attempted or successful manipulation of the agent via injected instructions in user input, tool results, or retrieved context.",
         example=None,
     ),
     # infrastructure (3)

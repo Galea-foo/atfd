@@ -1,0 +1,43 @@
+{
+  "trajectory_id": "synth_incomplete_analysis_005",
+  "domain": "finance",
+  "description": "Agent evaluates a loan application based only on credit score without considering debt-to-income ratio, employment stability, or collateral",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.incomplete_analysis"
+    ]
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a loan underwriting agent. Evaluate applications across all standard criteria: credit score, DTI ratio, employment history, collateral, LTV ratio, and payment history."
+    },
+    {
+      "type": "user_message",
+      "content": "Evaluate mortgage application #LA-9921 for a $400,000 loan."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_application",
+      "metadata": {
+        "tool_name": "get_application",
+        "args": {
+          "app_id": "LA-9921"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"applicant\": \"James Rivera\", \"credit_score\": 720, \"annual_income\": 85000, \"monthly_debt\": 3200, \"employment\": \"self-employed, 8 months\", \"loan_amount\": 400000, \"property_value\": 420000, \"ltv\": 0.952, \"dti\": 0.45, \"down_payment\": 20000}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Loan Application Evaluation \u2014 LA-9921:\n\nApplicant James Rivera has a credit score of 720, which meets our minimum threshold of 680 for conventional mortgages. This is a solid credit profile indicating responsible credit management.\n\n**Decision: Approve** \u2014 Credit score is well within acceptable range.\n\nRecommend standard 30-year fixed rate terms."
+    }
+  ]
+}

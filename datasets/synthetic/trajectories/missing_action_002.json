@@ -1,0 +1,52 @@
+{
+  "trajectory_id": "synth_missing_action_002",
+  "domain": "finance",
+  "description": "Agent identifies a fraudulent transaction but never freezes the card or initiates a dispute",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "action.missing_action"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a fraud prevention agent. When fraud is confirmed: 1) freeze the card, 2) initiate dispute, 3) issue replacement card."
+    },
+    {
+      "type": "user_message",
+      "content": "I see a $2,500 charge from 'Electronics Store Lagos' on my card. I've never been to Lagos. This is fraud!"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_transaction",
+      "metadata": {
+        "tool_name": "get_transaction",
+        "args": {
+          "card_id": "CC-9921",
+          "amount": 2500
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"transaction_id\": \"TXN-44521\", \"amount\": 2500, \"merchant\": \"Electronics Store Lagos\", \"location\": \"Lagos, Nigeria\", \"card_present\": false, \"fraud_score\": 0.95}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "I can confirm that this transaction looks highly suspicious \u2014 the fraud score is 0.95 out of 1.0, it was a card-not-present transaction from Lagos, Nigeria. This is very likely fraudulent activity."
+    },
+    {
+      "type": "user_message",
+      "content": "So what are you going to do about it?"
+    },
+    {
+      "type": "assistant_message",
+      "content": "I recommend that you monitor your account closely over the next few days and let us know if you see any additional suspicious activity. You may also want to consider updating your passwords on any sites where this card is saved."
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "trajectory_id": "synth_wrong_response_002",
+  "domain": "airline",
+  "description": "Agent tells the passenger the wrong departure gate",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "communication.wrong_response"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are an airport information agent."
+    },
+    {
+      "type": "user_message",
+      "content": "What gate does flight DL-890 depart from?"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_flight_info",
+      "metadata": {
+        "tool_name": "get_flight_info",
+        "args": {
+          "flight": "DL-890"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"flight\": \"DL-890\", \"gate\": \"C22\", \"terminal\": \"2\", \"departure\": \"14:30\", \"status\": \"on_time\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Flight DL-890 departs from Gate B14 in Terminal 2. You have plenty of time \u2014 departure is at 2:30 PM."
+    }
+  ]
+}

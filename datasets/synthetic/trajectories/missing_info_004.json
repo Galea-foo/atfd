@@ -1,0 +1,46 @@
+{
+  "trajectory_id": "synth_missing_info_004",
+  "domain": "healthcare",
+  "description": "Agent schedules a procedure but does not provide pre-procedure instructions (fasting, medication holds)",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "communication.missing_info"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a medical scheduling agent. For procedures requiring prep: always communicate pre-procedure instructions including fasting, medication holds, and arrival time."
+    },
+    {
+      "type": "user_message",
+      "content": "Schedule a colonoscopy for patient MRN-32001 next Tuesday."
+    },
+    {
+      "type": "tool_call",
+      "content": "schedule_procedure",
+      "metadata": {
+        "tool_name": "schedule_procedure",
+        "args": {
+          "mrn": "32001",
+          "procedure": "colonoscopy",
+          "date": "2026-05-13",
+          "time": "08:00"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"appointment_id\": \"PROC-9921\", \"procedure\": \"colonoscopy\", \"date\": \"2026-05-13\", \"time\": \"08:00\", \"prep_required\": true, \"prep_instructions\": \"Clear liquid diet 24h before. Begin bowel prep solution at 5pm day before. Hold blood thinners 5 days prior. NPO after midnight. Arrive 6:00am.\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Your colonoscopy has been scheduled for Tuesday, May 13th at 8:00 AM. Appointment ID: PROC-9921. See you then!"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "trajectory_id": "synth_max_steps_005",
+  "domain": "airline",
+  "description": "Agent exceeds step limit while rebooking a multi-leg itinerary after cancellation",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.max_steps"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    9
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are an airline rebooking agent. Step limit: 4 tool calls per session."
+    },
+    {
+      "type": "user_message",
+      "content": "All three legs of my trip were cancelled due to the storm. I need LAX-ORD-BOS-JFK rebooked."
+    },
+    {
+      "type": "tool_call",
+      "content": "search_flights",
+      "metadata": {
+        "tool_name": "search_flights",
+        "args": {
+          "origin": "LAX",
+          "destination": "ORD",
+          "date": "2026-05-12"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"flights\": [{\"flight\": \"AA-200\", \"depart\": \"10:00\"}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "search_flights",
+      "metadata": {
+        "tool_name": "search_flights",
+        "args": {
+          "origin": "ORD",
+          "destination": "BOS",
+          "date": "2026-05-12"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"flights\": [{\"flight\": \"AA-500\", \"depart\": \"15:00\"}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "search_flights",
+      "metadata": {
+        "tool_name": "search_flights",
+        "args": {
+          "origin": "BOS",
+          "destination": "JFK",
+          "date": "2026-05-12"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"flights\": [{\"flight\": \"JB-100\", \"depart\": \"19:00\"}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "book_flight",
+      "metadata": {
+        "tool_name": "book_flight",
+        "args": {
+          "flight": "AA-200",
+          "date": "2026-05-12"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"MaxStepsExceeded: 4 tool call limit reached. Only 1 of 3 legs booked. Remaining legs ORD-BOS and BOS-JFK not booked.\"}"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "trajectory_id": "synth_incomplete_analysis_003",
+  "domain": "coding",
+  "description": "Security audit checks for SQL injection and XSS but misses authentication bypass, IDOR, and rate limiting gaps",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.incomplete_analysis"
+    ]
+  },
+  "failure_event_indices": [
+    8
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a security audit agent. Conduct thorough OWASP Top 10 analysis covering injection, broken auth, sensitive data exposure, XXE, broken access control, misconfigurations, XSS, insecure deserialization, known vulnerabilities, and insufficient logging."
+    },
+    {
+      "type": "user_message",
+      "content": "Audit the security of our new user-facing API at /api/users/*."
+    },
+    {
+      "type": "tool_call",
+      "content": "read_file",
+      "metadata": {
+        "tool_name": "read_file",
+        "args": {
+          "path": "src/routes/users.ts"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"content\": \"// GET /api/users/:id - no auth middleware\\nrouter.get('/:id', async (req, res) => {\\n  const user = await db.query('SELECT * FROM users WHERE id = ' + req.params.id);\\n  res.json(user);\\n});\\n// PUT /api/users/:id - no auth check, no rate limiting\\nrouter.put('/:id', async (req, res) => {\\n  const { name, email, role } = req.body;\\n  await db.query('UPDATE users SET name=$1, email=$2, role=$3 WHERE id=$4', [name, email, role, req.params.id]);\\n  res.json({status: 'updated'});\\n});\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "read_file",
+      "metadata": {
+        "tool_name": "read_file",
+        "args": {
+          "path": "src/middleware/auth.ts"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"content\": \"export const requireAuth = (req, res, next) => {\\n  const token = req.headers.authorization;\\n  if (!token) return res.status(401).json({error: 'Unauthorized'});\\n  // JWT verification\\n  next();\\n};\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "read_file",
+      "metadata": {
+        "tool_name": "read_file",
+        "args": {
+          "path": "src/middleware/rateLimit.ts"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"content\": \"export const rateLimit = limiter({ windowMs: 15 * 60 * 1000, max: 100 });\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Security Audit Results for /api/users/*:\n\n**SQL Injection (Critical):** The GET endpoint uses string concatenation for SQL queries. The id parameter is directly interpolated into the query string. Recommend using parameterized queries.\n\n**XSS Risk (Medium):** User-submitted name and email fields are not sanitized before storage. Implement input validation.\n\nOverall: 2 issues found. Fix the SQL injection immediately."
+    }
+  ]
+}

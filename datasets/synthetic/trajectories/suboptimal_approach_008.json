@@ -1,0 +1,60 @@
+{
+  "trajectory_id": "synth_suboptimal_approach_008",
+  "domain": "airline",
+  "description": "Agent manually computes fare difference by looking up both fares separately instead of using the fare_comparison tool",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.suboptimal_approach"
+    ]
+  },
+  "failure_event_indices": [
+    2,
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are an airline agent. Tools: fare_comparison (compares two bookings and shows difference), get_fare, get_booking."
+    },
+    {
+      "type": "user_message",
+      "content": "What's the fare difference if I upgrade from economy to business on booking REF-8832?"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_fare",
+      "metadata": {
+        "tool_name": "get_fare",
+        "args": {
+          "booking_ref": "REF-8832",
+          "class": "economy"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"fare\": 450, \"class\": \"economy\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_fare",
+      "metadata": {
+        "tool_name": "get_fare",
+        "args": {
+          "booking_ref": "REF-8832",
+          "class": "business"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"fare\": 1250, \"class\": \"business\"}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "The upgrade from economy ($450) to business ($1,250) would cost an additional $800. Would you like to proceed?"
+    }
+  ]
+}

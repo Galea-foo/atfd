@@ -1,0 +1,57 @@
+{
+  "trajectory_id": "synth_shallow_output_001",
+  "domain": "finance",
+  "description": "Agent asked to analyze portfolio risk but only mentions market risk, ignoring credit, liquidity, operational, and concentration risks",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.shallow_output"
+    ]
+  },
+  "failure_event_indices": [
+    5
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a financial advisory agent. Provide comprehensive portfolio analysis covering all major risk dimensions."
+    },
+    {
+      "type": "user_message",
+      "content": "I need a full risk analysis for my investment portfolio. I hold 60% tech stocks, 20% corporate bonds, 10% real estate, and 10% crypto."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_portfolio_details",
+      "metadata": {
+        "tool_name": "get_portfolio_details",
+        "args": {
+          "portfolio_id": "PF-4421"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"portfolio_id\": \"PF-4421\", \"total_value\": 850000, \"positions\": [{\"asset_class\": \"equities\", \"sector\": \"technology\", \"weight\": 0.60, \"beta\": 1.4}, {\"asset_class\": \"fixed_income\", \"type\": \"corporate_bonds\", \"weight\": 0.20, \"avg_rating\": \"BBB\"}, {\"asset_class\": \"real_estate\", \"weight\": 0.10}, {\"asset_class\": \"crypto\", \"weight\": 0.10, \"volatility\": \"high\"}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_market_conditions",
+      "metadata": {
+        "tool_name": "get_market_conditions",
+        "args": {
+          "date": "2026-05-01"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"sp500_ytd\": -2.3, \"vix\": 22.1, \"fed_rate\": 4.25, \"inflation\": 3.1, \"credit_spreads\": \"widening\", \"crypto_volatility_index\": 85}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Here's your risk analysis:\n\nYour portfolio has moderate market risk. With 60% in tech stocks and a portfolio beta of 1.4, you're more volatile than the S&P 500. The VIX is at 22.1, indicating some market uncertainty. Consider diversifying into defensive sectors to lower your beta.\n\nOverall risk level: Moderate to High."
+    }
+  ]
+}

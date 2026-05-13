@@ -1,0 +1,103 @@
+{
+  "trajectory_id": "synth_max_steps_003",
+  "domain": "finance",
+  "description": "Agent exceeds step limit during a complex multi-account reconciliation",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "infrastructure.max_steps"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    11
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a banking reconciliation agent. Step limit: 5 tool calls."
+    },
+    {
+      "type": "user_message",
+      "content": "Reconcile all transactions between my checking, savings, and investment accounts for April."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_transactions",
+      "metadata": {
+        "tool_name": "get_transactions",
+        "args": {
+          "account": "checking",
+          "month": "2026-04"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"transactions\": 47}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_transactions",
+      "metadata": {
+        "tool_name": "get_transactions",
+        "args": {
+          "account": "savings",
+          "month": "2026-04"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"transactions\": 12}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_transactions",
+      "metadata": {
+        "tool_name": "get_transactions",
+        "args": {
+          "account": "investment",
+          "month": "2026-04"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"transactions\": 23}"
+    },
+    {
+      "type": "tool_call",
+      "content": "match_transfers",
+      "metadata": {
+        "tool_name": "match_transfers",
+        "args": {
+          "accounts": [
+            "checking",
+            "savings",
+            "investment"
+          ],
+          "month": "2026-04"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"matched\": 8, \"unmatched\": 3, \"needs_review\": [\"TXN-401\", \"TXN-422\", \"TXN-439\"]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_transaction_detail",
+      "metadata": {
+        "tool_name": "get_transaction_detail",
+        "args": {
+          "txn_id": "TXN-401"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"error\": \"MaxStepsExceeded: Step limit reached. 3 unmatched transactions remain unreviewed.\"}"
+    }
+  ]
+}

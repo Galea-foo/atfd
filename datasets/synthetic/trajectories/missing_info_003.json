@@ -1,0 +1,58 @@
+{
+  "trajectory_id": "synth_missing_info_003",
+  "domain": "finance",
+  "description": "Agent opens a new savings account but fails to mention the minimum balance requirement and monthly fee",
+  "ground_truth": {
+    "outcome": "fail",
+    "failure_categories": [
+      "communication.missing_info"
+    ],
+    "quality_categories": []
+  },
+  "failure_event_indices": [
+    4
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a banking agent. When opening accounts, disclose: interest rate, minimum balance, monthly fees, and withdrawal limits."
+    },
+    {
+      "type": "user_message",
+      "content": "I'd like to open a high-yield savings account."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_account_products",
+      "metadata": {
+        "tool_name": "get_account_products",
+        "args": {
+          "type": "high_yield_savings"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"product\": \"High Yield Savings\", \"apy\": 4.25, \"min_balance\": 5000, \"monthly_fee\": 12, \"fee_waiver\": \"waived if balance >= $5000\", \"withdrawal_limit\": 6}"
+    },
+    {
+      "type": "tool_call",
+      "content": "open_account",
+      "metadata": {
+        "tool_name": "open_account",
+        "args": {
+          "type": "high_yield_savings",
+          "customer_id": "C-5521"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"account_id\": \"SAV-88321\", \"status\": \"opened\", \"apy\": 4.25}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Congratulations! Your new high-yield savings account has been opened. Account number: SAV-88321. You'll earn 4.25% APY on your deposits. Is there anything else?"
+    }
+  ]
+}

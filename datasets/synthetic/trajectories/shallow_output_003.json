@@ -1,0 +1,57 @@
+{
+  "trajectory_id": "synth_shallow_output_003",
+  "domain": "coding",
+  "description": "Agent asked to review a PR gives a two-sentence review without examining test coverage, edge cases, or security implications",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.shallow_output"
+    ]
+  },
+  "failure_event_indices": [
+    6
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a senior code review agent. Review PRs thoroughly covering correctness, test coverage, security, performance, and maintainability."
+    },
+    {
+      "type": "user_message",
+      "content": "Please review PR #342 which adds a new user authentication endpoint."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_pr_diff",
+      "metadata": {
+        "tool_name": "get_pr_diff",
+        "args": {
+          "pr_number": 342
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"files_changed\": 8, \"additions\": 245, \"deletions\": 12, \"diff_summary\": \"New POST /api/auth/login endpoint with password validation, JWT token generation, rate limiting middleware. Also modifies user model to add last_login field. No test files changed.\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_pr_files",
+      "metadata": {
+        "tool_name": "get_pr_files",
+        "args": {
+          "pr_number": 342
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"files\": [\"src/routes/auth.ts\", \"src/middleware/rateLimit.ts\", \"src/models/user.ts\", \"src/utils/jwt.ts\", \"src/utils/password.ts\", \"src/config/auth.ts\", \"src/types/auth.ts\", \"package.json\"]}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "PR #342 looks good. The code is clean and well-structured. I'd approve this."
+    }
+  ]
+}

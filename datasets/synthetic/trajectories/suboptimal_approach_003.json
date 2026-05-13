@@ -1,0 +1,113 @@
+{
+  "trajectory_id": "synth_suboptimal_approach_003",
+  "domain": "airline",
+  "description": "Agent manually checks availability date by date instead of using the bulk availability search",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.suboptimal_approach"
+    ]
+  },
+  "failure_event_indices": [
+    2,
+    4,
+    6,
+    8,
+    10
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are an airline booking agent. Tools available: search_flights (supports date ranges), check_single_date, get_booking."
+    },
+    {
+      "type": "user_message",
+      "content": "Find me the cheapest flight LAX to ORD anytime next week (May 12-18)."
+    },
+    {
+      "type": "tool_call",
+      "content": "check_single_date",
+      "metadata": {
+        "tool_name": "check_single_date",
+        "args": {
+          "origin": "LAX",
+          "dest": "ORD",
+          "date": "2026-05-12"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"flights\": [{\"flight\": \"UA-501\", \"price\": 289}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "check_single_date",
+      "metadata": {
+        "tool_name": "check_single_date",
+        "args": {
+          "origin": "LAX",
+          "dest": "ORD",
+          "date": "2026-05-13"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"flights\": [{\"flight\": \"AA-330\", \"price\": 310}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "check_single_date",
+      "metadata": {
+        "tool_name": "check_single_date",
+        "args": {
+          "origin": "LAX",
+          "dest": "ORD",
+          "date": "2026-05-14"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"flights\": [{\"flight\": \"UA-503\", \"price\": 245}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "check_single_date",
+      "metadata": {
+        "tool_name": "check_single_date",
+        "args": {
+          "origin": "LAX",
+          "dest": "ORD",
+          "date": "2026-05-15"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"flights\": [{\"flight\": \"DL-770\", \"price\": 265}]}"
+    },
+    {
+      "type": "tool_call",
+      "content": "check_single_date",
+      "metadata": {
+        "tool_name": "check_single_date",
+        "args": {
+          "origin": "LAX",
+          "dest": "ORD",
+          "date": "2026-05-16"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"flights\": [{\"flight\": \"AA-332\", \"price\": 275}]}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "The cheapest option I found is UA-503 on May 14 at $245. Would you like to book it?"
+    }
+  ]
+}

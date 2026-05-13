@@ -1,0 +1,125 @@
+{
+  "trajectory_id": "synth_suboptimal_approach_001",
+  "domain": "retail",
+  "description": "Agent looks up customer info 4 separate times instead of caching the result from the first call",
+  "ground_truth": {
+    "outcome": "degraded",
+    "failure_categories": [],
+    "quality_categories": [
+      "quality.suboptimal_approach"
+    ]
+  },
+  "failure_event_indices": [
+    6,
+    10,
+    14
+  ],
+  "events": [
+    {
+      "type": "system",
+      "content": "You are a retail customer service agent."
+    },
+    {
+      "type": "user_message",
+      "content": "I need to update my shipping address, change my email, and check on my loyalty points."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_customer_info",
+      "metadata": {
+        "tool_name": "get_customer_info",
+        "args": {
+          "customer_id": "C-2201"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"customer_id\": \"C-2201\", \"name\": \"Marcus Lee\", \"email\": \"marcus@old.com\", \"address\": \"10 Elm St\", \"loyalty_points\": 4500}"
+    },
+    {
+      "type": "tool_call",
+      "content": "update_address",
+      "metadata": {
+        "tool_name": "update_address",
+        "args": {
+          "customer_id": "C-2201",
+          "new_address": "25 Pine Ave"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"updated\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_customer_info",
+      "metadata": {
+        "tool_name": "get_customer_info",
+        "args": {
+          "customer_id": "C-2201"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"customer_id\": \"C-2201\", \"name\": \"Marcus Lee\", \"email\": \"marcus@old.com\", \"address\": \"25 Pine Ave\", \"loyalty_points\": 4500}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Address updated. Now let me update your email."
+    },
+    {
+      "type": "tool_call",
+      "content": "update_email",
+      "metadata": {
+        "tool_name": "update_email",
+        "args": {
+          "customer_id": "C-2201",
+          "new_email": "marcus@new.com"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"status\": \"updated\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "get_customer_info",
+      "metadata": {
+        "tool_name": "get_customer_info",
+        "args": {
+          "customer_id": "C-2201"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"customer_id\": \"C-2201\", \"name\": \"Marcus Lee\", \"email\": \"marcus@new.com\", \"address\": \"25 Pine Ave\", \"loyalty_points\": 4500}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "Email updated. Let me check your loyalty points."
+    },
+    {
+      "type": "tool_call",
+      "content": "get_customer_info",
+      "metadata": {
+        "tool_name": "get_customer_info",
+        "args": {
+          "customer_id": "C-2201"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "content": "{\"customer_id\": \"C-2201\", \"name\": \"Marcus Lee\", \"email\": \"marcus@new.com\", \"address\": \"25 Pine Ave\", \"loyalty_points\": 4500}"
+    },
+    {
+      "type": "assistant_message",
+      "content": "You have 4,500 loyalty points. All three updates are complete!"
+    }
+  ]
+}
