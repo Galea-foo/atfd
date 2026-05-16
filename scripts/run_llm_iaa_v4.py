@@ -324,12 +324,17 @@ def call_gemini(prompt: str) -> str:
             if not candidates:
                 return ""
             parts = candidates[0].get("content", {}).get("parts", [])
-            # Iterate all parts — thinking models put thought in early parts
+            # Skip thinking parts (thought=true), return model's actual response
+            non_thought_texts = []
             for part in parts:
+                if part.get("thought", False):
+                    continue
                 text = part.get("text", "")
-                if text and ("outcome" in text or "pass" in text or "fail" in text):
-                    return text
-            # Fallback: return last non-empty text part
+                if text.strip():
+                    non_thought_texts.append(text)
+            if non_thought_texts:
+                return non_thought_texts[-1]
+            # Fallback: return last non-empty part regardless
             for part in reversed(parts):
                 text = part.get("text", "")
                 if text.strip():
