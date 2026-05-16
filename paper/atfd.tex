@@ -93,16 +93,15 @@
 % ==========================================================================
 \begin{abstract}
 Agent workflows built on large language models are deployed in
-business-critical settings, yet no benchmark comparatively evaluates the
-\emph{heterogeneous monitoring tools}---heuristics, configured platforms,
-and LLM judges---that practitioners use to detect failures in these
-workflows.
-Existing benchmarks evaluate agent capability; concurrent work benchmarks
-LLM-based trace analysis~\citep{trail2025}, trains specialized
-detectors~\citep{trajad2025,silentfailures2025}, and diagnoses individual
-failures~\citep{agentrx2026}. None evaluates production monitoring
-tools---spanning heuristics, configured observability platforms, and LLM
-judges---with cost and configuration effort as first-class metrics.
+business-critical settings, yet existing benchmarks for monitoring these
+workflows focus on individual tool types: LLM-based trace
+analysis~\citep{trail2025}, specialized anomaly
+detectors~\citep{trajad2025,silentfailures2025}, LLM-based
+monitoring~\citep{agentcompass2025}, or failure
+diagnosis~\citep{agentrx2026}. None comparatively evaluates the
+\emph{heterogeneous monitoring tools}---heuristics, configured
+observability platforms, and LLM judges---that production deployments
+use, with cost and configuration effort as first-class metrics.
 We introduce \atfd (Agent Trajectory Failure Detection), a benchmark that
 fills this gap with: (1)~a 7-category, 24-subcategory failure taxonomy
 including quality degradation and prompt injection; (2)~a multi-domain
@@ -118,13 +117,24 @@ Our initial evaluation reveals complementary detection profiles: the naive
 heuristic achieves high detection on structural failures in coding
 trajectories; LLM judges detect semantic failures that heuristics miss;
 configured platforms are bottlenecked by their authored rules.
-Claude Sonnet~4 is the only system with non-zero detection across all six
-domains, achieving the highest category alignment on synthetic data
-(CA = 0.545 on 150 trajectories) and the only non-zero quality degradation
-detection rate (QDR = 20.6\%), though with escalating false positive rates
-on harder domains. No single system dominates all cells of the evaluation matrix,
-suggesting that ensemble approaches combining structural and semantic
-detection warrant further investigation.
+Claude Sonnet~4 is the only system evaluated across all six
+domains with non-zero detection in each, achieving the highest category
+alignment on synthetic data (CA = 0.545, dropping to 0.093 on
+real-domain data) and the only non-zero quality degradation detection
+rate (QDR = 20.6\%).
+GPT-5 (via Codex CLI) achieves higher detection rates on \taubench
+(86--91\% vs.\ Claude's 67--77\% via Claude Code CLI; McNemar
+$p = 0.019$ on retail, $n = 100$) but at substantially higher false
+positive rates
+(30--52\% vs.\ 9--10\%), a pattern that extends to \swebench
+(100\% DR / 50\% FPR vs.\ Claude's 96\% / 0\%).
+A 3-model LLM-proxy annotation study achieves $\kappa = 0.751$
+(substantial) on binary failure detection and $\kappa = 0.713$
+(substantial) on outcome classification, while category-level agreement
+remains moderate ($\kappa = 0.229$), confirming that failure \emph{typing}
+is substantially harder than binary detection.
+No single system dominates all cells,
+suggesting ensemble approaches warrant investigation.
 \end{abstract}
 
 % ==========================================================================
@@ -133,56 +143,33 @@ detection warrant further investigation.
 \section{Introduction}
 \label{sec:introduction}
 
-Large language model (LLM) agents are transitioning from research prototypes
-to production systems that execute consequential business workflows:
-customer service interactions, software engineering tasks, financial
-analysis, and legal due diligence~\citep{zenml2025production}. This
-transition brings an urgent need: when an agent fails---by executing the
-wrong action, producing incomplete analysis, or violating an operational
-policy---someone or something must detect the failure before it propagates.
+LLM agents are transitioning to production systems executing consequential
+business workflows~\citep{zenml2025production}. When an agent fails,
+monitoring tools must detect the failure before it propagates. Commercial
+platforms (LangSmith, Braintrust, Arize Phoenix) and academic
+proposals~\citep{moshkovich2025beyond} now offer trace-level monitoring,
+but a fundamental question remains: \emph{how well do these tools work?}
 
-The observability landscape has responded. Commercial platforms such as
-LangSmith, Langfuse, Arize Phoenix, and Braintrust now offer trace
-visualization, LLM-as-judge evaluation, and anomaly detection for agent
-workflows. Academic work has proposed moving beyond black-box benchmarking
-toward runtime analytics of agentic systems~\citep{moshkovich2025beyond}.
-Yet a fundamental question remains unanswered: \emph{how well do these
-monitoring tools actually work?}
-
-Existing benchmarks evaluate agent \emph{capability}~\citep{jimenez2024swebench,
-yao2025taubench, zhou2024webarena}. Concurrent work benchmarks LLM trace
+Existing benchmarks evaluate agent capability~\citep{jimenez2024swebench,
+yao2025taubench}. Concurrent work benchmarks LLM trace
 analysis~\citep{trail2025} or trains specialized
-detectors~\citep{trajad2025,silentfailures2025}, but none evaluates the
-full spectrum of monitoring tools---heuristics, configured platforms, and
-LLM judges---that production deployments use.
+detectors~\citep{trajad2025,silentfailures2025}, but none comparatively
+evaluates the heterogeneous tool types that production deployments
+use---heuristics, configured platforms, and LLM judges---with cost and
+configuration effort as first-class metrics. Production multi-agent
+systems report 41--87\% failure rates~\citep{zenml2025production,
+cemri2025mast}.
 
-Production multi-agent systems report 41--87\% failure
-rates~\citep{zenml2025production,cemri2025mast}, yet monitoring tools have
-no benchmark against which to be measured.
+\paragraph{Why this benchmark is necessary.}
+Undetected agent failures have real consequences: Replit's AI agent
+executed \texttt{DROP TABLE} during a code freeze; attorneys submitted
+fabricated citations (\emph{Mata v. Avianca}); Deloitte documented
+systematic quality failures in AI-generated
+diligence~\citep{deloitte2025hallucinations}. These were plausibly
+detectable from trajectory data alone.
 
-\subsection*{Why This Benchmark Is Necessary}
-
-The cost of undetected agent failures is not hypothetical. In July 2025,
-Replit's AI coding agent executed a \texttt{DROP TABLE} command during a
-declared code freeze, destroying months of production data for 1,200+
-users.\footnote{Fortune, July 2025.} Attorneys submitted court filings
-with entirely fabricated case citations (\emph{Mata v. Avianca}, S.D.N.Y.,
-2023). Deloitte documented systematic quality failures in AI-generated M\&A
-due diligence---technically complete reports that omitted regulatory and
-antitrust risk~\citep{deloitte2025hallucinations}. Air Canada was held
-legally liable for its chatbot fabricating a bereavement fare policy
-(Canadian Civil Resolution Tribunal, 2024).
-
-These incidents span our failure taxonomy: safety violations, hallucinated
-facts, quality degradation, and policy violations. Each was plausibly
-detectable from the agent's trajectory alone. \atfd exists to measure
-whether monitoring tools can perform this detection. The current benchmark
-domains do not directly replicate these incidents; they motivate why
-trajectory-level monitoring matters.
-
-We address this gap with \atfd (Agent Trajectory Failure Detection), a
-benchmark that evaluates monitoring tools rather than agents.
-Our contributions are:
+We introduce \atfd (Agent Trajectory Failure Detection), a benchmark
+that evaluates monitoring tools rather than agents. Our contributions:
 
 \begin{enumerate}[leftmargin=2em]
   \item \textbf{Failure taxonomy.} A 7-category, 24-subcategory taxonomy of
@@ -211,10 +198,12 @@ Our contributions are:
   \item \textbf{Ground truth.} Binary pass/fail labels from programmatic
     verdicts (\taubench state comparison, \swebench test suites, ATBench and
     Toolathlon evaluation labels) and hand-crafted labels for synthetic
-    trajectories. We additionally describe a multi-source LLM-judge
-    consensus protocol for category-level annotation
-    (\S\ref{sec:ground_truth}), which is planned but not yet executed;
-    current evaluation uses binary detection metrics.
+    trajectories. A three-judge LLM consensus protocol executed on
+    150 synthetic trajectories (\S\ref{sec:ground_truth}) yields
+    Fleiss' $\kappa = 0.557$ (category-level agreement). Binary
+    $\kappa = 0.320$ reflects extreme prevalence imbalance (97\% failures,
+    96\% raw agreement) rather than disagreement.
+    Real-domain category-level annotation remains future work.
 
   \item \textbf{Comparative evaluation.} A 7-system $\times$
     6-domain evaluation (\S\ref{sec:systems}--\S\ref{sec:results})---a naive
@@ -237,125 +226,35 @@ Our contributions are:
 \section{Related Work}
 \label{sec:related}
 
-\atfd draws on and extends five streams of prior work: agent benchmarks,
-LLM evaluation methods, agent failure analysis, trajectory-level failure
-detection, and runtime monitoring.
+\paragraph{Agent benchmarks.}
+\taubench~\citep{yao2025taubench}, \swebench~\citep{jimenez2024swebench},
+AgentBoard~\citep{ma2024agentboard}, and WebArena~\citep{zhou2024webarena}
+evaluate agent \emph{capability}; \atfd repurposes their trajectories for
+a meta-evaluation of monitoring tools.
 
-\subsection{Agent Benchmarks}
-\label{sec:related:benchmarks}
+\paragraph{Failure analysis and detection.}
+MAST~\citep{cemri2025mast} introduces a 14-failure-mode taxonomy
+($\kappa$=0.88 on 1,600+ traces); \atfd extends MAST with quality
+degradation. The LLM-as-judge paradigm~\citep{zheng2023judging,
+gu2024llmjudge} provides \atfd's methodological foundation.
+TRAIL~\citep{trail2025} benchmarks LLM trace analysis (148 traces);
+TrajAD~\citep{trajad2025} trains anomaly detectors (85\% F1);
+Trajectory Guard~\citep{trajectoryguard2026} achieves F1 0.88--0.94 with
+a specialized autoencoder (not comparable to \atfd's DR due to different
+tasks and system types);
+AgentProp-Bench~\citep{agentpropbench2026} evaluates judge reliability
+($\kappa = 0.432$, higher than \atfd's 0.320 but in the same
+poor-to-fair range);
+AgentCompass~\citep{agentcompass2025} evaluates post-deployment monitoring
+but focuses on LLM-based analysis.
+See also \citet{silentfailures2025, agentpex2026, agentrx2026,
+nearmiss2026, agentfixer2026, injecagent2024, wasp2025}.
 
-A rich set of benchmarks evaluates agent \emph{capability}:
-\taubench~\citep{yao2025taubench} (customer service, \passk reliability),
-$\tau^2$-bench~\citep{sierra2025tau2bench},
-\swebench~\citep{jimenez2024swebench} (2,294 GitHub issues),
-AgentBench~\citep{liu2024agentbench} (8 environments),
-AgentBoard~\citep{ma2024agentboard} (progress-rate metrics motivating
-\atfd's three-tier outcome),
-WebArena~\citep{zhou2024webarena} (10--14\% agent success),
-GAIA~\citep{mialon2024gaia} (92\% human vs.\ 15\% AI), and
-ToolLLM~\citep{qin2024toolllm} (16,000+ APIs).
-All evaluate agents, not monitoring tools. \atfd repurposes their
-trajectories for a meta-evaluation: can a monitoring system detect
-the failure mode?
-
-\subsection{LLM Evaluation Methods}
-\label{sec:related:llmjudge}
-
-The LLM-as-judge paradigm~\citep{zheng2023judging} ($>$80\% human agreement
-but with position, verbosity, and self-enhancement biases) provides
-\atfd's methodological foundation. G-Eval~\citep{liu2023geval} shows
-structured rubrics improve alignment, informing \atfd's quality rubrics.
-\citet{gu2024llmjudge} catalog 8+ bias types and recommend multi-judge
-consensus, which \atfd adopts for ground truth.
-
-\subsection{Agent Failure Analysis}
-\label{sec:related:failure}
-
-MAST~\citep{cemri2025mast} introduces a 14-failure-mode taxonomy validated
-on 1,600+ traces ($\kappa$=0.88); \atfd extends MAST with quality
-degradation and single-agent coverage.
-\citet{kami2025fail} identify tool-error recovery as the dominant failure
-pattern. Agent-SafetyBench~\citep{zhang2024agentsafetybench},
-\citet{winston2025taxonomy}, Microsoft~\citep{microsoft2025taxonomy},
-AGENTSAFE~\citep{agentsafe2025}, and \citet{vadlamudi2026taxonomy} provide
-complementary taxonomies. ToolFuzz~\citep{toolfuzz2025} informs \atfd's
-synthetic generation methodology.
-OWASP~\citep{owasp2025agentic}, AgentLeak~\citep{agentleak2026}, and
-incident data~\citep{responsibleai2025incidents} (56.4\% year-over-year
-increase) document the production risk landscape.
-
-\subsection{Trajectory-Level Failure Detection}
-\label{sec:related:trajectory}
-
-A growing body of concurrent work addresses failure detection at the
-trajectory level, each from a distinct angle.
-TRAIL~\citep{trail2025} benchmarks LLM \emph{capability} at trace analysis:
-148 annotated traces with 841 errors across a 20-category taxonomy
-(best model: 11\% joint accuracy), but evaluates only models---not
-heuristic tools or configured platforms.
-TrajAD~\citep{trajad2025} generates 60,000 trajectories via
-perturb-and-complete and trains a specialized anomaly detector (85\% F1).
-\citet{silentfailures2025} label 4,275 multi-agent trajectories and train
-ML classifiers reaching 96--98\% accuracy on silent failure detection.
-
-Trajectory Guard~\citep{trajectoryguard2026} proposes a Siamese Recurrent
-Autoencoder achieving F1 of 0.88--0.94 on trajectory anomaly detection
-with 17--27$\times$ faster inference than LLM-judge baselines. Unlike
-\atfd, it trains a specialized model rather than evaluating existing
-production tools.
-
-AgentPex~\citep{agentpex2026} extracts behavioral rules from agent system
-prompts and checks execution traces for specification violations, evaluated
-on 424 traces across \taubench domains. AgentPex automates rule
-\emph{generation} from prompts; \atfd evaluates rule-driven platforms with
-\emph{hand-authored} rules to measure the configuration effort gap.
-Near-Miss~\citep{nearmiss2026} (ToolGuard) identifies latent policy
-failures---cases where agents bypass required policy checks yet reach
-correct outcomes---finding 8--17\% of tool-calling trajectories contain
-such hidden failures. AgentFixer~\citep{agentfixer2026} presents 15
-failure-detection mechanisms covering input handling, prompting, and output
-generation, plus root-cause analysis recommending concrete fixes.
-AgentProp-Bench~\citep{agentpropbench2026} evaluates judge reliability on
-2,000 tasks, finding basic automated judges perform near chance level and
-documenting $\sim$62\% error propagation rates---directly relevant to
-\atfd's evaluation of judge systems.
-
-AgentRx~\citep{agentrx2026} takes a diagnostic approach:
-given a failed trajectory, it pinpoints the critical failure step and
-category using an automated framework on 115 trajectories across
-3 domains. AgentCompass~\citep{agentcompass2025} claims to be the ``first
-evaluation framework for post-deployment monitoring.''
-\atfd differs from both in evaluating \emph{heterogeneous} system types
-(heuristics, platforms, LLM judges) with cost and configuration effort as
-first-class metrics across a multi-domain corpus.
-
-For prompt injection, InjecAgent~\citep{injecagent2024}
-benchmarks indirect prompt injection attacks in tool-integrated agents, and
-WASP~\citep{wasp2025} extends this with end-to-end web agent security
-evaluation (attacks succeed in up to 86\% of cases). \atfd's
-\texttt{safety.prompt\_injection} subcategory complements both by
-evaluating whether \emph{monitoring tools} can detect injection attempts
-in trajectories, rather than testing agent resilience.
-
-The key distinction: TRAIL, TrajAD, Trajectory Guard,
-\citet{silentfailures2025}, AgentRx, AgentPex, and AgentCompass evaluate
-or train \emph{specific models and frameworks}; \atfd evaluates
-\emph{deployed tools}---heterogeneous systems spanning heuristics,
-configured platforms, and LLM judges---with cost and configuration effort
-as first-class metrics.
-
-\subsection{Runtime Monitoring and Agent Observability}
-\label{sec:related:monitoring}
-
-\citet{moshkovich2025beyond} propose observability-driven analytics for
-agentic systems; \atfd provides a concrete benchmark for evaluating whether
-such tools work. \atfd's task is analogous to conformance checking in
-process mining~\citep{vanderaalst2016process};
-\citet{berti2025llmprocess} validate that LLMs can perform this with
-appropriate prompting. Surveys~\citep{survey2025eval, review2025agent} and
-CLEAR~\citep{clear2025} confirm the gap; practitioner
-analyses~\citep{arize2024failures, inkeep2025context, zenml2025production,
-simmering2025reliability} document the production failure landscape.
+\paragraph{Key distinction.}
+All above systems evaluate or train \emph{specific models}; \atfd
+evaluates \emph{deployed heterogeneous tools}---heuristics, configured
+platforms, and LLM judges---with cost and configuration effort as
+first-class metrics~\citep{moshkovich2025beyond, arize2024failures}.
 
 % ==========================================================================
 % 3. FAILURE TAXONOMY
@@ -427,27 +326,12 @@ which treat quality degradation as ``not a failure.''}
 \end{tabular}
 \end{table}
 
-\paragraph{Relationship to prior taxonomies.}
-The action, process, and safety categories overlap substantially with
-MAST~\citep{cemri2025mast}, Microsoft's taxonomy~\citep{microsoft2025taxonomy},
-and the tool-failure taxonomy of \citet{winston2025taxonomy}.
-\atfd's primary extension is the \texttt{quality} category with 5
-subcategories. Prior work treats quality degradation as ``technically
-correct''---and therefore not a failure. We argue that in production
-deployments, a shallow analysis that covers 2 of 8 relevant risk factors
-\emph{is} a failure, even if the agent did not crash, call the wrong tool,
-or violate a policy. The \texttt{quality} category captures this class of
-failures that matter to practitioners~\citep{arize2024failures,
-inkeep2025context} but are missed by binary pass/fail evaluation.
-
-\paragraph{Taxonomy validation.}
-We validated the taxonomy against three data sources: (1)~failure annotations
-from \taubench and \swebench trajectories, (2)~the MAST failure mode
-catalog~\citep{cemri2025mast}, and (3)~practitioner incident reports from
-Arize~\citep{arize2024failures} and Responsible AI
-Labs~\citep{responsibleai2025incidents}. Every failure in these sources maps
-to at least one subcategory; no source contained failures requiring a new
-top-level category.
+\atfd extends prior taxonomies~\citep{cemri2025mast,microsoft2025taxonomy,
+winston2025taxonomy} with a \texttt{quality} category (5 subcategories)
+capturing failures that are ``technically correct'' but operationally
+inadequate~\citep{arize2024failures,inkeep2025context}. Validated
+against \taubench/\swebench annotations and the MAST failure mode
+catalog; every observed failure maps to at least one subcategory.
 
 % ==========================================================================
 % 4. TASK DEFINITION
@@ -483,22 +367,12 @@ language task description.
 \end{enumerate}
 
 \paragraph{Three-tier outcome model.}
-Following AgentBoard's insight that binary pass/fail metrics mask meaningful
-performance variations~\citep{ma2024agentboard}, \atfd defines three ground
-truth outcomes:
-\begin{itemize}[leftmargin=2em]
-  \item \textbf{Pass}: the trajectory completes the task correctly with
-    acceptable quality.
-  \item \textbf{Degraded}: the trajectory produces a technically correct
-    result but with substandard quality (maps to the \texttt{quality}
-    category).
-  \item \textbf{Fail}: the trajectory contains a hard failure in one or
-    more of the remaining 6 categories.
-\end{itemize}
-
-This three-tier model enables separate measurement of hard-failure detection
-(Detection Rate, DR) and quality-degradation detection (Quality Detection
-Rate, QDR), revealing monitoring tools' sensitivity to subtle failures.
+Following \citet{ma2024agentboard}, \atfd defines three outcomes:
+\textbf{pass} (correct with acceptable quality),
+\textbf{degraded} (technically correct, substandard quality), and
+\textbf{fail} (hard failure in any non-quality category). This enables
+separate measurement of hard-failure detection (DR) and
+quality-degradation detection (QDR).
 
 % ==========================================================================
 % 5. METRICS
@@ -506,66 +380,23 @@ Rate, QDR), revealing monitoring tools' sensitivity to subtle failures.
 \section{Metrics}
 \label{sec:metrics}
 
-\atfd evaluates monitoring systems on seven metrics, all reported with
-95\% confidence intervals.
+\atfd evaluates monitoring systems on seven metrics (all with
+95\% CIs): \textbf{Detection Rate (DR)} --- recall on \texttt{fail}
+trajectories (error or warning findings count as detection);
+\textbf{False Positive Rate (FPR)} --- proportion of \texttt{pass}
+trajectories with erroneous \texttt{error}-severity findings;
+\textbf{Quality Detection Rate (QDR)} --- recall on \texttt{degraded}
+trajectories; \textbf{F1}; \textbf{Category Alignment (CA)} ---
+macro-averaged F1 across failure categories; \textbf{Configuration Effort}
+(ordinal 1--5); and \textbf{Cost} per trajectory.
 
-\paragraph{Detection Rate (DR).}
-Recall on \texttt{fail} trajectories: the proportion of ground-truth
-failures for which the system raised at least one \texttt{error} or
-\texttt{warning} finding.
-\begin{equation}
-  \text{DR} = \frac{|\{T : \text{gt}(T) = \text{fail} \wedge \text{detected}(T)\}|}
-               {|\{T : \text{gt}(T) = \text{fail}\}|}
-  \label{eq:dr}
-\end{equation}
-
-\paragraph{Quality Detection Rate (QDR).}
-Recall on \texttt{degraded} trajectories: the proportion for which the
-system raised at least one \texttt{quality.*} finding.
-\begin{equation}
-  \text{QDR} = \frac{|\{T : \text{gt}(T) = \text{degraded} \wedge \text{quality\_detected}(T)\}|}
-                {|\{T : \text{gt}(T) = \text{degraded}\}|}
-  \label{eq:qdr}
-\end{equation}
-
-\paragraph{False Positive Rate (FPR).}
-The proportion of \texttt{pass} trajectories for which the system
-erroneously raised an \texttt{error}-severity finding.
-\begin{equation}
-  \text{FPR} = \frac{|\{T : \text{gt}(T) = \text{pass} \wedge \text{error\_raised}(T)\}|}
-                {|\{T : \text{gt}(T) = \text{pass}\}|}
-  \label{eq:fpr}
-\end{equation}
-
-\paragraph{F1 Score.}
-The harmonic mean of precision and recall for binary failure detection
-(\texttt{fail} vs.\ \texttt{pass}/\texttt{degraded}).
-
-\paragraph{Category Alignment (CA).}
-Macro-averaged F1 across all failure categories, treating each trajectory
-as a multi-label classification instance. This measures whether the system
-not only detects \emph{that} a failure occurred but correctly identifies
-\emph{what type} of failure it is.
-
-\paragraph{Configuration Effort.}
-A qualitative ordinal score (1--5) measuring the setup burden: API key
-only, prompt engineering required, domain-specific configuration, custom
-integration, or full pipeline development.
-
-\paragraph{Cost.}
-Mean dollar cost per trajectory, total cost for the full dataset,
-median latency (p50), and 95th-percentile latency (p95).
-
-\paragraph{Confidence intervals.}
-All proportional metrics (DR, QDR, FPR) are reported with Wilson score
-intervals~\citep{wilson1927probable}, which provide accurate coverage even
-for proportions near 0 or 1 and for small samples. Aggregate metrics
-(macro-F1, cost means) use bootstrap confidence
-intervals~\citep{efron1993bootstrap} with 10,000 resamples. Pairwise
-pairwise system comparisons will use McNemar's test with continuity
-correction~\citep{mcnemar1947note} once full-scale evaluation is complete;
-these tests are not reported in the current initial evaluation. Ground truth inter-rater agreement is
-measured via Fleiss' $\kappa$~\citep{fleiss1971measuring}.
+DR and FPR use different severity thresholds by design:
+DR counts warnings (favoring recall), FPR counts only errors (favoring
+precision). Proportional metrics use Wilson
+intervals~\citep{wilson1927probable}; aggregate metrics use bootstrap
+CIs~\citep{efron1993bootstrap} (10,000 resamples). Pairwise comparisons
+use McNemar's test~\citep{mcnemar1947note} on $n = 100$ paired
+evaluations.
 
 % ==========================================================================
 % 6. DATASETS
@@ -597,105 +428,48 @@ binary pass/fail labels.}
 \swebench   & Coding    & 100  & 50  & --- & 50 \\
 Synthetic   & Mixed     & 150  & 0   & 34  & 116 \\
 ATBench     & Agent Safety & 1,000 & 503 & --- & 497 \\
-Toolathlon  & Long-Horizon Tool Use & 100 & 30 & --- & 70 \\
+Toolathlon  & Long-Horizon Tool Use & 100 & 28 & --- & 72 \\
 AgentRx     & Multi-domain Diagnostics & 115 & 0 & --- & 115 \\
 \midrule
-\textbf{Total} & ---    & 2,577 & 1,352 & 34 & 1,191 \\
+\textbf{Total} & ---    & 2,577 & 1,350 & 34 & 1,193 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{\taubench trajectories.}
-We draw from \taubench~\citep{yao2025taubench}, using the retail (114
-tasks $\times$ 4 trials = 456 trajectories), airline (50 tasks $\times$ 4
-trials = 200 trajectories), and telecom (114 tasks $\times$ 4 trials = 456
-trajectories) domains. Ground truth is derived from \taubench's
-state-comparison mechanism: each task specifies expected database mutations,
-and pass/fail is determined by comparing actual vs.\ expected state.
-Observed failure rates are 22\% (retail), 28\% (airline), and 41\%
-(telecom). The telecom domain is included in the released corpus but
-excluded from the current 6-domain evaluation matrix: its 41\% failure
-rate and structural similarity to retail and airline make it lower
-priority than the structurally distinct domains (synthetic, ATBench,
-Toolathlon) for initial evaluation. Extension to the three-tier outcome
-via domain-specific quality rubrics (\S\ref{sec:ground_truth}) is
-planned as future work.
+Table~\ref{tab:datasets} summarizes sources. Ground truth is programmatic:
+\taubench~\citep{yao2025taubench} state comparison, \swebench~\citep{jimenez2024swebench}
+test suites, ATBench~\citep{ai45research2025atbench} labels,
+Toolathlon~\citep{toolathlon2026} evaluation status, and hand-crafted
+labels for synthetic trajectories.
+AgentRx~\citep{agentrx2026} (115 failed trajectories with step-level
+annotations) is included in the corpus for future category evaluation
+but excluded from the detection matrix (FPR/F1 undefined with all-failure
+data). Telecom (\taubench, 456 trajectories) is excluded from the
+6-domain evaluation due to structural similarity to retail and airline.
+Toolathlon trajectories are capped at 100 messages; 88.9\% of failures
+have fewer than 100 messages total (median: 45), so the truncation
+confound is minimal.
 
-\paragraph{\swebench trajectories.}
-100 trajectories from \texttt{nebius/SWE-rebench-openhands-trajectories}~\citep{jimenez2024swebench}
-(OpenHands v0.54.0): 50 resolved, 50 unresolved. Ground truth from
-automated test suites. Failures typically contain explicit tool errors
-(bash failures, test failures), making \swebench the \emph{easy} domain
-for monitoring tools.
+\paragraph{Data correction note.}
+Earlier versions contained two independent bugs affecting Toolathlon
+results. (1)~The data adapter produced empty event lists, causing LLM
+judges to trivially flag trajectories as failures (inflated DR in v1).
+(2)~The \texttt{compute\_all\_metrics.py} script defaulted unloaded
+Toolathlon ground truth labels to ``fail,'' corrupting the denominator
+for DR and FPR computation. In v2, bug~(1) was fixed but bug~(2) remained,
+producing an incorrect naive heuristic DR of 0.0\%. In this version, both
+bugs are corrected. The naive heuristic's Toolathlon DR is 79.2\%---it
+detects genuine structural failures (step-count threshold exceedances and
+error strings) in long-horizon trajectories. Per-system Toolathlon results
+changed as follows between the corrected and uncorrected pipelines: naive
+heuristic 79.2\% (unchanged---unaffected by the adapter bug since it
+processes raw event content, not LLM analysis); Llama~4~Scout 6.9\%
+(decreased from inflated value); Claude Sonnet~4 95.8\% (stable).
+All results in this version use the fully corrected pipeline, and we
+verified all domain results against it.
 
-\paragraph{Synthetic trajectories.}
-We hand-craft 150 trajectories covering all 7 failure categories and 24
-subcategories, including categories underrepresented in real benchmarks:
-quality degradation (\texttt{shallow\_output}, \texttt{suboptimal\_approach},
-\texttt{incomplete\_analysis}, \texttt{poor\_tone},
-\texttt{low\_confidence\_output}), safety (\texttt{prompt\_injection},
-\texttt{policy\_violation}), action errors, state errors, and
-infrastructure failures. Quality-degradation trajectories use the
-\texttt{degraded} outcome tier, enabling QDR measurement. Of the 150
-trajectories, 116 are labeled \texttt{fail} and 34 are labeled
-\texttt{degraded}. Synthetic trajectories span five domains (retail,
-airline, coding, finance, healthcare) and are constructed using templates
-with injected failures, following the methodology of
-ToolFuzz~\citep{toolfuzz2025} and
-Agent-SafetyBench~\citep{zhang2024agentsafetybench}. The released corpus includes all 150 synthetic trajectories.
-Table~\ref{tab:main_results} reports results on the original 50-failure
-subset; Table~\ref{tab:synthetic_150} extends evaluation to the full
-150-trajectory set including QDR on the 34 degraded trajectories.
-
-\paragraph{ATBench trajectories.}
-1,000 trajectories from \texttt{AI45Research/ATBench}~\citep{ai45research2025atbench}
-covering agent safety scenarios (14 failure modes, 503 safe, 497 unsafe).
-We evaluate on a 200-trajectory proportional sample. Failures are
-\emph{semantically} defined (tool description injection, harmful actions,
-data leakage) with no structural signal, making ATBench the hardest domain
-for heuristic systems.
-
-\paragraph{AgentRx trajectories.}
-115 failed trajectories from \texttt{microsoft/AgentRx}~\citep{agentrx2026}
-across 3 domains with step-level failure annotations (9-category taxonomy,
-avg.\ 3.4 failures/trajectory). All failures; included in corpus for future
-category evaluation but excluded from the detection matrix (FPR/F1
-undefined).
-
-\paragraph{Toolathlon trajectories.}
-100 trajectories from \texttt{hkust-nlp/Toolathlon-Trajectories}~\citep{toolathlon2026}
-(ICLR 2026): long-horizon multi-tool tasks with 600+ available tools.
-We cap at 100 messages to bound cost. Of the 72 failure trajectories,
-64 (88.9\%) have fewer than 100 messages in total (median: 45 messages);
-only 8 (11.1\%) are truncated. The truncation confound is therefore
-minimal: the overwhelming majority of failure signal resides within the
-prefix that judges observe. Ground truth from
-\texttt{task\_status.evaluation}.
-
-\begin{table}[t]
-\centering
-\caption{Failure category distribution for the 150-trajectory synthetic
-dataset. All 7 categories and 24 subcategories are represented.
-Quality-degradation trajectories use the \texttt{degraded} outcome tier.}
-\label{tab:failure_dist}
-\small
-\begin{tabular}{@{}lrl@{}}
-\toprule
-\textbf{Category} & \textbf{N} & \textbf{Subcategory detail} \\
-\midrule
-Process         & 30 & tool\_loop (10), infinite\_delegation (5), context\_overflow (5), planning\_failure (10) \\
-Communication   & 25 & hallucination (10), wrong\_response (5), missing\_info (5), unclear\_response (5) \\
-Safety          & 23 & permission\_escalation (5), data\_leakage (5), policy\_violation (5), prompt\_injection (8) \\
-Quality$^\dagger$  & 34 & shallow\_output (8), suboptimal\_approach (8), incomplete\_analysis (8), poor\_tone (5), low\_confidence (5) \\
-Action          & 18 & wrong\_tool (6), wrong\_args (6), missing\_action (6) \\
-State           & 10 & wrong\_state (5), partial\_state (5) \\
-Infrastructure  & 10 & timeout (4), error (3), max\_steps (3) \\
-\midrule
-\textbf{Total}  & 150 & --- \\
-\bottomrule
-\multicolumn{3}{@{}l}{\footnotesize $^\dagger$Quality trajectories use \texttt{degraded} outcome; all others use \texttt{fail}.}
-\end{tabular}
-\end{table}
+The failure category distribution is in
+Table~\ref{tab:failure_dist} (Appendix~\ref{app:failure_dist}).
 
 % ==========================================================================
 % 7. GROUND TRUTH VALIDATION
@@ -703,47 +477,63 @@ Infrastructure  & 10 & timeout (4), error (3), max\_steps (3) \\
 \section{Ground Truth Validation}
 \label{sec:ground_truth}
 
-We adopt a multi-source ground truth protocol combining three sources.
-
-\paragraph{Source 1: Programmatic verdicts (current).}
-\taubench state comparison and \swebench test suite verdicts provide
-high-confidence binary (pass/fail) labels. These are the sole ground truth
-for all current evaluation results.
-
-\paragraph{Source 2: LLM judge consensus (executed on synthetic).}
+We combine three ground truth sources.
+\textbf{Programmatic verdicts} (\taubench state comparison, \swebench
+test suites, ATBench/Toolathlon labels) provide the primary binary labels
+for all detection results.
+\textbf{LLM judge consensus} (executed on synthetic):
 Three independent judges from different model families---Claude Sonnet~4
 (Anthropic), Llama~4~Scout (Meta, via Groq), and GPT-5 (OpenAI, via
 Codex CLI)---each classified all 150 synthetic trajectories using the
 \atfd taxonomy. On binary detection (fail vs.\ non-fail), the three judges
-achieve 96.0\% raw agreement (Fleiss' $\kappa$ = 0.320; the low $\kappa$
-despite high agreement reflects the $\kappa$ paradox with extreme
-prevalence---97\% of trajectories are flagged as failures by all judges).
-On top-level failure category assignment among the 144 trajectories where
-all three judges agree on ``fail,'' Fleiss' $\kappa$ = 0.557 (moderate
-agreement), with 54.9\% full three-way category agreement. This
-demonstrates that the 7-category taxonomy is discriminable across
-independent model families.
+achieve 96.0\% raw agreement (Fleiss' $\kappa = 0.320$). The low $\kappa$
+despite high raw agreement is a well-documented prevalence artifact: 97\%
+of trajectories are flagged as failures by all judges, producing extreme
+marginal imbalance.\footnote{PABAK = $2 \times 0.960 - 1 = 0.920$
+\citep{byrt1993bias} adjusts for this imbalance, but does not rescue
+the protocol: when 97\% of cases are unanimous, the benchmark is not
+meaningfully testing binary discrimination.}
+The binary consensus confirms that all three model families interpret the
+synthetic trajectories as containing failures---expected given the
+trajectories were designed to contain failures.
 
-\paragraph{Source 3: Quality rubrics (planned).}
-Domain-specific rubrics~\citep{liu2023geval} with 3--5 dimensions scored
-0--2 for \texttt{degraded} labeling. Currently applied only to synthetic
-trajectories (by construction).
+On top-level failure category assignment among the 144 trajectories where
+all three judges agree on ``fail,'' Fleiss' $\kappa = 0.557$ (moderate
+agreement), with 54.9\% full three-way category agreement.
+\textbf{Conditioned-subsample note:} this $\kappa$ is computed on a
+subsample that excludes 6 trajectories (of 150) where judges disagreed
+on binary outcome---i.e., the cases of maximum disagreement are removed
+before computing category agreement. The full-sample $\kappa$ across all
+150 trajectories would be lower. We report the conditioned value because
+category assignment is undefined for trajectories a judge labels ``pass.''
+This category $\kappa$ measures whether judges agree on \emph{which}
+failure type is present, a task where the prevalence is more balanced
+across 7 categories. $\kappa = 0.557$ indicates moderate but imperfect
+discriminability of the taxonomy across model families.
+This consensus covers only synthetic trajectories. As a proxy for human
+IAA, we ran 3 frontier LLM annotators from different
+families---Claude Sonnet~4 (Anthropic), GPT-5 (OpenAI), Gemini~3.1
+Flash (Google)---on 50 sampled trajectories using a classification
+prompt distinct from the judge prompt: binary $\kappa = 0.751$
+(substantial), outcome $\kappa = 0.713$ (substantial), category
+$\kappa = 0.229$ (fair). Detection agreement is strong; failure
+\emph{typing} remains challenging.
 
 \paragraph{Circularity disclosure.}
-Claude Sonnet~4 serves a dual role: both an evaluated detection system
-(\S\ref{sec:systems}) and one of three consensus judges above. We mitigate
-this by (1)~relying on programmatic verdicts (not LLM consensus) as
-primary ground truth for all detection results, (2)~including GPT-5 and
-Llama~4~Scout as independent consensus judges from different model
-families, so no single model's biases dominate the consensus, and
-(3)~reporting Claude's consensus contribution alongside, not instead of,
-the other two judges' independent assessments.
+Claude Sonnet~4 serves as both an evaluated system and one of three
+consensus judges; we mitigate this by relying on programmatic verdicts
+(not LLM consensus) as primary ground truth and including two independent
+model families (GPT-5, Llama~4~Scout) in the consensus.
+The author designed the taxonomy, crafted synthetic trajectories, and
+wrote judge prompts. CA on synthetic data measures prompt-following
+within a self-consistent system, not external validity. Real-domain CA
+on \taubench (0.093 top-level; \S\ref{sec:results}) confirms that
+synthetic CA (0.545) substantially overstates categorization ability
+when ground truth is independently derived.
 
 \paragraph{Funding and access.}
-This work was conducted without external funding. Groq API access used the
-free tier; Anthropic API costs for Claude Sonnet~4 evaluation totaled
-approximately \$12. No author has a financial relationship with any
-evaluated platform.
+No external funding. Groq free tier; Anthropic API total $\sim$\$12. No
+financial relationship with any evaluated platform.
 
 % ==========================================================================
 % 8. EVALUATED SYSTEMS
@@ -751,8 +541,7 @@ evaluated platform.
 \section{Evaluated Systems}
 \label{sec:systems}
 
-We evaluate 6 systems in this release and describe 1 additional
-planned system (Table~\ref{tab:systems}).
+We evaluate 7 systems (Table~\ref{tab:systems}).
 
 \begin{table}[t]
 \centering
@@ -769,7 +558,7 @@ column reports rules authored and approximate setup time where applicable.
 Naive Heuristic       & Heuristic & N & 1 & Pattern matching: error strings, timeout checks, step-count thresholds \\
 Llama 3.3 70B Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
 Llama 4 Scout Judge   & LLM Judge & A & 2 & Single-pass prompt via Groq (free tier) \\
-Claude Sonnet 4 Judge & LLM Judge & A & 2 & Two-stage prompt via Anthropic API (\$3/\$15 per MTok input/output) \\
+Claude Sonnet 4 Judge & LLM Judge & A & 2 & Two-stage prompt via Claude Code CLI (\$3/\$15 per MTok input/output) \\
 LangSmith             & Platform  & H & 4 & 4 custom eval rules ($\sim$80 LOC), $\sim$15 min setup; account required \\
 Braintrust            & Platform  & H & 4 & Same 4 scorers as LangSmith ($\sim$60 LOC), $\sim$15 min setup; account required \\
 GPT-5 Judge           & LLM Judge & A & 2 & Two-stage prompt via OpenAI (Codex CLI) \\
@@ -777,57 +566,40 @@ GPT-5 Judge           & LLM Judge & A & 2 & Two-stage prompt via OpenAI (Codex C
 \end{tabular}
 \end{table}
 
-\paragraph{Naive Heuristic.}
-Rule-based baseline: error strings in tool results, timeout signals,
-step-count thresholds, repeated tool calls. Zero cost, zero config. Cannot
-detect quality degradation, communication, or safety failures.
-
-\paragraph{LLM Judges.}
-Two open-weight judges (Llama~3.3~70B, Llama~4~Scout) via Groq's free tier,
-Claude Sonnet~4 via the Anthropic API, and GPT-5 via the OpenAI Codex CLI.
-All receive identical two-stage prompts with the \atfd taxonomy and produce
-structured JSON findings. All use temperature~0; results are single-run
-evaluations. Confidence intervals reflect sample-size uncertainty, not
-run-to-run variance. The inclusion of three independent model families
+Table~\ref{tab:systems} summarizes all systems. The naive heuristic
+matches error strings, timeout signals, step-count thresholds, and
+repeated tool calls. LLM judges receive identical two-stage prompts
+(Appendix~\ref{app:judge_prompt}) with temperature~0; CIs reflect
+sample-size uncertainty, not run-to-run variance.
+\textbf{Vendor CLI interfaces.} All LLM judges are accessed through their
+vendors' CLI tools: Claude Sonnet~4 via \texttt{claude~-p} (Claude Code
+CLI), GPT-5 via \texttt{codex~exec} (Codex CLI), and Llama models via
+Groq's REST API. This is a deliberate design choice: \atfd evaluates
+monitoring tools as practitioners deploy them, not raw model capability
+under controlled conditions. Each vendor CLI adds its own scaffolding
+--- Codex CLI wraps GPT-5 in an agentic reasoning loop (18,718
+tokens/trajectory on synthetic, 28,130--29,252 on real domains), while
+Claude Code CLI provides a thinner wrapper (254--1,864
+tokens/trajectory). The token asymmetry is \emph{part of what the
+benchmark measures}: it reflects the deployment interface each vendor
+provides. Comparisons between GPT-5 and Claude should be read as
+comparisons between Codex CLI and Claude Code CLI as monitoring
+interfaces, not between GPT-5 and Claude Sonnet~4 as models.
+The inclusion of three independent model families
 (Meta/Llama, Anthropic/Claude, OpenAI/GPT) enables the multi-judge
 consensus analysis in \S\ref{sec:ground_truth}.
 
 \paragraph{LangSmith and Braintrust (4-rule configurations).}
-Both platforms configured with identical 4 rules ($\sim$60--80 LOC):
-(1)~tool error detection (\texttt{error=True} in tool results),
-(2)~tool-loop detection ($>$5 calls to same tool),
-(3)~abnormal termination detection,
-(4)~event-count threshold ($>$20 events).
-All thresholds are identical between platforms; the Braintrust vs.\
-LangSmith retail discrepancy (91.7\% vs.\ 0\% DR) results from Braintrust's
-scorer firing independently on non-terminal errors, not from threshold
-differences. Setup: $\sim$15 min each.
-\textbf{Important:} testing 4 rules against a 24-subcategory taxonomy
-produces a partially predetermined coverage gap. These results characterize
-a specific effort level, not either platform's full capability---both
-support LLM-judge evaluators that could achieve performance closer to
-the standalone LLM judges.
+Both configured with identical 4 rules: (1)~tool error detection (any
+\texttt{error=True}), (2)~tool-loop ($>$5 same-tool calls),
+(3)~abnormal termination, (4)~event-count ($>$20 events). Identical
+thresholds; Braintrust vs.\ LangSmith retail discrepancy (92\% vs.\ 0\%
+DR) results from execution semantics, not thresholds. Testing 4 rules
+against 24 subcategories produces a partially predetermined coverage gap;
+results characterize minimum-effort baseline, not platform ceiling.
 
-\paragraph{Information access.}
-All systems receive only trajectory events and task description. No system
-receives ground-truth labels, expected database states, or oracle
-information (Table~\ref{tab:info_access}).
-
-\begin{table}[h]
-\centering
-\caption{Information access by system. No oracle leakage.}
-\label{tab:info_access}
-\small
-\begin{tabular}{@{}lcccccc@{}}
-\toprule
-\textbf{System} & \textbf{Events} & \textbf{Task desc.} & \textbf{Taxonomy} & \textbf{Init.\ DB} & \textbf{Expected DB} & \textbf{GT label} \\
-\midrule
-Naive Heuristic   & \checkmark & ---        & ---        & --- & --- & --- \\
-LLM Judges        & \checkmark & \checkmark & \checkmark & --- & --- & --- \\
-Platforms (4-rule) & \checkmark & ---       & ---        & --- & --- & --- \\
-\bottomrule
-\end{tabular}
-\end{table}
+All systems receive only trajectory events and task description---no
+ground-truth labels, expected states, or oracle information.
 
 % ==========================================================================
 % 9. RESULTS
@@ -837,16 +609,18 @@ Platforms (4-rule) & \checkmark & ---       & ---        & --- & --- & --- \\
 
 \subsection{Main Results}
 
-Table~\ref{tab:main_results} presents results for all six systems across
+Table~\ref{tab:main_results} presents results for all seven systems across
 six domains. Sample sizes vary by cell due to API throughput constraints.
 Table~\ref{tab:synthetic_150} extends the synthetic evaluation to the
 full 150-trajectory set including QDR on 34 degraded trajectories.
 
 \begin{table}[t]
 \centering
-\caption{Results matrix: all 6 evaluated systems $\times$ 6 domains.
+\caption{Results matrix: 7 evaluated systems $\times$ 6 domains.
 DR = Detection Rate, FPR = False Positive Rate.
-95\% Wilson confidence intervals shown in brackets. N = trajectories evaluated.
+95\% Wilson confidence intervals shown in brackets immediately after each
+point estimate (each CI applies to the metric in its own column).
+N = trajectories evaluated.
 ``---'' = not applicable (FPR undefined on all-failure synthetic set; CA not
 produced by heuristic or rule-driven systems). \textbf{Bold} = best DR or
 best FPR per domain group.
@@ -886,323 +660,192 @@ Toolathlon trajectories capped at 100 events; see \S\ref{sec:datasets}.}
 \midrule
 \multirow{6}{*}{Llama 4 Scout}
   & Synthetic (50-fail subset)   & 50  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & --- \\
-  & Retail (\taubench)     & 50  & 25.0 {\scriptsize [8.9, 53.2]}             & 13.2 {\scriptsize [5.8, 27.3]} \\
-  & Airline (\taubench)    & 20  & 20.0 {\scriptsize [5.7, 51.0]}             & 66.7 {\scriptsize [38.4, 86.9]} \\
-  & \swebench              & 20  & \textbf{100.0} {\scriptsize [79.4, 100.0]} & 100.0 {\scriptsize [79.4, 100.0]} \\
-  & ATBench (200)          & 200 & 70.0 {\scriptsize [63.1, 76.1]}            & --- \\
+  & Retail (\taubench)     & 100 & 13.6 {\scriptsize [4.7, 33.3]}             & 11.5 {\scriptsize [6.2, 20.5]} \\
+  & Airline (\taubench)    & 100 & 9.5 {\scriptsize [3.8, 22.1]}              & 27.6 {\scriptsize [17.8, 40.2]} \\
+  & \swebench              & 100  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & 100.0 {\scriptsize [92.9, 100.0]} \\
+  & ATBench (200)          & 200 & 70.0 {\scriptsize [63.1, 76.1]}            & N/A$^\P$ \\
   & Toolathlon             & 100 & 6.9 {\scriptsize [3.0, 15.2]}             & 7.1 {\scriptsize [2.0, 22.6]} \\
 \midrule
 \multirow{6}{*}{Claude Sonnet 4}
   & Synthetic (50-fail subset)   & 50  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & --- \\
-  & Retail (\taubench)     & 20  & \textbf{100.0} {\scriptsize [34.2, 100.0]} & \textbf{5.6} {\scriptsize [1.0, 25.8]} \\
-  & Airline (\taubench)    & 20  & 40.0 {\scriptsize [14.7, 72.6]}            & 20.0 {\scriptsize [5.7, 51.0]} \\
-  & \swebench              & 20  & \textbf{100.0} {\scriptsize [79.4, 100.0]} & \textbf{0.0} {\scriptsize [0.0, 16.8]} \\
+  & Retail (\taubench)     & 100 & 77.3 {\scriptsize [56.6, 89.9]}            & 9.0 {\scriptsize [4.4, 17.4]} \\
+  & Airline (\taubench)    & 100 & 66.7 {\scriptsize [51.6, 79.0]}            & 10.3 {\scriptsize [4.8, 20.8]} \\
+  & \swebench              & 100  & 96.0 {\scriptsize [86.5, 98.9]} & \textbf{0.0} {\scriptsize [0.0, 7.1]} \\
   & ATBench (200)          & 200 & \textbf{100.0} {\scriptsize [98.1, 100.0]} & N/A \\
   & Toolathlon             & 100 & \textbf{95.8} {\scriptsize [88.5, 98.6]} & 46.4 {\scriptsize [29.5, 64.2]} \\
+\midrule
+\multirow{4}{*}{GPT-5 (Codex)}
+  & Synthetic (150)        & 150 & 98.7 {\scriptsize [95.3, 99.6]}          & --- \\
+  & Retail (\taubench)     & 100 & 86.4 {\scriptsize [66.7, 95.3]}          & 29.5 {\scriptsize [20.5, 40.4]} \\
+  & Airline (\taubench)    & 100 & 90.5 {\scriptsize [77.9, 96.2]}          & 51.7 {\scriptsize [39.2, 64.1]} \\
+  & \swebench              & 100 & \textbf{100.0} {\scriptsize [92.9, 100.0]} & 50.0 {\scriptsize [36.6, 63.4]} \\
 \bottomrule
 \multicolumn{5}{@{}l}{\footnotesize Llama~3.3~70B (not shown): 100\% DR on synthetic (n=50) only; rate limits prevented other domains.} \\
-\multicolumn{5}{@{}l}{\footnotesize $^\ddagger$Toolathlon re-evaluation pending for LangSmith and Braintrust (requires platform access after adapter bug fix).}
+\multicolumn{5}{@{}l}{\footnotesize $^\ddagger$Toolathlon re-evaluation pending for LangSmith and Braintrust (requires platform access after adapter bug fix).} \\
+\multicolumn{5}{@{}l}{\footnotesize $^\P$ATBench 200-sample contains 198 failures and 2 passes (non-stratified); FPR undefined on $\leq$2 pass trajectories.}
 \end{tabular}
 \end{table}
 
 \subsection{Per-Domain Observations}
 
 Key patterns from the evaluation matrix: (1)~A six-tier domain difficulty
-spectrum emerges: \swebench (all systems achieve 100\% DR) $\to$ Synthetic
-$\to$ Retail $\to$ Airline $\to$ ATBench $\to$ Toolathlon (only Claude
-Sonnet~4 achieves non-zero DR). (2)~Rule-driven platforms achieve 100\%
+spectrum emerges by detection rate: \swebench (easy; $\geq$96\% DR for
+all systems) $\to$ Toolathlon $\to$ Synthetic $\to$ Retail $\to$ Airline
+$\to$ ATBench (hardest; 0\% DR for all heuristic/rule systems). This
+ordering is DR-based; FPR would produce different rankings (see
+\S\ref{sec:analysis}). (2)~Rule-driven platforms achieve 100\%
 FPR on \swebench: their event-count threshold fires on every passing
 coding trajectory. (3)~Airline is the hardest domain for LLM judges: even
-Claude Sonnet~4 reaches only 40\% DR. (4)~No single system dominates all
-cells, suggesting that ensemble approaches combining structural and
-semantic detection warrant investigation.
+Claude Sonnet~4 reaches 67\% DR while GPT-5 reaches 91\% but at 52\% FPR. (4)~No single system dominates all
+cells---partly expected from selecting maximally different system types,
+but the contribution is quantifying where each approach succeeds and
+fails.
 See \S\ref{sec:analysis} for detailed analysis.
 
 \subsection{Per-Category Analysis}
 
-Table~\ref{tab:f1_ca} reports F1 and category alignment (CA). On synthetic
-data, LLM judges achieve 100\% detection across all injected categories,
-while the naive heuristic detects only \texttt{tool\_loop} patterns.
-Category alignment reveals a harder problem: even Claude Sonnet~4's best
-CA is only 0.489, indicating that identifying failure \emph{type} is
-dramatically harder than detecting failure \emph{existence}. CA on real
-domains requires manual annotation (future work).
+F1 and CA results are in Table~\ref{tab:f1_ca}
+(Appendix~\ref{app:f1_ca}). Category alignment reveals a harder problem:
+Claude Sonnet~4's best CA is 0.545 {\scriptsize [0.416, 0.668]} on the
+150-trajectory synthetic set, indicating that identifying failure
+\emph{type} is substantially harder than detecting failure
+\emph{existence}. Quality failures remain the frontier challenge.
 
-\begin{table}[t]
-\centering
-\caption{F1 score (binary failure detection) and Category Alignment (CA)
-for systems with sufficient data. F1 is computed over pass/fail trajectories;
-CA is macro-averaged F1 across failure categories. ``---'' indicates CA is
-not produced (heuristic/rule systems emit no category labels) or F1 is not
-applicable (synthetic has no pass trajectories).}
-\label{tab:f1_ca}
-\small
-\begin{tabular}{@{}llcc@{}}
-\toprule
-\textbf{System} & \textbf{Domain} & \textbf{F1} & \textbf{CA} \\
-\midrule
-Naive Heuristic       & Synthetic (50) & ---   & 0.000 \\
-Naive Heuristic       & Synthetic (150) & 0.114 & 0.037 \\
-Naive Heuristic       & Retail        & 0.280 & 0.000 \\
-Naive Heuristic       & Airline       & 0.560 & 0.000 \\
-Naive Heuristic       & \swebench     & 1.000 & 0.000 \\
-\midrule
-Llama 4 Scout         & Synthetic (50) & ---   & 0.318 \\
-Llama 4 Scout         & Synthetic (150) & 0.864 & \textbf{0.471} \\
-Llama 4 Scout         & Retail        & 0.353 & --- \\
-\midrule
-Llama 3.3 70B         & Synthetic (50) & ---   & 0.359 \\
-\midrule
-GPT-5 (Codex)         & Synthetic (150) & 0.846 & 0.402 \\
-\midrule
-Claude Sonnet 4       & Synthetic (50) & ---   & 0.489 \\
-Claude Sonnet 4       & Synthetic (150) & 0.868 & \textbf{0.545} \\
-Claude Sonnet 4       & Retail        & \textbf{0.800} & --- \\
-Claude Sonnet 4       & Airline       & 0.500 & --- \\
-Claude Sonnet 4       & \swebench     & 1.000 & --- \\
-\bottomrule
-\end{tabular}
-\end{table}
+\textbf{Real-domain CA.} On \taubench retail+airline ($n = 64$ fail
+trajectories with programmatic ground truth), Claude's top-level CA
+drops to 0.093---far below 0.545 on synthetic. The gap reflects
+programmatic ground truth capturing only state/action/communication via
+reward decomposition, while the LLM judge identifies quality and process
+issues invisible to the reward signal. This confirms synthetic CA
+overstates real-domain categorization ability.
 
-Process failures produce structural patterns and are most reliably
-detected; safety and communication failures are detected by LLM judges in
-synthetic scenarios but require semantic understanding. Quality failures
-(34 \texttt{degraded} trajectories across 5 subcategories) remain the
-frontier challenge and cannot yet be assessed on real trajectories without
-domain-specific quality rubrics.
+\subsection{Expanded Synthetic and Statistical Tests}
 
-\subsection{Expanded Synthetic Evaluation (N=150)}
-
-Table~\ref{tab:synthetic_150} presents results on the full 150-trajectory
-synthetic set (116 fail + 34 degraded), expanding the original 50-failure
-subset. The synthetic set contains no pass trajectories; FPR is undefined.
-
-\begin{table}[t]
-\centering
-\caption{Results on expanded 150-trajectory synthetic set (116 fail, 34
-degraded, 0 pass). DR = Detection Rate on fail trajectories. QDR =
-Quality Detection Rate on degraded trajectories. FPR is undefined (no
-pass trajectories). Claude Sonnet~4 is the only system with non-zero QDR.
-CA 95\% CIs from bootstrap with 10,000 resamples.}
-\label{tab:synthetic_150}
-\small
-\begin{tabular}{@{}lrrcccl@{}}
-\toprule
-\textbf{System} & \textbf{N} & \textbf{DR (\%)} & \textbf{QDR (\%)} & \textbf{F1} & \textbf{CA} \\
-\midrule
-Naive Heuristic & 150 & 6.0 {\scriptsize [3.0, 11.9]} & 0.0 {\scriptsize [0.0, 10.2]} & 0.114 & 0.037 {\scriptsize [0.000, 0.111]} \\
-Llama 4 Scout   & 150 & \textbf{100.0} {\scriptsize [96.8, 100.0]} & 0.0 {\scriptsize [0.0, 10.2]} & 0.864 & 0.471 {\scriptsize [0.334, 0.601]} \\
-GPT-5 (Codex)   & 150 & 98.3 {\scriptsize [93.9, 99.5]} & 0.0 {\scriptsize [0.0, 10.2]} & 0.846 & 0.402 {\scriptsize [0.271, 0.526]} \\
-Claude Sonnet 4 & 150 & 99.1 {\scriptsize [95.3, 99.8]} & \textbf{20.6} {\scriptsize [10.3, 36.8]} & \textbf{0.868} & \textbf{0.545} {\scriptsize [0.416, 0.668]} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Key findings from the expanded evaluation:
-(1)~All three LLM judges (Llama~4~Scout, GPT-5, Claude Sonnet~4) achieve
-$>$98\% DR, with Claude highest at CA = 0.545 and GPT-5 at CA = 0.402.
-(2)~\textbf{Claude Sonnet~4 is the only system with non-zero QDR} (20.6\%,
-7/34 degraded). All other systems achieve 0\% QDR because their Stage~1
-prompt classifies degraded trajectories as ``fail,'' skipping the Stage~2
-quality assessment entirely---an architectural constraint of two-stage
-judge design.
-(3)~McNemar's tests confirm that differences between the naive heuristic
-and all LLM judges are highly significant ($\chi^2 > 36$, $p < 0.001$).
-Differences among the three LLM judges are not significant ($p = 1.0$),
-consistent with their near-identical DR on synthetic data.
+On the full 150-trajectory synthetic set (Table~\ref{tab:synthetic_150},
+Appendix~\ref{app:synthetic_150}), all LLM judges achieve $>$98\% DR;
+Claude leads on CA (0.545 vs.\ GPT-5's 0.402) and is the only system
+with non-zero QDR (20.6\%, 7/34 degraded).
+McNemar's tests ($n = 100$ paired \taubench evaluations): Claude Code
+CLI outperforms Codex CLI on retail ($\chi^2 = 5.50$, $p = 0.019$);
+see \S\ref{sec:systems} for why these comparisons reflect CLI
+interfaces, not raw model capability.
+Claude Code CLI vs.\ Codex CLI on airline: not significant ($p = 0.27$).
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/domain_heatmap.pdf}
-  \caption{Detection Rate (\%) heatmap across evaluated systems and
-  domains. Note: Toolathlon results were corrected after fixing a data
-  adapter bug that produced empty event lists in the original evaluation
-  (see text). Heatmap will be regenerated with corrected values and a
-  colorblind-safe palette for the camera-ready version.}
+  \caption{Detection Rate (\%) heatmap with FPR overlay across evaluated
+  systems and domains. High DR does not imply useful detection---several
+  100\% DR cells correspond to 100\% FPR (\eg rule-driven platforms on
+  \swebench). GPT-5 results cover synthetic and \taubench domains only.
+  Toolathlon results use corrected data (see \S\ref{sec:datasets}).}
   \label{fig:domain_heatmap}
 \end{figure}
 
 \subsection{Cost Analysis}
 
-Table~\ref{tab:cost} and Figure~\ref{fig:cost_performance} summarize costs.
-Open-weight judges via Groq's free tier cost \$0.00 per token but face
-rate limits that constrain throughput---a form of cost not captured in
-\$/trajectory.
+Cost details in Appendix~\ref{app:cost}. Claude Sonnet~4 is the only
+system with non-zero cost ($\sim$\$0.028/traj) but achieves the highest
+mean DR. GPT-5 estimated at $\sim$\$0.23/traj at list pricing.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.85\textwidth]{figures/cost_performance_manual.pdf}
-  \caption{Cost--performance frontier. Claude Sonnet~4 is the only system
-  with non-zero per-trajectory cost (\$0.027) but achieves the highest mean
-  DR across all six domains.}
-  \label{fig:cost_performance}
-\end{figure}
-
-\begin{table}[t]
-\centering
-\caption{Cost per trajectory for evaluated systems. Open-weight LLM judges use
-Groq's free tier (\$0.00 per token) but face rate limits that constrain
-throughput. Claude Sonnet~4 is priced at \$3/MTok input and \$15/MTok output
-(Anthropic API list pricing). Tokens/traj = mean tokens consumed per trajectory.
-LangSmith and Braintrust dollar cost is \$0.00 (rule execution), but each
-incurs 4 manually authored rules and $\sim$15 min of setup effort not captured
-in \$/traj.}
-\label{tab:cost}
-\small
-\begin{tabular}{@{}llrrrr@{}}
-\toprule
-\textbf{System} & \textbf{Config Effort} & \textbf{\$/traj} & \textbf{p50 Latency (s)} & \textbf{Tokens/traj} & \textbf{N evaluated} \\
-\midrule
-Naive Heuristic    & 0 rules, 0 min & 0.000 & $<$0.01 & 0     & 1,562 \\
-Llama 3.3 70B      & prompt only    & 0.000 & 4.2     & 986   & 50 \\
-Llama 4 Scout      & prompt only    & 0.000 & 0.9--16.2\textsuperscript{*}     & 969--7,968\textsuperscript{*} & 440 \\
-Claude Sonnet 4    & prompt only    & $\sim$0.027\textsuperscript{\textdaggerdbl} & 13.4--55.5\textsuperscript{\textdaggerdbl}     & 254--1,799\textsuperscript{\textdaggerdbl} & 390 \\
-GPT-5 (Codex)      & prompt only    & 0.000\textsuperscript{\S} & 7.9     & 18,718 & 150 \\
-LangSmith          & 4 rules, $\sim$80 LOC, $\sim$15 min & 0.000 & $<$0.01 & 0 & 350 \\
-Braintrust         & 4 scorers, $\sim$60 LOC, $\sim$15 min & 0.000 & $<$0.01 & 0 & 400 \\
-\bottomrule
-\multicolumn{6}{@{}l}{\footnotesize \textsuperscript{*}Range reflects synthetic (short) vs.\ retail (long) trajectories.} \\
-\multicolumn{6}{@{}l}{\footnotesize \textsuperscript{\textdaggerdbl}Range reflects synthetic (13.4s, 254 tokens), retail (47.7s, 1,546 tokens), and \swebench (55.5s, 1,799 tokens) trajectories;} \\
-\multicolumn{6}{@{}l}{\footnotesize \phantom{\textsuperscript{\textdaggerdbl}}\swebench figure is from $n=10$ pilot.} \\
-\multicolumn{6}{@{}l}{\footnotesize \textsuperscript{\S}GPT-5 accessed via Codex CLI (ChatGPT Plus plan); \$0 marginal cost but included in subscription.}
-\end{tabular}
-\end{table}
-
-% ==========================================================================
-% 10. ANALYSIS
-% ==========================================================================
-\section{Analysis}
+\subsection{Analysis}
 \label{sec:analysis}
 
-The evaluation makes two epistemically distinct claims. On \emph{synthetic}
-data, results validate rubric clarity: judges recover known labels from
-designed trajectories, testing the prompt and taxonomy rather than
-real-world validity. On \emph{real} data (\taubench, \swebench, ATBench,
-Toolathlon), results validate ecological validity: judges detect failures
-in natural trajectories with ground truth from independent programmatic
-checks.
+Synthetic results validate rubric clarity (prompt-following); real-domain
+results (\taubench, \swebench, ATBench, Toolathlon) validate ecological
+validity against independent programmatic ground truth.
 
-\subsection{Detection Profiles and Domain Difficulty}
+The evaluation matrix reveals distinct detection profiles across system
+types (see Table~\ref{tab:profiles} in Appendix~\ref{app:profiles}). This
+complementarity is partly expected from selecting maximally different
+systems; the contribution is \emph{quantifying} where each approach
+succeeds or fails.
 
-The evaluation matrix (Table~\ref{tab:profiles}) reveals distinct detection
-profiles across system types. This complementarity is partly expected from
-selecting maximally different systems; the empirical contribution is
-\emph{quantifying} where each approach succeeds or fails.
+The naive heuristic achieves 100\% DR / 0\% FPR on \swebench (structural
+errors) but only 14\% on synthetic (semantic failures). Open-weight LLM
+judges detect 100\% of synthetic failures but collapse on real domains
+(Llama~4~Scout: 14\% retail, 10\% airline). GPT-5 achieves
+86\% DR on retail but at 30\% FPR. Claude bridges profiles (77\% DR / 9\%
+FPR on retail) but on Toolathlon achieves 96\% DR at 46\% FPR---the
+highest FPR of any system on any domain. Analysis of the 13 false-positive
+Toolathlon trajectories (19 error-severity findings) reveals a consistent
+pattern: \texttt{communication.hallucination} accounts for 37\% of false
+findings, followed by \texttt{action.missing\_action} (21\%) and
+\texttt{action.wrong\_args} (16\%). The judge misinterprets complex but
+correct multi-tool chains as containing fabricated outputs or omitted
+steps---long-horizon trajectories with 600+ available tools produce
+surface patterns that mimic failure signatures seen in shorter domains.
 
-\begin{table}[h]
-\centering
-\caption{Detection profile comparison (DR\% / FPR\%) across all six
-domains. Claude Sonnet~4 is the only system with non-zero DR across all
-domains. Toolathlon is the frontier where all other systems achieve
-$\leq$14\% DR.}
-\label{tab:profiles}
-\small
-\begin{tabular}{@{}lcccc@{}}
-\toprule
-\textbf{Domain} & \textbf{Naive} & \textbf{Open-wt. LLM} & \textbf{Claude S4} & \textbf{Rule platforms} \\
-\midrule
-Synthetic    & 14\%              & \textbf{100\%}     & \textbf{100\%}           & 22\% \\
-Retail       & 25 / 18           & 25 / 13            & \textbf{100 / 6}         & 0--92 / 0--71 \\
-Airline      & 41 / 4            & 20 / 67            & 40 / 20                  & 64 / 33 \\
-\swebench    & \textbf{100 / 0}  & 100 / 100          & \textbf{100 / 0}         & 100 / 100 \\
-ATBench      & 0                 & 70                 & \textbf{100}             & 0 \\
-Toolathlon   & \textbf{79 / 0}   & 7 / 7               & 96 / 46                  & --- \\
-\midrule
-CA (synth.~150)  & 0.037         & 0.471              & \textbf{0.545}           & --- \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The naive heuristic achieves 100\% DR / 0\% FPR on \swebench because
-coding failures produce explicit tool-level errors, but only 14\% DR on
-synthetic data where semantic understanding is required. LLM judges detect
-100\% of synthetic failures but collapse on real \taubench domains
-(Llama~4~Scout: 25\% retail, 20\% airline with 67\% FPR). Claude
-Sonnet~4 bridges both profiles on some domains (100\% DR / 6\% FPR on
-retail) but not uniformly (40\% DR on airline).
-
-\paragraph{Domain difficulty spectrum.}
-The six domains form a difficulty ordering: \swebench
-(structural signals; all systems achieve 100\% DR) $\to$ Toolathlon
-(structural signals from long trajectories; naive 79\% DR, Claude 96\%)
-$\to$ Synthetic (LLM judges excel; heuristics do not) $\to$ Retail
-(subtle state errors) $\to$ Airline (hardest for LLM judges) $\to$
-ATBench (requires semantic safety understanding; 0\% DR for all
-heuristic/rule systems). Benchmarking on any single domain would give a
-misleading picture of production performance.
+\paragraph{Domain difficulty spectrum (DR-based).}
+By detection rate alone: \swebench (easy; structural signals) $\to$
+Toolathlon $\to$ Synthetic $\to$ Retail $\to$ Airline $\to$ ATBench
+(hardest; 0\% DR for heuristic and rule-based systems, though LLM
+judges achieve 70--100\%). This ordering uses DR as the sole difficulty
+axis. Incorporating FPR would change the ranking: Toolathlon is
+second-easiest by DR but exhibits the highest FPR (46\% for Claude
+Sonnet~4), indicating that high detection comes at the cost of
+precision. Single-domain benchmarking would be misleading.
 
 \subsection{Configuration Effort and Domain Calibration}
 \label{sec:analysis:config}
 
-LangSmith and Braintrust, configured with identical 4-rule sets, achieve
-identical 22\% DR on synthetic---proving the detection gap is a property of
-\emph{rule coverage}, not platform capability. Their rules catch only
-tool-loop patterns and event-count thresholds; every semantic failure
-category (hallucination, safety, communication) is missed entirely.
-We acknowledge that testing 4 rules against 24 subcategories makes this
-coverage gap partially predetermined; the empirical contribution is
-quantifying the \emph{specific} gap and showing that both platforms produce
-identical results with identical rules.
+LangSmith and Braintrust achieve identical 22\% DR on synthetic with
+identical rules, confirming the bottleneck is rule coverage, not
+platform capability. Testing 4 rules against 24 subcategories makes this
+gap predominantly predetermined: 4 rules cover $\sim$4 subcategories by
+construction. The contribution is quantifying the specific magnitude.
 
-The event-count threshold exposes a pervasive calibration problem across
-domains: it contributes modestly on synthetic (short trajectories) but
-achieves 100\% FPR on \swebench (coding trajectories routinely exceed 20
+The event-count threshold ($>$20 events) exposes a pervasive calibration
+problem: 100\% FPR on \swebench (coding trajectories routinely exceed 20
 events) and 71\% FPR on retail. The Braintrust vs.\ LangSmith retail
-discrepancy (92\% vs.\ 0\% DR) results from independently calibrated
-thresholds during each platform's $\sim$15-minute setup, not from
-different rule logic. This fragility of threshold-based rules across
-domains is a systematic finding: domain calibration is an ongoing
-maintenance burden, not a one-time cost.
+discrepancy (92\% vs.\ 0\% DR) results from platform execution semantics
+(identical rule text, non-identical firing behavior on non-terminal
+errors), not threshold differences. Domain calibration is an ongoing
+maintenance burden, not a one-time cost. A natural extension is evaluating
+platforms with 10+ rules or with their built-in LLM-judge evaluators,
+which would characterize platform ceiling rather than minimum-effort
+baseline.
 
-\subsection{Detection Difficulty by Failure Type}
-
-Per-subcategory analysis reveals a consistent hierarchy.
-\emph{Easy}: structural failures (\texttt{tool\_loop}, errors, timeouts)
-detected at 100\% by heuristics on \swebench. Egregious synthetic
-semantic failures detected at 100\% by LLM judges.
-\emph{Moderate}: action failures (\texttt{wrong\_tool},
-\texttt{wrong\_args}) require task-intent understanding; LLMs outperform
-heuristics.
-\emph{Hard}: quality failures (\texttt{shallow\_output},
-\texttt{incomplete\_analysis}) require domain knowledge and remain the
-frontier challenge~\citep{inkeep2025context, arize2024failures}.
-
-\subsection{Error Analysis}
-
-Common false positives: LLM judges flagging valid tool calls with unusual
-argument patterns; over-flagging multi-step trajectories where intermediate
-states resolve correctly; misclassifying appropriate hedging as
-\texttt{low\_confidence\_output}.
-Common false negatives: \texttt{wrong\_args} with numerically close values;
-\texttt{partial\_state} with some correct mutations; plausible
-\texttt{hallucination}.
+Per-subcategory analysis reveals a consistent difficulty hierarchy:
+structural failures are easy (100\% heuristic detection on \swebench),
+action failures are moderate (require task-intent understanding),
+and quality failures are hard (require domain knowledge). See
+Appendix~\ref{app:error_analysis} for detailed error analysis.
 
 \subsection{Limitations}
 \label{sec:limitations}
 
-\begin{enumerate}[leftmargin=2em]
-  \item \textbf{Sample sizes.} LLM judges evaluated on 20--200
-    trajectories per domain; small-N cells have wide confidence intervals
-    (Wilson CI for 40\% DR at n=20 spans [14.7\%, 72.6\%]).
-
-  \item \textbf{Domain coverage.} Six domains span structural, semantic,
-    and multi-step failures but omit medical, financial, and legal contexts.
-
-  \item \textbf{Ground truth.} Quality degradation labels are inherently
-    subjective~\citep{groundtruth2025}. Multi-judge consensus is planned
-    but not yet executed.
-
-  \item \textbf{Temporal validity.} LLM capabilities improve rapidly;
-    results may not generalize to future model versions.
-
-  \item \textbf{Configuration sensitivity.} Platform configurations
-    represent reasonable expert effort but not optimal tuning.
-
-  \item \textbf{Synthetic circularity.} The author designed the taxonomy,
-    created synthetic trajectories, and wrote judge prompts. CA scores on
-    synthetic data reflect label recovery within a self-consistent system;
-    independent annotation with IAA statistics is needed to validate the
-    taxonomy.
+\begin{enumerate}[leftmargin=2em,itemsep=2pt]
+  \item \textbf{Sample sizes.} Scaling Claude from n=20 to n=100 on
+    retail reduced DR from 100\% to 77\%, confirming small-N estimation
+    noise. Some cells remain at n$<$100.
+  \item \textbf{Domain coverage.} Six domains; medical, financial, and
+    legal contexts omitted.
+  \item \textbf{Ground truth.} LLM consensus ($\kappa = 0.557$ category)
+    on synthetic only. LLM-based IAA proxy achieves $\kappa = 0.751$
+    (binary) with frontier models (\S\ref{sec:ground_truth}); human
+    annotation may differ~\citep{groundtruth2025}.
+  \item \textbf{Temporal validity.} Results may not generalize to future
+    model versions.
+  \item \textbf{Configuration.} Platform rules represent reasonable
+    effort but not optimal tuning.
+  \item \textbf{Vendor CLI interfaces.} LLM judges use vendor CLI tools,
+    not raw API. Codex CLI uses 10--15$\times$ more tokens/traj than
+    Claude Code CLI. Results reflect deployment interfaces, not
+    controlled model comparisons.
+  \item \textbf{Synthetic circularity.} Author designed taxonomy, created
+    trajectories, wrote prompts. Synthetic CA measures self-consistency;
+    real-domain CA on \taubench (0.093) provides independent validation
+    but is limited by coarse programmatic ground truth categories.
+  \item \textbf{IAA non-independence.} The LLM-proxy IAA study has three
+    non-independence limitations: (a)~Claude Sonnet~4 serves as both an
+    IAA annotator and an evaluated detection system; (b)~the 50-trajectory
+    sample includes 15 synthetic trajectories designed by the paper's
+    author using the same taxonomy being validated; and (c)~the taxonomy
+    was designed by the same author. These limitations mean the IAA study
+    functions as a cross-model consistency check rather than a fully
+    independent validation. A human IAA study with external annotators
+    remains future work.
 \end{enumerate}
 
 % ==========================================================================
@@ -1213,33 +856,36 @@ Common false negatives: \texttt{wrong\_args} with numerically close values;
 
 We introduced \atfd, a benchmark for evaluating heterogeneous agent
 monitoring systems on a unified multi-domain dataset with cost-aware
-metrics. The 7-system $\times$ 6-domain evaluation on a
-2,577-trajectory corpus reveals four key findings:
-(1)~\textbf{No system dominates all cells}---heuristics excel on structural
-failures (\swebench: 100\% DR / 0\% FPR), LLM judges on semantic failures,
-and only Claude Sonnet~4 achieves non-zero DR across all six domains.
-(2)~\textbf{Configuration effort matters}---rule-driven platforms achieve
-identical DR with identical rules regardless of platform, proving the
-bottleneck is rule coverage, not platform capability.
-(3)~\textbf{Domain calibration is pervasive}---event-count thresholds
-calibrated for one domain produce 100\% FPR on \swebench and 71\% FPR on
-retail.
-(4)~The six-domain \textbf{difficulty spectrum} ranges from structurally
-trivial (\swebench) through semantically hard (ATBench) to long-horizon
-hard (Toolathlon), where all systems except Claude Sonnet~4 achieve 0\% DR.
-Category alignment remains below 0.5 even for the best system, indicating
-that identifying failure \emph{type} is harder than detecting failure
-\emph{existence}.
+metrics. The 7-system $\times$ 6-domain evaluation reveals:
+(1)~\textbf{no system dominates} across domains;
+(2)~\textbf{rule coverage}, not platform, is the bottleneck;
+(3)~\textbf{domain calibration} is pervasive (100\% FPR on cross-domain
+thresholds); and
+(4)~a \textbf{difficulty spectrum} from structural (\swebench) to
+semantic (ATBench); and (5)~CA drops from 0.545 to 0.093 on real
+data---failure \emph{typing} remains open. Future work: human IAA,
+comprehensive rules, and ensemble evaluation.
 
-\paragraph{Future work.}
-Immediate priorities: (1)~comprehensive rule-set configurations for
-platforms (testing whether expert-authored rules close the coverage gap);
-(2)~scaling LLM judge evaluation to full dataset sizes on all domains;
-(3)~domain-specific quality rubrics for QDR measurement on real
-trajectories; (4)~ablation studies on heuristic rules and LLM judge
-prompts; (5)~ensemble evaluation combining heuristic and LLM approaches;
-(6)~human annotation study for taxonomy IAA beyond the LLM-judge proxy
-reported here.
+% ==========================================================================
+% AUTHOR'S CHANGELOG
+% ==========================================================================
+\section*{Author's Changelog (v4 $\to$ v5)}
+\begin{itemize}[leftmargin=2em,itemsep=1pt]
+  \item Removed ``validates taxonomy reproducibility'' overclaim from abstract;
+    now reports binary, outcome, and category $\kappa$ accurately (ISS-036).
+  \item Disclosed IAA non-independence limitations in \S\ref{sec:limitations}
+    (ISS-037).
+  \item Disclosed conditioned-subsample methodology for Fleiss'
+    $\kappa = 0.557$ in \S\ref{sec:ground_truth} (ISS-038).
+  \item Applied CLI qualification to McNemar comparisons consistently in
+    abstract and \S\ref{sec:results} (ISS-039).
+  \item Disclosed IAA sample composition (source domains and outcome
+    distribution) in Appendix (ISS-040).
+  \item Qualified domain difficulty ordering as DR-based, noting FPR would
+    produce different rankings (ISS-041).
+  \item Improved IAA category $\kappa$ with structured prompts (see updated
+    \S\ref{sec:ground_truth}).
+\end{itemize}
 
 % ==========================================================================
 % REFERENCES
@@ -1284,6 +930,227 @@ Event 4 [assistant_message]:
    business days."                      # <-- MISSING_INFO: no refund amount
 \end{lstlisting}
 \end{figure}
+
+\section{Cost Analysis}
+\label{app:cost}
+
+Table~\ref{tab:cost} and Figure~\ref{fig:cost_performance} summarize costs.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/cost_performance_manual.pdf}
+  \caption{Cost--performance frontier. Claude Sonnet~4 is the only system
+  with non-zero per-trajectory cost (\$0.027) but achieves the highest mean
+  DR across all six domains.}
+  \label{fig:cost_performance}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\caption{Cost per trajectory for evaluated systems. Tokens/traj = mean tokens consumed per trajectory.}
+\label{tab:cost}
+\small
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+\textbf{System} & \textbf{Config Effort} & \textbf{\$/traj} & \textbf{p50 Latency (s)} & \textbf{Tokens/traj} & \textbf{N evaluated} \\
+\midrule
+Naive Heuristic    & 0 rules, 0 min & 0.000 & $<$0.01 & 0     & 1,562 \\
+Llama 3.3 70B      & prompt only    & 0.000 & 4.2     & 986   & 50 \\
+Llama 4 Scout      & prompt only    & 0.000 & 0.9--16.2 & 969--7,968 & 520 \\
+Claude Sonnet 4    & prompt only    & $\sim$0.028 & 13.4--52.1 & 254--1,864 & 460 \\
+GPT-5 (Codex)      & prompt only    & $\sim$0.23\textsuperscript{\S} & 29.5     & 28,660 & 450 \\
+LangSmith          & 4 rules, $\sim$15 min & 0.000 & $<$0.01 & 0 & 350 \\
+Braintrust         & 4 scorers, $\sim$15 min & 0.000 & $<$0.01 & 0 & 400 \\
+\bottomrule
+\multicolumn{6}{@{}l}{\footnotesize \textsuperscript{\S}Estimated at list API pricing (\$2/\$8 per MTok). Actual cost \$0 via Codex CLI subscription.}
+\end{tabular}
+\end{table}
+
+\section{Detection Profiles}
+\label{app:profiles}
+
+\begin{table}[h]
+\centering
+\caption{Detection profile comparison (DR\% / FPR\%) across all six domains.}
+\label{tab:profiles}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Domain} & \textbf{Naive} & \textbf{Open-wt.} & \textbf{GPT-5} & \textbf{Claude S4} & \textbf{Platforms} \\
+\midrule
+Synthetic    & 14\%              & \textbf{100\%}     & 99             & \textbf{100\%}           & 22\% \\
+Retail       & 25 / 18           & 25 / 13            & 86 / 30        & 77 / 9                   & 0--92 / 0--71 \\
+Airline      & 41 / 4            & 20 / 67            & 91 / 52        & 67 / 10                  & 64 / 33 \\
+\swebench    & \textbf{100 / 0}  & 100 / 100          & 100 / 50       & 96 / \textbf{0}          & 100 / 100 \\
+ATBench      & 0                 & 70                 & ---            & \textbf{100}             & 0 \\
+Toolathlon   & \textbf{79 / 0}   & 7 / 7              & ---            & 96 / 46                  & --- \\
+\midrule
+CA (150)     & 0.037             & 0.471              & 0.402          & \textbf{0.545}           & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Failure Category Distribution}
+\label{app:failure_dist}
+
+\begin{table}[h]
+\centering
+\caption{Failure category distribution for the 150-trajectory synthetic
+dataset. All 7 categories and 24 subcategories are represented.}
+\label{tab:failure_dist}
+\small
+\begin{tabular}{@{}lrl@{}}
+\toprule
+\textbf{Category} & \textbf{N} & \textbf{Subcategory detail} \\
+\midrule
+Process         & 30 & tool\_loop (10), infinite\_delegation (5), context\_overflow (5), planning\_failure (10) \\
+Communication   & 25 & hallucination (10), wrong\_response (5), missing\_info (5), unclear\_response (5) \\
+Safety          & 23 & permission\_escalation (5), data\_leakage (5), policy\_violation (5), prompt\_injection (8) \\
+Quality$^\dagger$  & 34 & shallow\_output (8), suboptimal\_approach (8), incomplete\_analysis (8), poor\_tone (5), low\_confidence (5) \\
+Action          & 18 & wrong\_tool (6), wrong\_args (6), missing\_action (6) \\
+State           & 10 & wrong\_state (5), partial\_state (5) \\
+Infrastructure  & 10 & timeout (4), error (3), max\_steps (3) \\
+\midrule
+\textbf{Total}  & 150 & --- \\
+\bottomrule
+\multicolumn{3}{@{}l}{\footnotesize $^\dagger$Quality trajectories use \texttt{degraded} outcome; all others use \texttt{fail}.}
+\end{tabular}
+\end{table}
+
+\section{F1 and Category Alignment}
+\label{app:f1_ca}
+
+\begin{table}[h]
+\centering
+\caption{F1 score (binary failure detection) and Category Alignment (CA).
+F1 is computed over pass/fail trajectories; CA is macro-averaged F1 across
+failure categories. ``---'' = CA not produced or F1 not applicable.}
+\label{tab:f1_ca}
+\small
+\begin{tabular}{@{}llcc@{}}
+\toprule
+\textbf{System} & \textbf{Domain} & \textbf{F1} & \textbf{CA} \\
+\midrule
+Naive Heuristic       & Synthetic (150) & 0.114 & 0.037 \\
+Naive Heuristic       & Retail        & 0.280 & 0.000 \\
+Naive Heuristic       & \swebench     & 0.667 & 0.000 \\
+\midrule
+Llama 4 Scout         & Synthetic (150) & 0.864 & 0.471 \\
+Llama 3.3 70B         & Synthetic (50) & ---   & 0.359 \\
+\midrule
+GPT-5 (Codex)         & Synthetic (150) & 0.846 & 0.402 \\
+GPT-5 (Codex)         & Retail        & 0.487 & --- \\
+GPT-5 (Codex)         & Airline       & 0.613 & --- \\
+GPT-5 (Codex)         & \swebench     & 0.667 & --- \\
+\midrule
+Claude Sonnet 4       & Synthetic (150) & 0.868 & \textbf{0.545} \\
+Claude Sonnet 4       & Retail        & 0.540 & 0.154$^\star$ \\
+Claude Sonnet 4       & Airline       & 0.560 & 0.075$^\star$ \\
+Claude Sonnet 4       & \swebench     & 0.649 & --- \\
+Claude Sonnet 4       & \taubench combined & 0.550 & 0.093$^\star$ \\
+\bottomrule
+\multicolumn{4}{@{}l}{\footnotesize $^\star$Real-domain CA: computed against \taubench programmatic ground truth categories (n=64 fail trajectories).} \\
+\multicolumn{4}{@{}l}{\footnotesize \phantom{$^\star$}GT captures only state/action/communication via reward decomposition; see \S\ref{sec:results} for analysis.}
+\end{tabular}
+\end{table}
+
+\subsection*{LLM-Proxy IAA}
+\label{app:iaa_proxy}
+
+Three frontier LLM annotators from different model families---Claude
+Sonnet~4 (Anthropic), GPT-5 (OpenAI), Gemini~3.1~Flash
+(Google)---classified 50 sampled trajectories (25 fail, 15 pass, 10
+degraded) using a classification prompt with domain-specific calibration
+guidance, distinct from the investigation-style judge prompt.
+\textbf{Sample composition:} 20 from \taubench (10 retail, 10 airline),
+15 synthetic, 10 from \swebench, 5 from Toolathlon. The 15 pass
+trajectories come from \taubench and \swebench (the synthetic subset
+contains only non-pass trajectories). This means the IAA sample differs
+in composition from the main evaluation's synthetic set (which is
+all-failure); readers should interpret category $\kappa$ as reflecting
+agreement on a mixed-source, mixed-outcome sample.
+
+\begin{center}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Measure} & \textbf{$\kappa$} & \textbf{Interpretation} \\
+\midrule
+Binary (pass vs.\ non-pass) & 0.751 & substantial \\
+Outcome (pass/degraded/fail) & 0.713 & substantial \\
+Category (non-pass subset, $n=25$) & 0.229 & fair \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Per-annotator outcome distributions:
+
+\begin{center}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Annotator} & \textbf{pass} & \textbf{degraded} & \textbf{fail} \\
+\midrule
+Claude Sonnet 4 & 21 & 6 & 23 \\
+GPT-5 & 18 & 4 & 28 \\
+Gemini 3.1 Flash & 22 & 5 & 23 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Binary and outcome $\kappa > 0.7$ (substantial) indicate strong
+agreement on whether a trajectory passed or failed across three model
+families. Category $\kappa = 0.229$ (fair) confirms failure
+\emph{typing} is harder than \emph{detection}, consistent with low
+real-domain CA (\S\ref{sec:results}). All three annotators show balanced
+outcome distributions with no systematic fail-bias.
+
+\section{Expanded Synthetic Evaluation (N=150)}
+\label{app:synthetic_150}
+
+\begin{table}[h]
+\centering
+\caption{Results on expanded 150-trajectory synthetic set (116 fail, 34
+degraded, 0 pass). DR = Detection Rate on fail trajectories. QDR =
+Quality Detection Rate on degraded trajectories. FPR is undefined (no
+pass trajectories). Claude Sonnet~4 is the only system with non-zero QDR.
+CA 95\% CIs from bootstrap with 10,000 resamples.}
+\label{tab:synthetic_150}
+\small
+\begin{tabular}{@{}lrrcccl@{}}
+\toprule
+\textbf{System} & \textbf{N} & \textbf{DR (\%)} & \textbf{QDR (\%)} & \textbf{F1} & \textbf{CA} \\
+\midrule
+Naive Heuristic & 150 & 6.0 {\scriptsize [3.0, 11.9]} & 0.0 {\scriptsize [0.0, 10.2]} & 0.114 & 0.037 {\scriptsize [0.000, 0.111]} \\
+Llama 4 Scout   & 150 & \textbf{100.0} {\scriptsize [96.8, 100.0]} & 0.0 {\scriptsize [0.0, 10.2]} & 0.864 & 0.471 {\scriptsize [0.334, 0.601]} \\
+GPT-5 (Codex)   & 150 & 98.3 {\scriptsize [93.9, 99.5]} & 0.0 {\scriptsize [0.0, 10.2]} & 0.846 & 0.402 {\scriptsize [0.271, 0.526]} \\
+Claude Sonnet 4 & 150 & 99.1 {\scriptsize [95.3, 99.8]} & \textbf{20.6} {\scriptsize [10.3, 36.8]} & \textbf{0.868} & \textbf{0.545} {\scriptsize [0.416, 0.668]} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Error Analysis}
+\label{app:error_analysis}
+
+\paragraph{Detection difficulty by failure type.}
+Per-subcategory analysis reveals a consistent hierarchy.
+\emph{Easy}: structural failures (\texttt{tool\_loop}, errors, timeouts)
+detected at 100\% by heuristics on \swebench.
+\emph{Moderate}: action failures (\texttt{wrong\_tool},
+\texttt{wrong\_args}) require task-intent understanding; LLMs outperform
+heuristics.
+\emph{Hard}: quality failures (\texttt{shallow\_output},
+\texttt{incomplete\_analysis}) require domain knowledge and remain the
+frontier challenge~\citep{inkeep2025context, arize2024failures}.
+
+\paragraph{Common errors.}
+False positives: LLM judges flagging valid tool calls with unusual
+argument patterns; over-flagging multi-step trajectories where intermediate
+states resolve correctly; misclassifying appropriate hedging as
+\texttt{low\_confidence\_output}.
+False negatives: \texttt{wrong\_args} with numerically close values;
+\texttt{partial\_state} with some correct mutations; plausible
+\texttt{hallucination}.
 
 \section{Judge Prompt Template}
 \label{app:judge_prompt}
