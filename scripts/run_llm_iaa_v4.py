@@ -465,29 +465,57 @@ def save_incremental(results: dict[str, list]):
 
 # ── Main ──────────────────────────────────────────────────────────────────
 
+PLACEHOLDER = {"outcome": "__skipped__", "category": None, "reasoning": ""}
+
+
+def is_valid_result(r: dict) -> bool:
+    """Check if result is a real annotation (not a skipped placeholder or quota-failure fallback)."""
+    if r.get("outcome") == "__skipped__":
+        return False
+    if r.get("reasoning", "") == "" and r.get("outcome") == "fail" and r.get("category") == "action":
+        return False
+    return True
+
+
 def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--only", choices=list(ANNOTATORS.keys()),
+                        help="Run only this annotator (skip others)")
+    args = parser.parse_args()
+
     manifest = json.loads(MANIFEST.read_text())
-    print(f"IAA v4 — frontier models, single-turn structured prompts, {len(manifest)} trajectories")
-    print(f"Annotators: Claude Sonnet 4, GPT-5 (Codex), Gemini 2.5 Flash")
+    active_annotators = {args.only: ANNOTATORS[args.only]} if args.only else ANNOTATORS
+
+    print(f"IAA v4 — single-turn structured prompts, {len(manifest)} trajectories")
+    print(f"Active annotators: {', '.join(a['display'] for a in active_annotators.values())}")
     print(f"Improvements: few-shot examples, disambiguation rules, JSON output, full context\n")
 
     results = load_partial_results()
-    completed = min(len(v) for v in results.values()) if results and all(results.values()) else 0
-    if completed > 0:
-        print(f"  Resuming from trajectory {completed + 1} (found {completed} completed)\n")
+    for akey in ANNOTATORS:
+        if akey not in results or not results[akey]:
+            results[akey] = []
 
     gemini_consecutive_failures = 0
     GEMINI_QUOTA_THRESHOLD = 5
+    annotated_count = 0
 
     for i, entry in enumerate(manifest):
-        if i < completed:
-            continue
-
         domain, task_desc, events_text = v1.load_and_format(entry)
         tid_short = entry["trajectory_id"][:35]
 
         if len(events_text) > 15000:
             events_text = events_text[:15000] + "\n...[truncated]"
+
+        any_work = False
+        for akey in active_annotators:
+            if i < len(results[akey]) and is_valid_result(results[akey][i]):
+                continue
+            any_work = True
+            break
+
+        if not any_work:
+            continue
 
         prompt = COMBINED_PROMPT.format(
             domain=domain, task_description=task_desc, events_text=events_text,
@@ -496,21 +524,28 @@ def main():
         print(f"  [{i+1}/50] {tid_short}", end="  ", flush=True)
 
         for akey, acfg in ANNOTATORS.items():
+            while len(results[akey]) <= i:
+                results[akey].append(dict(PLACEHOLDER))
+
+            if akey not in active_annotators:
+                if not is_valid_result(results[akey][i]):
+                    print(f"{acfg['display']}=skip", end="  ", flush=True)
+                else:
+                    print(f"{acfg['display']}=cached", end="  ", flush=True)
+                continue
+
+            if is_valid_result(results[akey][i]):
+                print(f"{acfg['display']}=cached", end="  ", flush=True)
+                continue
+
             raw = acfg["call"](prompt)
             parsed = parse_json_response(raw)
 
-            if len(results[akey]) > i:
-                results[akey][i] = {
-                    "outcome": parsed["outcome"],
-                    "category": parsed["category"],
-                    "reasoning": parsed["reasoning"],
-                }
-            else:
-                results[akey].append({
-                    "outcome": parsed["outcome"],
-                    "category": parsed["category"],
-                    "reasoning": parsed["reasoning"],
-                })
+            results[akey][i] = {
+                "outcome": parsed["outcome"],
+                "category": parsed["category"],
+                "reasoning": parsed["reasoning"],
+            }
 
             if akey == "gemini_flash":
                 if not raw or raw.strip() == "":
@@ -521,13 +556,30 @@ def main():
             print(f"{acfg['display']}={parsed['outcome']}", end="  ", flush=True)
 
         print()
+        annotated_count += 1
         save_incremental(results)
 
         if gemini_consecutive_failures >= GEMINI_QUOTA_THRESHOLD:
-            print(f"\n  ⚠ Gemini quota likely exhausted ({gemini_consecutive_failures} consecutive failures).")
-            print(f"  Saved progress at trajectory {i + 1}/{len(manifest)}.")
-            print(f"  Re-run this script to resume from where we left off.")
-            return
+            print(f"\n  ⚠ Gemini quota exhausted ({gemini_consecutive_failures} consecutive failures).")
+            print(f"  Saved progress. Re-run with: --only gemini_flash")
+            break
+
+    if annotated_count == 0:
+        print("  All trajectories already annotated for active annotators.")
+
+    all_complete = all(
+        len(results[k]) >= len(manifest) and all(is_valid_result(r) for r in results[k])
+        for k in ANNOTATORS
+    )
+    if not all_complete:
+        missing = {}
+        for k in ANNOTATORS:
+            m = sum(1 for j in range(len(manifest)) if j >= len(results[k]) or not is_valid_result(results[k][j]))
+            if m > 0:
+                missing[ANNOTATORS[k]["display"]] = m
+        print(f"\n  Incomplete: {missing}")
+        print(f"  Run with --only <annotator_key> to fill gaps.")
+        return
 
     # ── Compute κ ──────────────────────────────────────────────────────────
 
