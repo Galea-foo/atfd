@@ -442,6 +442,27 @@ def _parse_plain_text(raw: str) -> dict:
     return {"reasoning": "", "outcome": outcome, "category": category}
 
 
+# ── Resume support ────────────────────────────────────────────────────────
+
+def load_partial_results() -> dict[str, list]:
+    """Load previously saved partial results for resume."""
+    results = {}
+    for akey in ANNOTATORS:
+        fpath = OUTPUT_DIR / f"{akey}.json"
+        if fpath.exists():
+            results[akey] = json.loads(fpath.read_text())
+        else:
+            results[akey] = []
+    return results
+
+
+def save_incremental(results: dict[str, list]):
+    """Save current results after each trajectory."""
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    for akey in ANNOTATORS:
+        (OUTPUT_DIR / f"{akey}.json").write_text(json.dumps(results[akey], indent=2))
+
+
 # ── Main ──────────────────────────────────────────────────────────────────
 
 def main():
@@ -450,13 +471,21 @@ def main():
     print(f"Annotators: Claude Sonnet 4, GPT-5 (Codex), Gemini 2.5 Flash")
     print(f"Improvements: few-shot examples, disambiguation rules, JSON output, full context\n")
 
-    results = {k: [] for k in ANNOTATORS}
+    results = load_partial_results()
+    completed = min(len(v) for v in results.values()) if results and all(results.values()) else 0
+    if completed > 0:
+        print(f"  Resuming from trajectory {completed + 1} (found {completed} completed)\n")
+
+    gemini_consecutive_failures = 0
+    GEMINI_QUOTA_THRESHOLD = 5
 
     for i, entry in enumerate(manifest):
+        if i < completed:
+            continue
+
         domain, task_desc, events_text = v1.load_and_format(entry)
         tid_short = entry["trajectory_id"][:35]
 
-        # Full 15K char context (not truncated 4K like v3 category prompt)
         if len(events_text) > 15000:
             events_text = events_text[:15000] + "\n...[truncated]"
 
@@ -470,14 +499,35 @@ def main():
             raw = acfg["call"](prompt)
             parsed = parse_json_response(raw)
 
-            results[akey].append({
-                "outcome": parsed["outcome"],
-                "category": parsed["category"],
-                "reasoning": parsed["reasoning"],
-            })
+            if len(results[akey]) > i:
+                results[akey][i] = {
+                    "outcome": parsed["outcome"],
+                    "category": parsed["category"],
+                    "reasoning": parsed["reasoning"],
+                }
+            else:
+                results[akey].append({
+                    "outcome": parsed["outcome"],
+                    "category": parsed["category"],
+                    "reasoning": parsed["reasoning"],
+                })
+
+            if akey == "gemini_flash":
+                if not raw or raw.strip() == "":
+                    gemini_consecutive_failures += 1
+                else:
+                    gemini_consecutive_failures = 0
+
             print(f"{acfg['display']}={parsed['outcome']}", end="  ", flush=True)
 
         print()
+        save_incremental(results)
+
+        if gemini_consecutive_failures >= GEMINI_QUOTA_THRESHOLD:
+            print(f"\n  ⚠ Gemini quota likely exhausted ({gemini_consecutive_failures} consecutive failures).")
+            print(f"  Saved progress at trajectory {i + 1}/{len(manifest)}.")
+            print(f"  Re-run this script to resume from where we left off.")
+            return
 
     # ── Compute κ ──────────────────────────────────────────────────────────
 
@@ -545,12 +595,9 @@ def main():
         print(f"    Category κ: v3={v3['kappa_category']:.3f}  →  v4={kcat:.3f}  (Δ={kcat - v3['kappa_category']:+.3f})")
         print(f"    Cat items:  v3={v3['n_cat']}  →  v4={len(cat_ratings)}")
 
-    # ── Save ───────────────────────────────────────────────────────────────
+    # ── Save final ─────────────────────────────────────────────────────────
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    for akey in keys:
-        fname = f"{akey}.json"
-        (OUTPUT_DIR / fname).write_text(json.dumps(results[akey], indent=2))
+    save_incremental(results)
 
     summary = {
         "kappa_binary": round(kbin, 3),
