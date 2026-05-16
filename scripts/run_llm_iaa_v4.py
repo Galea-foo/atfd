@@ -127,7 +127,11 @@ went in circles before producing a bad answer, the primary issue is \
 5. **action vs. process**: A single wrong action is "action". A PATTERN of \
 bad decisions (multiple wrong tools, circular retry loops, planning failures) \
 is "process". If the agent made one clear mistake, it is "action". If the \
-agent's overall approach was flawed, it is "process".
+agent's overall approach was flawed, it is "process". \
+**Key test:** count the events. If the agent spent 20+ events reading, \
+searching, and exploring without ever attempting a solution (no code written, \
+no tool applied to solve the problem), that is "process" (planning failure) \
+— the agent failed to converge, not just failed to take one action.
 
 ## Few-Shot Examples
 
