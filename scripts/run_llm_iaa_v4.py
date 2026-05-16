@@ -476,7 +476,7 @@ def is_valid_result(r: dict) -> bool:
     """Check if result is a real annotation (not a skipped placeholder or quota-failure fallback)."""
     if r.get("outcome") == "__skipped__":
         return False
-    if r.get("reasoning", "") == "" and r.get("outcome") == "fail" and r.get("category") == "action":
+    if r.get("reasoning", "") == "" and r.get("outcome") == "fail":
         return False
     return True
 
