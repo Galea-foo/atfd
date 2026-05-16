@@ -1,46 +1,46 @@
 [
   {
-    "outcome": "__skipped__",
+    "outcome": "pass",
+    "category": null,
+    "reasoning": "The agent successfully handled a multi-turn, multi-request interaction. It correctly identified the user, retrieved relevant orders despite missing information, clarified the user's intent, found the correct product variant for exchange, and executed both the order modification and cancellation as requested. The final confirmation to the user was accurate."
+  },
+  {
+    "outcome": "fail",
     "category": null,
     "reasoning": ""
   },
   {
-    "outcome": "__skipped__",
+    "outcome": "fail",
+    "category": "process",
+    "reasoning": ""
+  },
+  {
+    "outcome": "pass",
+    "category": null,
+    "reasoning": "The agent successfully identified the user, retrieved relevant order information, and correctly determined that a pending order could be modified rather than returned/exchanged. It then guided the user through selecting specific product variants and executed the modification using the appropriate tool with correct parameters, including the payment method. The final confirmation to the user was accurate."
+  },
+  {
+    "outcome": "fail",
     "category": null,
     "reasoning": ""
   },
   {
-    "outcome": "__skipped__",
+    "outcome": "fail",
     "category": null,
     "reasoning": ""
   },
   {
-    "outcome": "__skipped__",
+    "outcome": "fail",
     "category": null,
     "reasoning": ""
   },
   {
-    "outcome": "__skipped__",
+    "outcome": "fail",
     "category": null,
     "reasoning": ""
   },
   {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
+    "outcome": "fail",
     "category": null,
     "reasoning": ""
   },
