@@ -294,7 +294,13 @@ def call_codex(prompt: str) -> str:
 
 
 def call_gemini(prompt: str) -> str:
-    """Call Gemini 2.5 Flash with JSON mode enabled."""
+    """Call Gemini 2.5 Flash. No JSON mode — parse plain text instead.
+
+    Gemini 2.5 Flash is a thinking model: response has multiple parts
+    (thinking + text). We iterate all parts to find text content.
+    JSON mode (responseMimeType) is unreliable with thinking models,
+    so we let the model respond freely and parse JSON from the text.
+    """
     import urllib.request
     import urllib.error
 
@@ -303,8 +309,8 @@ def call_gemini(prompt: str) -> str:
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
             "temperature": 0,
-            "maxOutputTokens": 512,
-            "responseMimeType": "application/json",
+            "maxOutputTokens": 1024,
+            "thinkingConfig": {"thinkingBudget": 1024},
         },
     }).encode()
 
@@ -312,13 +318,22 @@ def call_gemini(prompt: str) -> str:
         try:
             req = urllib.request.Request(url, data=body,
                                          headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=90) as resp:
+            with urllib.request.urlopen(req, timeout=120) as resp:
                 data = json.loads(resp.read())
             candidates = data.get("candidates", [])
-            if candidates:
-                parts = candidates[0].get("content", {}).get("parts", [])
-                if parts:
-                    return parts[0].get("text", "")
+            if not candidates:
+                return ""
+            parts = candidates[0].get("content", {}).get("parts", [])
+            # Iterate all parts — thinking models put thought in early parts
+            for part in parts:
+                text = part.get("text", "")
+                if text and ("outcome" in text or "pass" in text or "fail" in text):
+                    return text
+            # Fallback: return last non-empty text part
+            for part in reversed(parts):
+                text = part.get("text", "")
+                if text.strip():
+                    return text
             return ""
         except urllib.error.HTTPError as e:
             if e.code == 429:
