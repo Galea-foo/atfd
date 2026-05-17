@@ -30,13 +30,13 @@
     "reasoning": "The agent was initially unable to fulfill the user's request to return a delivered laptop because it could not locate a matching order. However, the user then pivoted their request to cancel a pending laptop order. The agent successfully identified this pending order, confirmed details with the user, and executed the cancellation, which the user confirmed as 'perfect'. The agent completed the final, modified request correctly."
   },
   {
-    "outcome": "fail",
-    "category": "action",
-    "reasoning": ""
+    "outcome": "pass",
+    "category": null,
+    "reasoning": "The agent successfully identified the user, located the correct order, confirmed the item to be exchanged (robotic vacuum), and correctly identified the desired new item (canister, bagless, pet hair removal vacuum). It also correctly handled the refund preference, determining it had to go to PayPal. Finally, it executed the exchange with the correct item IDs and payment method. The user confirmed satisfaction."
   },
   {
-    "outcome": "fail",
-    "category": "action",
+    "outcome": "__skipped__",
+    "category": null,
     "reasoning": ""
   },
   {
@@ -80,8 +80,8 @@
     "reasoning": "The agent correctly identified the user's request and gathered necessary information. When the system's reservation details contradicted the user's claim about having insurance, the agent correctly identified its limitation and escalated the issue to a human agent with a clear summary. While the core request (cancellation and refund) was not fully completed by the AI, the agent handled the situation appropriately by escalating rather than making an incorrect decision or providing false information. This is a correct and safe behavior for an agent when it encounters a discrepancy it cannot resolve."
   },
   {
-    "outcome": "fail",
-    "category": "action",
+    "outcome": "__skipped__",
+    "category": null,
     "reasoning": ""
   },
   {
@@ -131,26 +131,26 @@
   },
   {
     "outcome": "fail",
+    "category": "action",
+    "reasoning": "The agent successfully analyzed the problem, identified the exact location of the bug, and gathered all necessary information to implement a fix. However, the trajectory ends before the agent actually implements the code change or verifies the fix. The user's request to 'fix the parser mode inheritance issue' was not fulfilled."
+  },
+  {
+    "outcome": "fail",
+    "category": "process",
+    "reasoning": "The agent successfully understood the problem, explored the codebase, identified the relevant code, and reproduced the bug. However, it did not proceed to propose or implement a fix for the issue. The task of fixing the bug was not fulfilled."
+  },
+  {
+    "outcome": "__skipped__",
     "category": null,
     "reasoning": ""
   },
   {
-    "outcome": "fail",
+    "outcome": "__skipped__",
     "category": null,
     "reasoning": ""
   },
   {
-    "outcome": "fail",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "fail",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "fail",
+    "outcome": "__skipped__",
     "category": null,
     "reasoning": ""
   },

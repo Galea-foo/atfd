@@ -314,7 +314,7 @@ def call_gemini(prompt: str) -> str:
         },
     }).encode()
 
-    for attempt in range(5):
+    for attempt in range(2):  # max 1 retry to conserve daily quota
         try:
             req = urllib.request.Request(url, data=body,
                                          headers={"Content-Type": "application/json"})
@@ -342,15 +342,16 @@ def call_gemini(prompt: str) -> str:
             return ""
         except urllib.error.HTTPError as e:
             if e.code == 429:
-                wait = min((2 ** attempt) * 5, 60)
-                print(f" RL{wait}s", end="", flush=True)
-                time.sleep(wait)
-                continue
+                if attempt == 0:
+                    print(f" RL10s", end="", flush=True)
+                    time.sleep(10)
+                    continue
+                return ""  # don't burn more quota
             print(f" ERR:{e.code}", end="", flush=True)
             return ""
         except Exception as e:
-            if attempt < 4:
-                time.sleep(2 ** attempt)
+            if attempt == 0:
+                time.sleep(2)
                 continue
             return ""
     return ""
