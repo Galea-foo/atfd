@@ -5,14 +5,14 @@
     "reasoning": "The agent successfully handled a multi-turn, multi-request interaction. It correctly identified the user, retrieved relevant orders despite missing information, clarified the user's intent, found the correct product variant for exchange, and executed both the order modification and cancellation as requested. The final confirmation to the user was accurate."
   },
   {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
+    "outcome": "degraded",
+    "category": "communication",
+    "reasoning": "The agent successfully identified the user and order, and correctly initiated the return for the specified items. However, it failed to provide the total amount paid for the *other* items in the order, which was an explicit request from the user in step 19. While the core action was completed, the final communication to the user was incomplete, making the overall quality substandard."
   },
   {
-    "outcome": "__skipped__",
+    "outcome": "pass",
     "category": null,
-    "reasoning": ""
+    "reasoning": "The agent successfully addressed both parts of the user's request: it correctly identified and communicated the number of t-shirt options and processed the return for the specified items. Although there was a minor initial miscommunication about the 'cleaner' item, the agent quickly clarified and corrected it with user input, leading to a successful resolution."
   },
   {
     "outcome": "pass",
@@ -20,137 +20,137 @@
     "reasoning": "The agent successfully identified the user, retrieved relevant order information, and correctly determined that a pending order could be modified rather than returned/exchanged. It then guided the user through selecting specific product variants and executed the modification using the appropriate tool with correct parameters, including the payment method. The final confirmation to the user was accurate."
   },
   {
-    "outcome": "__skipped__",
+    "outcome": "pass",
     "category": null,
     "reasoning": ""
   },
   {
-    "outcome": "__skipped__",
+    "outcome": "pass",
+    "category": null,
+    "reasoning": "The agent was initially unable to fulfill the user's request to return a delivered laptop because it could not locate a matching order. However, the user then pivoted their request to cancel a pending laptop order. The agent successfully identified this pending order, confirmed details with the user, and executed the cancellation, which the user confirmed as 'perfect'. The agent completed the final, modified request correctly."
+  },
+  {
+    "outcome": "fail",
+    "category": "action",
+    "reasoning": ""
+  },
+  {
+    "outcome": "fail",
+    "category": "action",
+    "reasoning": ""
+  },
+  {
+    "outcome": "pass",
+    "category": null,
+    "reasoning": "The agent successfully guided the user through identity verification, corrected an order ID error, presented product options, handled a payment preference query, and ultimately executed the exchange using the correct tools and arguments. The final communication confirmed all details of the exchange."
+  },
+  {
+    "outcome": "pass",
+    "category": null,
+    "reasoning": "The agent successfully identified the user after several attempts due to incorrect user input. It then correctly retrieved the user's most recent order details and provided the total amount paid, directly answering the user's request. The process was appropriate given the user's initial errors."
+  },
+  {
+    "outcome": "pass",
+    "category": null,
+    "reasoning": "The agent successfully identified all relevant reservations, filtered them based on the user's criteria (single passenger, upcoming flights), performed necessary checks (flight status), and cancelled the eligible reservation after user confirmation. The communication was clear and accurate throughout the process."
+  },
+  {
+    "outcome": "fail",
+    "category": "action",
+    "reasoning": "The agent correctly identified the user's reservation and processed the request to upgrade both passengers to business class for the MCO to MSP segment. However, the `update_reservation_flights` tool call in step 25 incorrectly set the `cabin` to 'economy' instead of 'business' for the MCO to MSP segment, and also included the BOS to MCO flight which was not part of the final upgrade request. This means the system state would not be updated as requested by the user."
+  },
+  {
+    "outcome": "fail",
+    "category": "process",
+    "reasoning": "The agent correctly identified the user and retrieved reservation details. However, it failed to locate the user's flight to Milan, despite the user providing the correct user ID, origin (Newark), and date (May 21). The agent's tools did not allow it to search by airline, and it did not offer alternative ways to find the flight, leading to the user requesting a transfer. The core request of finding and changing the flight was not fulfilled."
+  },
+  {
+    "outcome": "fail",
+    "category": "communication",
+    "reasoning": "The agent failed to provide the exact reason for the flight delay, explicitly stating it did not have access to this information, which was a primary user request. Additionally, the agent proactively issued a travel certificate without confirming the user's preference, and when the user requested a refund instead, the agent transferred the conversation without attempting to fulfill this request. The core requests were not fulfilled by the agent."
+  },
+  {
+    "outcome": "pass",
+    "category": null,
+    "reasoning": "The agent successfully identified the user and the correct reservation, confirmed eligibility for a full refund based on the 24-hour rule, and then executed the cancellation and refund process as requested by the user. The final communication confirmed the cancellation and refund details, and the user expressed satisfaction."
+  },
+  {
+    "outcome": "pass",
+    "category": null,
+    "reasoning": "The agent correctly identified the user's request and gathered necessary information. When the system's reservation details contradicted the user's claim about having insurance, the agent correctly identified its limitation and escalated the issue to a human agent with a clear summary. While the core request (cancellation and refund) was not fully completed by the AI, the agent handled the situation appropriately by escalating rather than making an incorrect decision or providing false information. This is a correct and safe behavior for an agent when it encounters a discrepancy it cannot resolve."
+  },
+  {
+    "outcome": "fail",
+    "category": "action",
+    "reasoning": ""
+  },
+  {
+    "outcome": "pass",
+    "category": null,
+    "reasoning": "The agent successfully identified the correct reservation, accurately understood all three requested changes (add bags, change passenger, upgrade cabin), and executed the appropriate tool calls to implement each change. The final confirmation to the user was correct, and the user expressed satisfaction."
+  },
+  {
+    "outcome": "pass",
+    "category": null,
+    "reasoning": "The user requested to cancel flights and get a refund. The agent correctly identified the relevant reservation and the policy preventing a refund for basic economy. When the user insisted on a refund despite the policy, the agent appropriately escalated the request to a human agent, which is the correct procedure for handling such situations."
+  },
+  {
+    "outcome": "fail",
+    "category": "action",
+    "reasoning": "The user requested to cancel a specific flight (D1EW9B). The agent correctly identified the flight and the user's intent. However, instead of attempting to cancel the flight or explicitly stating it could not be cancelled by the agent, it transferred the user to a human agent. The core request of cancelling the flight was not fulfilled by the AI agent."
+  },
+  {
+    "outcome": "fail",
+    "category": "process",
+    "reasoning": "The agent performed extensive exploration and analysis, even identifying a potential root cause for the 'Broken pipe' error. However, it did not propose or implement any code changes to fix the issue, which was the core request. The agent failed to converge on a solution after significant investigation."
+  },
+  {
+    "outcome": "fail",
+    "category": "process",
+    "reasoning": "The agent successfully understood the problem, reproduced it, and meticulously explored the codebase to identify the root cause. However, the trajectory ends before any actual code modification or solution implementation. The core request to 'fix the issue' was not fulfilled."
+  },
+  {
+    "outcome": "fail",
+    "category": "process",
+    "reasoning": "The agent spent the entire trajectory in an exploratory phase, reading files and searching for information related to the task. It identified relevant code sections but did not make any concrete attempts to modify code, implement the feature, or even formulate a detailed plan for implementation. The task was not fulfilled as no changes were made."
+  },
+  {
+    "outcome": "fail",
+    "category": "process",
+    "reasoning": "The agent successfully understood the problem and reproduced the bug. It also identified the likely root cause (the 'INTERVAL' token definition). However, the trajectory ends without the agent attempting to implement any fix or propose a solution, meaning the core request to 'fix the issue' was not fulfilled. The agent spent a significant number of steps on exploration and diagnosis without moving towards a solution."
+  },
+  {
+    "outcome": "fail",
+    "category": "process",
+    "reasoning": "The agent spent a significant number of steps (over 20 events) exploring the codebase by listing directories, reading files, and searching for keywords. It did not make any progress towards identifying specific data formatting tools to modify, nor did it attempt to implement any sanity checks. The agent is stuck in an exploration loop without converging on a solution or a clear plan, indicating a failure in its execution process."
+  },
+  {
+    "outcome": "fail",
+    "category": "process",
+    "reasoning": "The agent successfully performed initial setup and exploration, identifying relevant files and running existing tests. However, it failed to make any progress towards fixing the bug. It ended by creating an empty reproduction script without identifying the root cause, proposing a fix, or modifying any code. The agent got stuck in an exploratory phase and failed to converge on a solution, which indicates a flawed execution plan."
+  },
+  {
+    "outcome": "fail",
     "category": null,
     "reasoning": ""
   },
   {
-    "outcome": "__skipped__",
+    "outcome": "fail",
     "category": null,
     "reasoning": ""
   },
   {
-    "outcome": "__skipped__",
+    "outcome": "fail",
     "category": null,
     "reasoning": ""
   },
   {
-    "outcome": "__skipped__",
+    "outcome": "fail",
     "category": null,
     "reasoning": ""
   },
   {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
-    "category": null,
-    "reasoning": ""
-  },
-  {
-    "outcome": "__skipped__",
+    "outcome": "fail",
     "category": null,
     "reasoning": ""
   },
