@@ -9,8 +9,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-os.environ["GROQ_API_KEY"] = "REDACTED_GROQ_KEY"
-os.environ["OPENROUTER_API_KEY"] = "REDACTED_OPENROUTER_KEY"
+# Set these environment variables before running:
+#   GROQ_API_KEY
+#   OPENROUTER_API_KEY
 
 from rich.console import Console
 from rich.table import Table
