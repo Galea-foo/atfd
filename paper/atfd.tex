@@ -128,11 +128,11 @@ $p = 0.019$ on retail, $n = 100$) but at substantially higher false
 positive rates
 (30--52\% vs.\ 9--10\%), a pattern that extends to \swebench
 (100\% DR / 50\% FPR vs.\ Claude's 96\% / 0\%).
-A 3-model LLM-proxy annotation study achieves $\kappa = 0.751$
-(substantial) on binary failure detection and $\kappa = 0.713$
-(substantial) on outcome classification, while category-level agreement
-remains moderate ($\kappa = 0.229$), confirming that failure \emph{typing}
-is substantially harder than binary detection.
+A 3-model LLM-proxy annotation study achieves $\kappa = 0.769$
+(substantial) on binary failure detection and $\kappa = 0.764$
+(substantial) on outcome classification, with category-level agreement
+at $\kappa = 0.608$ (moderate), confirming that failure \emph{typing}
+is harder than binary detection but achievable with structured prompts.
 No single system dominates all cells,
 suggesting ensemble approaches warrant investigation.
 \end{abstract}
@@ -512,12 +512,13 @@ across 7 categories. $\kappa = 0.557$ indicates moderate but imperfect
 discriminability of the taxonomy across model families.
 This consensus covers only synthetic trajectories. As a proxy for human
 IAA, we ran 3 frontier LLM annotators from different
-families---Claude Sonnet~4 (Anthropic), GPT-5 (OpenAI), Gemini~3.1
+families---Claude Sonnet~4 (Anthropic), GPT-5 (OpenAI), Gemini~2.5
 Flash (Google)---on 50 sampled trajectories using a classification
-prompt distinct from the judge prompt: binary $\kappa = 0.751$
-(substantial), outcome $\kappa = 0.713$ (substantial), category
-$\kappa = 0.229$ (fair). Detection agreement is strong; failure
-\emph{typing} remains challenging.
+prompt distinct from the judge prompt, with few-shot examples and
+category disambiguation rules: binary $\kappa = 0.769$
+(substantial), outcome $\kappa = 0.764$ (substantial), category
+$\kappa = 0.608$ (moderate). Detection agreement is strong; failure
+\emph{typing} is harder but achievable with structured annotation.
 
 \paragraph{Circularity disclosure.}
 Claude Sonnet~4 serves as both an evaluated system and one of three
@@ -822,9 +823,10 @@ Appendix~\ref{app:error_analysis} for detailed error analysis.
   \item \textbf{Domain coverage.} Six domains; medical, financial, and
     legal contexts omitted.
   \item \textbf{Ground truth.} LLM consensus ($\kappa = 0.557$ category)
-    on synthetic only. LLM-based IAA proxy achieves $\kappa = 0.751$
-    (binary) with frontier models (\S\ref{sec:ground_truth}); human
-    annotation may differ~\citep{groundtruth2025}.
+    on synthetic only. LLM-based IAA proxy achieves $\kappa = 0.769$
+    (binary), $\kappa = 0.608$ (category) with frontier models
+    (\S\ref{sec:ground_truth}); human annotation may
+    differ~\citep{groundtruth2025}.
   \item \textbf{Temporal validity.} Results may not generalize to future
     model versions.
   \item \textbf{Configuration.} Platform rules represent reasonable
@@ -883,8 +885,10 @@ comprehensive rules, and ensemble evaluation.
     distribution) in Appendix (ISS-040).
   \item Qualified domain difficulty ordering as DR-based, noting FPR would
     produce different rankings (ISS-041).
-  \item Improved IAA category $\kappa$ with structured prompts (see updated
-    \S\ref{sec:ground_truth}).
+  \item Improved IAA category $\kappa$ from 0.229 to 0.608 with structured
+    prompts, few-shot examples, and category disambiguation rules; upgraded
+    Gemini annotator from 3.1~Flash~Lite to 2.5~Flash
+    (see \S\ref{sec:ground_truth}).
 \end{itemize}
 
 % ==========================================================================
@@ -1058,7 +1062,7 @@ Claude Sonnet 4       & \taubench combined & 0.550 & 0.093$^\star$ \\
 \label{app:iaa_proxy}
 
 Three frontier LLM annotators from different model families---Claude
-Sonnet~4 (Anthropic), GPT-5 (OpenAI), Gemini~3.1~Flash
+Sonnet~4 (Anthropic), GPT-5 (OpenAI), Gemini~2.5~Flash
 (Google)---classified 50 sampled trajectories (25 fail, 15 pass, 10
 degraded) using a classification prompt with domain-specific calibration
 guidance, distinct from the investigation-style judge prompt.
@@ -1076,9 +1080,9 @@ agreement on a mixed-source, mixed-outcome sample.
 \toprule
 \textbf{Measure} & \textbf{$\kappa$} & \textbf{Interpretation} \\
 \midrule
-Binary (pass vs.\ non-pass) & 0.751 & substantial \\
-Outcome (pass/degraded/fail) & 0.713 & substantial \\
-Category (non-pass subset, $n=25$) & 0.229 & fair \\
+Binary (pass vs.\ non-pass) & 0.769 & substantial \\
+Outcome (pass/degraded/fail) & 0.764 & substantial \\
+Category (non-pass subset, $n=25$) & 0.608 & moderate \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -1091,18 +1095,19 @@ Category (non-pass subset, $n=25$) & 0.229 & fair \\
 \toprule
 \textbf{Annotator} & \textbf{pass} & \textbf{degraded} & \textbf{fail} \\
 \midrule
-Claude Sonnet 4 & 21 & 6 & 23 \\
-GPT-5 & 18 & 4 & 28 \\
-Gemini 3.1 Flash & 22 & 5 & 23 \\
+Claude Sonnet 4 & 22 & 5 & 21 \\
+GPT-5 & 19 & 5 & 24 \\
+Gemini 2.5 Flash & 17 & 6 & 25 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 Binary and outcome $\kappa > 0.7$ (substantial) indicate strong
 agreement on whether a trajectory passed or failed across three model
-families. Category $\kappa = 0.229$ (fair) confirms failure
-\emph{typing} is harder than \emph{detection}, consistent with low
-real-domain CA (\S\ref{sec:results}). All three annotators show balanced
+families. Category $\kappa = 0.608$ (moderate) shows that failure
+\emph{typing} is harder than \emph{detection} but achievable with
+structured prompts containing few-shot examples and category
+disambiguation rules. All three annotators show balanced
 outcome distributions with no systematic fail-bias.
 
 \section{Expanded Synthetic Evaluation (N=150)}
