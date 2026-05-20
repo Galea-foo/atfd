@@ -1,0 +1,11 @@
+{
+  "kappa_binary": 0.769,
+  "kappa_outcome": 0.764,
+  "kappa_category": 0.608,
+  "n": 48,
+  "n_cat": 25,
+  "binary_agree": 40,
+  "outcome_agree": 38,
+  "category_agree": 15,
+  "note": "48/50 items (2 Gemini failures excluded)"
+}
