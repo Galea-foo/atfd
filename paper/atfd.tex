@@ -121,7 +121,7 @@ Claude Sonnet~4 is the only system evaluated across all six
 domains with non-zero detection in each, achieving the highest category
 alignment on synthetic data (CA = 0.545, dropping to 0.093 on
 real-domain data) and the only non-zero quality degradation detection
-rate (QDR = 20.6\%).
+rate (QDR = 20.6\% on the 34-trajectory synthetic degraded set).
 GPT-5 (via Codex CLI) achieves higher detection rates on \taubench
 (86--91\% vs.\ Claude's 67--77\% via Claude Code CLI; McNemar
 $p = 0.019$ on retail, $n = 100$) but at substantially higher false
@@ -131,8 +131,10 @@ positive rates
 A 3-model LLM-proxy annotation study achieves $\kappa = 0.769$
 (substantial) on binary failure detection and $\kappa = 0.764$
 (substantial) on outcome classification, with category-level agreement
-at $\kappa = 0.608$ (moderate), confirming that failure \emph{typing}
-is harder than binary detection but achievable with structured prompts.
+at $\kappa = 0.608$ (moderate, $n = 25$ non-pass trajectories,
+95\% CI $[0.406, 0.781]$), confirming that failure \emph{typing}
+is harder than binary detection but achievable with structured
+annotation protocols.
 No single system dominates all cells,
 suggesting ensemble approaches warrant investigation.
 \end{abstract}
@@ -243,8 +245,9 @@ Trajectory Guard~\citep{trajectoryguard2026} achieves F1 0.88--0.94 with
 a specialized autoencoder (not comparable to \atfd's DR due to different
 tasks and system types);
 AgentProp-Bench~\citep{agentpropbench2026} evaluates judge reliability
-($\kappa = 0.432$, higher than \atfd's 0.320 but in the same
-poor-to-fair range);
+($\kappa = 0.432$, Landis-Koch ``moderate''; \atfd's consensus
+$\kappa = 0.320$ falls in the adjacent ``fair'' band---both below the
+$0.61$ substantial-agreement threshold);
 AgentCompass~\citep{agentcompass2025} evaluates post-deployment monitoring
 but focuses on LLM-based analysis.
 See also \citet{silentfailures2025, agentpex2026, agentrx2026,
@@ -513,12 +516,34 @@ discriminability of the taxonomy across model families.
 This consensus covers only synthetic trajectories. As a proxy for human
 IAA, we ran 3 frontier LLM annotators from different
 families---Claude Sonnet~4 (Anthropic), GPT-5 (OpenAI), Gemini~2.5
-Flash (Google)---on 50 sampled trajectories using a classification
-prompt distinct from the judge prompt, with few-shot examples and
-category disambiguation rules: binary $\kappa = 0.769$
-(substantial), outcome $\kappa = 0.764$ (substantial), category
-$\kappa = 0.608$ (moderate). Detection agreement is strong; failure
-\emph{typing} is harder but achievable with structured annotation.
+Flash (Google)---on 48 sampled trajectories (of 50; 2 excluded due to
+Gemini safety-filter refusals) using a classification prompt distinct
+from the judge prompt, with few-shot examples and category
+disambiguation rules: binary $\kappa = 0.769$ (substantial, $n = 48$),
+outcome $\kappa = 0.764$ (substantial), category $\kappa = 0.608$
+(moderate, $n = 25$ non-pass trajectories, 95\% CI $[0.406, 0.781]$).
+On the full 48-trajectory sample (treating ``pass'' as its own category),
+$\kappa = 0.644$ (95\% CI $[0.510, 0.763]$).
+Detection agreement is strong; failure \emph{typing} is harder but
+achievable with structured annotation protocols.
+
+\paragraph{Attribution of category $\kappa$ improvement.}
+The category $\kappa$ improved from $-0.058$ (v3, with Gemini~3.1~Flash
+Lite returning ``unknown'' on 77\% of classifications) to 0.608 (v4,
+with Gemini~2.5~Flash and structured prompts). This improvement reflects
+three simultaneous changes: (1)~upgrading the Gemini annotator from
+3.1~Flash~Lite to 2.5~Flash, (2)~adding structured prompts with
+few-shot examples and category disambiguation rules, and (3)~restricting
+category $\kappa$ computation to the $n = 25$ non-pass subset (category
+is undefined for pass trajectories). We cannot attribute the improvement
+to any single factor. The few-shot examples and disambiguation rules
+were developed \emph{after} examining the v3 disagreement patterns
+(specifically, Gemini's 77\% ``unknown'' rate and GPT-5's 68\%
+``action'' bias), making $\kappa = 0.608$ partly a measure of
+calibration to the taxonomy designer's intent rather than independent
+category discriminability. We report it as evidence of achievable
+annotation consistency under a structured protocol, not as validation
+of the taxonomy's natural discriminability.
 
 \paragraph{Circularity disclosure.}
 Claude Sonnet~4 serves as both an evaluated system and one of three
@@ -649,7 +674,7 @@ Toolathlon trajectories capped at 100 events; see \S\ref{sec:datasets}.}
   & Airline (\taubench)    & 50    & 64.3 {\scriptsize [38.8, 83.7]}            & 33.3 {\scriptsize [17.0, 54.6]} \\
   & \swebench              & 100   & \textbf{100.0} {\scriptsize [92.9, 100.0]} & 100.0 {\scriptsize [92.9, 100.0]} \\
   & ATBench (200)          & 200   & 0.0 {\scriptsize [0.0, 5.8]}               & 0.0 {\scriptsize [0.0, 5.6]} \\
-  & Toolathlon             & 100   & ---$^\ddagger$               & ---$^\ddagger$ \\
+  & Toolathlon             & 100   & 98.6 {\scriptsize [92.5, 99.8]}            & 100.0 {\scriptsize [87.9, 100.0]} \\
 \midrule
 \multirow{6}{*}{Braintrust (4 scorers)}
   & Synthetic (50-fail subset)   & 50    & 22.0 {\scriptsize [12.8, 35.2]}            & --- \\
@@ -657,7 +682,7 @@ Toolathlon trajectories capped at 100 events; see \S\ref{sec:datasets}.}
   & Airline (\taubench)    & 50    & 64.3 {\scriptsize [38.8, 83.7]}            & 33.3 {\scriptsize [17.0, 54.6]} \\
   & \swebench              & 100   & \textbf{100.0} {\scriptsize [92.9, 100.0]} & 100.0 {\scriptsize [92.9, 100.0]} \\
   & ATBench (200)          & 200   & 0.0 {\scriptsize [0.0, 5.8]}               & 0.0 {\scriptsize [0.0, 5.6]} \\
-  & Toolathlon             & 100   & ---$^\ddagger$               & ---$^\ddagger$ \\
+  & Toolathlon             & 100   & 98.6 {\scriptsize [92.5, 99.8]}            & 96.4 {\scriptsize [82.3, 99.4]} \\
 \midrule
 \multirow{6}{*}{Llama 4 Scout}
   & Synthetic (50-fail subset)   & 50  & \textbf{100.0} {\scriptsize [92.9, 100.0]} & --- \\
@@ -682,7 +707,7 @@ Toolathlon trajectories capped at 100 events; see \S\ref{sec:datasets}.}
   & \swebench              & 100 & \textbf{100.0} {\scriptsize [92.9, 100.0]} & 50.0 {\scriptsize [36.6, 63.4]} \\
 \bottomrule
 \multicolumn{5}{@{}l}{\footnotesize Llama~3.3~70B (not shown): 100\% DR on synthetic (n=50) only; rate limits prevented other domains.} \\
-\multicolumn{5}{@{}l}{\footnotesize $^\ddagger$Toolathlon re-evaluation pending for LangSmith and Braintrust (requires platform access after adapter bug fix).} \\
+\multicolumn{5}{@{}l}{\footnotesize $^\ddagger$LangSmith and Braintrust Toolathlon: 98.6\% DR / 96--100\% FPR driven by event-count threshold ($>$20) firing on long-horizon traces.} \\
 \multicolumn{5}{@{}l}{\footnotesize $^\P$ATBench 200-sample contains 198 failures and 2 passes (non-stratified); FPR undefined on $\leq$2 pass trajectories.}
 \end{tabular}
 \end{table}
@@ -823,10 +848,9 @@ Appendix~\ref{app:error_analysis} for detailed error analysis.
   \item \textbf{Domain coverage.} Six domains; medical, financial, and
     legal contexts omitted.
   \item \textbf{Ground truth.} LLM consensus ($\kappa = 0.557$ category)
-    on synthetic only. LLM-based IAA proxy achieves $\kappa = 0.769$
-    (binary), $\kappa = 0.608$ (category) with frontier models
-    (\S\ref{sec:ground_truth}); human annotation may
-    differ~\citep{groundtruth2025}.
+    on synthetic only. See ``Absence of human IAA'' and ``IAA
+    non-independence'' paragraphs below for structural limitations of
+    the LLM-proxy IAA study.
   \item \textbf{Temporal validity.} Results may not generalize to future
     model versions.
   \item \textbf{Configuration.} Platform rules represent reasonable
@@ -839,16 +863,36 @@ Appendix~\ref{app:error_analysis} for detailed error analysis.
     trajectories, wrote prompts. Synthetic CA measures self-consistency;
     real-domain CA on \taubench (0.093) provides independent validation
     but is limited by coarse programmatic ground truth categories.
-  \item \textbf{IAA non-independence.} The LLM-proxy IAA study has three
-    non-independence limitations: (a)~Claude Sonnet~4 serves as both an
-    IAA annotator and an evaluated detection system; (b)~the 50-trajectory
-    sample includes 15 synthetic trajectories designed by the paper's
-    author using the same taxonomy being validated; and (c)~the taxonomy
-    was designed by the same author. These limitations mean the IAA study
-    functions as a cross-model consistency check rather than a fully
-    independent validation. A human IAA study with external annotators
-    remains future work.
 \end{enumerate}
+
+\paragraph{IAA non-independence (structural limitation).}
+The LLM-proxy IAA study has three non-independence axes that cannot be
+resolved by textual revision: (a)~Claude Sonnet~4 serves as both an
+IAA annotator and an evaluated detection system, creating a shared-model
+confound; (b)~15 of the 50 sampled trajectories are synthetic scenarios
+designed by the paper's author using the same taxonomy, so annotators
+classify author-designed failures against an author-designed rubric;
+and (c)~the taxonomy itself was designed by the same author, closing
+the loop between task design and evaluation criteria. These three axes
+mean the IAA study functions as a \emph{cross-model consistency check}
+--- evidence that three frontier LLMs apply the taxonomy similarly under
+structured prompting --- rather than a fully independent validation of
+taxonomy discriminability. Independent validation would require external
+annotators (human or LLM) classifying trajectories they had no role in
+designing, against a taxonomy they had no role in creating.
+
+\paragraph{Absence of human IAA.}
+No human inter-annotator agreement study has been conducted on the
+24-subcategory taxonomy. The LLM-proxy IAA ($\kappa = 0.608$ category,
+$n = 25$) measures consistency across frontier LLMs, not human
+annotator agreement. MAST~\citep{cemri2025mast} reports $\kappa = 0.88$
+with human annotators on a 14-category taxonomy; whether ATFD's
+finer-grained 24-subcategory taxonomy achieves comparable human
+agreement is unknown. Fine-grained distinctions (\eg
+\texttt{communication.wrong\_response} vs.\
+\texttt{communication.hallucination}) may map poorly to human
+intuitions. A human IAA study with trained external annotators is
+the most important piece of future validation work.
 
 % ==========================================================================
 % 12. CONCLUSION
@@ -871,24 +915,32 @@ comprehensive rules, and ensemble evaluation.
 % ==========================================================================
 % AUTHOR'S CHANGELOG
 % ==========================================================================
-\section*{Author's Changelog (v4 $\to$ v5)}
+\section*{Author's Changelog (v5 $\to$ v6)}
 \begin{itemize}[leftmargin=2em,itemsep=1pt]
-  \item Removed ``validates taxonomy reproducibility'' overclaim from abstract;
-    now reports binary, outcome, and category $\kappa$ accurately (ISS-036).
-  \item Disclosed IAA non-independence limitations in \S\ref{sec:limitations}
-    (ISS-037).
-  \item Disclosed conditioned-subsample methodology for Fleiss'
-    $\kappa = 0.557$ in \S\ref{sec:ground_truth} (ISS-038).
-  \item Applied CLI qualification to McNemar comparisons consistently in
-    abstract and \S\ref{sec:results} (ISS-039).
-  \item Disclosed IAA sample composition (source domains and outcome
-    distribution) in Appendix (ISS-040).
-  \item Qualified domain difficulty ordering as DR-based, noting FPR would
-    produce different rankings (ISS-041).
-  \item Improved IAA category $\kappa$ from 0.229 to 0.608 with structured
-    prompts, few-shot examples, and category disambiguation rules; upgraded
-    Gemini annotator from 3.1~Flash~Lite to 2.5~Flash
-    (see \S\ref{sec:ground_truth}).
+  \item Added $n = 25$ denominator and 95\% bootstrap CI for category
+    $\kappa = 0.608$ in abstract, \S\ref{sec:ground_truth}, and
+    Appendix~\ref{app:iaa_proxy} (ISS-042).
+  \item Acknowledged three-factor attribution confound (prompt engineering,
+    model upgrade, sample restriction) for category $\kappa$ improvement;
+    disclosed that disambiguation rules were developed after examining
+    v3 disagreement patterns (ISS-042).
+  \item Reported full-sample $\kappa = 0.644$ ($n = 48$, pass as category)
+    alongside conditioned-subsample $\kappa = 0.608$ ($n = 25$) in
+    \S\ref{sec:ground_truth} and Appendix (ISS-038).
+  \item Elevated IAA non-independence to named limitation paragraph with
+    three explicit axes and honest scoping as ``cross-model consistency
+    check'' (ISS-037).
+  \item Corrected Landis-Koch characterization: AgentProp-Bench
+    $\kappa = 0.432$ is ``moderate,'' not ``poor-to-fair'' (ISS-043).
+  \item Added human IAA absence as named limitation with MAST comparison
+    and explicit distinction between LLM-proxy and human agreement
+    (ISS-010).
+  \item Qualified QDR = 20.6\% in abstract as synthetic-only (ISS-044).
+  \item Changed ``structured prompts'' to ``structured annotation
+    protocols'' in abstract to avoid conflating prompt engineering with
+    taxonomy validation.
+  \item Completed LangSmith and Braintrust Toolathlon evaluation
+    (previously pending): DR = 98.6\%, FPR = 96--100\% (ISS-007).
 \end{itemize}
 
 % ==========================================================================
@@ -987,7 +1039,7 @@ Retail       & 25 / 18           & 25 / 13            & 86 / 30        & 77 / 9 
 Airline      & 41 / 4            & 20 / 67            & 91 / 52        & 67 / 10                  & 64 / 33 \\
 \swebench    & \textbf{100 / 0}  & 100 / 100          & 100 / 50       & 96 / \textbf{0}          & 100 / 100 \\
 ATBench      & 0                 & 70                 & ---            & \textbf{100}             & 0 \\
-Toolathlon   & \textbf{79 / 0}   & 7 / 7              & ---            & 96 / 46                  & --- \\
+Toolathlon   & \textbf{79 / 0}   & 7 / 7              & ---            & 96 / 46                  & 99 / 96--100 \\
 \midrule
 CA (150)     & 0.037             & 0.471              & 0.402          & \textbf{0.545}           & --- \\
 \bottomrule
@@ -1076,13 +1128,14 @@ agreement on a mixed-source, mixed-outcome sample.
 
 \begin{center}
 \small
-\begin{tabular}{@{}lcc@{}}
+\begin{tabular}{@{}lccc@{}}
 \toprule
-\textbf{Measure} & \textbf{$\kappa$} & \textbf{Interpretation} \\
+\textbf{Measure} & \textbf{$\kappa$} & \textbf{95\% CI} & \textbf{Interpretation} \\
 \midrule
-Binary (pass vs.\ non-pass) & 0.769 & substantial \\
-Outcome (pass/degraded/fail) & 0.764 & substantial \\
-Category (non-pass subset, $n=25$) & 0.608 & moderate \\
+Binary (pass vs.\ non-pass, $n=48$) & 0.769 & --- & substantial \\
+Outcome (pass/degraded/fail, $n=48$) & 0.764 & --- & substantial \\
+Category (non-pass subset, $n=25$) & 0.608 & $[0.406, 0.781]$ & moderate \\
+Full-sample (pass as category, $n=48$) & 0.644 & $[0.510, 0.763]$ & substantial \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -1107,8 +1160,14 @@ agreement on whether a trajectory passed or failed across three model
 families. Category $\kappa = 0.608$ (moderate) shows that failure
 \emph{typing} is harder than \emph{detection} but achievable with
 structured prompts containing few-shot examples and category
-disambiguation rules. All three annotators show balanced
-outcome distributions with no systematic fail-bias.
+disambiguation rules. The 95\% CI on category $\kappa$ is wide
+($[0.406, 0.781]$), reflecting the small $n = 25$ denominator; the
+point estimate should be interpreted with this uncertainty in mind.
+All three annotators show balanced outcome distributions with no
+systematic fail-bias. Claude Sonnet~4 classifies 22 of 48 trajectories
+as pass against a ground truth of 15 pass, suggesting possible
+pass-over-classification; this pattern warrants investigation in
+future annotation studies.
 
 \section{Expanded Synthetic Evaluation (N=150)}
 \label{app:synthetic_150}

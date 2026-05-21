@@ -22,6 +22,7 @@ from langsmith import Client
 from langsmith.evaluation import evaluate
 
 from atfd.adapters.synthetic import SyntheticAdapter
+from atfd.adapters.toolathlon import ToolathlonAdapter
 from atfd.schema import Trajectory
 
 # ── Timer starts here ── (measuring total setup + config time)
@@ -249,6 +250,76 @@ def score_results(trajectories: list[Trajectory], results):
     }
 
 
+def run_toolathlon_local() -> dict:
+    """Load Toolathlon data and run the same 4 evaluators locally (no API upload required)."""
+    adapter = ToolathlonAdapter()
+    trajectories = adapter.load_dataset(ROOT / "data" / "toolathlon")
+
+    print(f"\n═══ LangSmith × toolathlon (local) ({len(trajectories)} trajectories) ═══")
+
+    fails = sum(1 for t in trajectories if t.ground_truth.outcome.value == "fail")
+    passes = len(trajectories) - fails
+    print(f"Ground truth: {fails} failures, {passes} passes")
+
+    detected = 0
+    false_positives = 0
+    results_detail = []
+
+    for traj in trajectories:
+        events_dicts = [
+            {"type": e.type.value, "content": e.content, "metadata": e.metadata}
+            for e in traj.events
+        ]
+        output = {"events": events_dicts}
+
+        combined = combined_failure_evaluator(output)
+        flagged = combined["score"] == 0
+        is_fail = traj.ground_truth.outcome.value == "fail"
+
+        if is_fail and flagged:
+            detected += 1
+        if not is_fail and flagged:
+            false_positives += 1
+
+        triggered = [
+            ev_fn(output)["key"]
+            for ev_fn in ALL_EVALUATORS
+            if ev_fn(output)["score"] == 0
+        ]
+        results_detail.append({
+            "tid": traj.trajectory_id,
+            "is_fail": is_fail,
+            "flagged": flagged,
+            "triggered": triggered,
+        })
+
+    dr = detected / fails * 100 if fails > 0 else 0
+    fpr = false_positives / passes * 100 if passes > 0 else 0
+
+    print(f"Detection Rate: {dr:.1f}% ({detected}/{fails})")
+    print(f"False Positive Rate: {fpr:.1f}% ({false_positives}/{passes})")
+
+    result = {
+        "dataset": "toolathlon",
+        "platform": "langsmith",
+        "n": len(trajectories),
+        "fails": fails,
+        "passes": passes,
+        "detected": detected,
+        "false_positives": false_positives,
+        "detection_rate": dr,
+        "false_positive_rate": fpr,
+        "num_rules": len(ALL_EVALUATORS),
+    }
+
+    out = ROOT / "results" / "raw" / "langsmith_toolathlon.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(result, indent=2))
+    print(f"Results saved to {out}")
+
+    return result
+
+
 def main():
     print("═══ LangSmith ATFD Baseline ═══\n")
 
@@ -263,6 +334,9 @@ def main():
     print(f"\nTotal setup + run time: {setup_time:.1f}s")
     print(f"Number of eval rules written: {len(ALL_EVALUATORS)}")
     print(f"Lines of evaluator code: ~{sum(1 for _ in open(__file__))}")
+
+    # Run Toolathlon locally (no API upload needed)
+    run_toolathlon_local()
 
     print("\n═══ Done ═══")
     print(f"Check LangSmith UI for detailed results: https://smith.langchain.com")

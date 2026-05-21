@@ -20,6 +20,7 @@ import braintrust
 
 from atfd.adapters.synthetic import SyntheticAdapter
 from atfd.adapters.tau_bench import TauBenchAdapter
+from atfd.adapters.toolathlon import ToolathlonAdapter
 
 SETUP_START = time.monotonic()
 ROOT = Path(__file__).parent.parent.parent
@@ -85,6 +86,9 @@ def load_trajectories(dataset_type="synthetic", limit=0):
     elif dataset_type == "retail":
         adapter = TauBenchAdapter(domain="retail")
         return adapter.load_dataset(ROOT / "data" / "tau_bench", limit=limit)
+    elif dataset_type == "toolathlon":
+        adapter = ToolathlonAdapter()
+        return adapter.load_dataset(ROOT / "data" / "toolathlon", limit=limit)
     return []
 
 
@@ -190,18 +194,19 @@ def main():
 
     r_synth = run_eval("synthetic")
     r_retail = run_eval("retail", limit=50)
+    r_toolathlon = run_eval("toolathlon")
 
     setup_time = time.monotonic() - SETUP_START
     print(f"\n═══ Summary ═══")
     print(f"Total time: {setup_time:.1f}s")
     print(f"Scorers written: {len(ALL_SCORERS)}")
 
-    for r in [r_synth, r_retail]:
+    for r in [r_synth, r_retail, r_toolathlon]:
         print(f"  {r['dataset']:10s} DR={r['detection_rate']:.1f}% FPR={r['false_positive_rate']:.1f}%")
 
     out = ROOT / "results" / "raw" / "braintrust_results.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps([r_synth, r_retail], indent=2))
+    out.write_text(json.dumps([r_synth, r_retail, r_toolathlon], indent=2))
 
 
 if __name__ == "__main__":
