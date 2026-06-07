@@ -29,6 +29,8 @@ ATFD fills this gap. Given a complete agent trajectory (the full sequence of mod
 
 ## Key Results
 
+> **DR%** = Detection Rate (recall — % of true failures caught) · **FPR%** = False Positive Rate (% of passing trajectories incorrectly flagged) · **CA** = Category Alignment (% of detected failures assigned the correct subcategory) · **$/traj** = Median dollar cost per trajectory
+
 | System | Type | DR% | FPR% | CA | $/traj |
 |--------|------|----:|-----:|---:|-------:|
 | **Claude Sonnet 4** | LLM judge | 67–96 | 0–10 | 0.545 | ~$0.05 |
