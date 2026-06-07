@@ -1,0 +1,1457 @@
+{
+  "manifest": [
+    {
+      "trajectory_id": "tau_f227a2c2-ce83-496f-8da2-f7f5dbe9d5e0",
+      "source": "tau-bench",
+      "domain": "retail",
+      "gt_outcome": "fail",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "retail",
+        "sim_id": "f227a2c2-ce83-496f-8da2-f7f5dbe9d5e0"
+      }
+    },
+    {
+      "trajectory_id": "tau_f14d0036-8672-48e2-adf9-00ee7766546a",
+      "source": "tau-bench",
+      "domain": "retail",
+      "gt_outcome": "fail",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "retail",
+        "sim_id": "f14d0036-8672-48e2-adf9-00ee7766546a"
+      }
+    },
+    {
+      "trajectory_id": "tau_354556e5-b222-4df2-9b8d-bf4187bca68a",
+      "source": "tau-bench",
+      "domain": "retail",
+      "gt_outcome": "fail",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "retail",
+        "sim_id": "354556e5-b222-4df2-9b8d-bf4187bca68a"
+      }
+    },
+    {
+      "trajectory_id": "tau_8ff1aa08-8ccb-4cf6-a773-5a4a8dd21d35",
+      "source": "tau-bench",
+      "domain": "retail",
+      "gt_outcome": "fail",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "retail",
+        "sim_id": "8ff1aa08-8ccb-4cf6-a773-5a4a8dd21d35"
+      }
+    },
+    {
+      "trajectory_id": "tau_6be03461-43aa-4047-b8ea-0568a8abfe3a",
+      "source": "tau-bench",
+      "domain": "retail",
+      "gt_outcome": "fail",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "retail",
+        "sim_id": "6be03461-43aa-4047-b8ea-0568a8abfe3a"
+      }
+    },
+    {
+      "trajectory_id": "tau_2c21b571-dfaa-4825-82bc-d2a332500aaa",
+      "source": "tau-bench",
+      "domain": "retail",
+      "gt_outcome": "pass",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "retail",
+        "sim_id": "2c21b571-dfaa-4825-82bc-d2a332500aaa"
+      }
+    },
+    {
+      "trajectory_id": "tau_7cf22623-e0c7-481f-9e91-0ef4da794323",
+      "source": "tau-bench",
+      "domain": "retail",
+      "gt_outcome": "pass",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "retail",
+        "sim_id": "7cf22623-e0c7-481f-9e91-0ef4da794323"
+      }
+    },
+    {
+      "trajectory_id": "tau_264e0afc-2152-45e7-82e4-d6c709066363",
+      "source": "tau-bench",
+      "domain": "retail",
+      "gt_outcome": "pass",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "retail",
+        "sim_id": "264e0afc-2152-45e7-82e4-d6c709066363"
+      }
+    },
+    {
+      "trajectory_id": "tau_b486d2dd-95c2-4176-a713-7c0f3aaaa176",
+      "source": "tau-bench",
+      "domain": "retail",
+      "gt_outcome": "pass",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "retail",
+        "sim_id": "b486d2dd-95c2-4176-a713-7c0f3aaaa176"
+      }
+    },
+    {
+      "trajectory_id": "tau_8e60509f-9ba4-4586-9b9e-7f4bb8c8859f",
+      "source": "tau-bench",
+      "domain": "retail",
+      "gt_outcome": "pass",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "retail",
+        "sim_id": "8e60509f-9ba4-4586-9b9e-7f4bb8c8859f"
+      }
+    },
+    {
+      "trajectory_id": "tau_654f411f-53b7-4d35-98f1-e88095f704e4",
+      "source": "tau-bench",
+      "domain": "airline",
+      "gt_outcome": "fail",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "airline",
+        "sim_id": "654f411f-53b7-4d35-98f1-e88095f704e4"
+      }
+    },
+    {
+      "trajectory_id": "tau_f9595724-8673-426d-a900-ebb098e245de",
+      "source": "tau-bench",
+      "domain": "airline",
+      "gt_outcome": "fail",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "airline",
+        "sim_id": "f9595724-8673-426d-a900-ebb098e245de"
+      }
+    },
+    {
+      "trajectory_id": "tau_c5449da1-a515-40fd-be84-5657e80dcad4",
+      "source": "tau-bench",
+      "domain": "airline",
+      "gt_outcome": "fail",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "airline",
+        "sim_id": "c5449da1-a515-40fd-be84-5657e80dcad4"
+      }
+    },
+    {
+      "trajectory_id": "tau_080acd6b-6f95-45a6-9c5a-6fa823cfc99e",
+      "source": "tau-bench",
+      "domain": "airline",
+      "gt_outcome": "fail",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "airline",
+        "sim_id": "080acd6b-6f95-45a6-9c5a-6fa823cfc99e"
+      }
+    },
+    {
+      "trajectory_id": "tau_b08e65fe-4016-4e3c-849d-62c08de65a44",
+      "source": "tau-bench",
+      "domain": "airline",
+      "gt_outcome": "fail",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "airline",
+        "sim_id": "b08e65fe-4016-4e3c-849d-62c08de65a44"
+      }
+    },
+    {
+      "trajectory_id": "tau_d2e15203-ca33-4c9f-8c3f-19e5c06ab4be",
+      "source": "tau-bench",
+      "domain": "airline",
+      "gt_outcome": "pass",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "airline",
+        "sim_id": "d2e15203-ca33-4c9f-8c3f-19e5c06ab4be"
+      }
+    },
+    {
+      "trajectory_id": "tau_1d9389d6-60a8-4a00-89b7-1dd98d33bc90",
+      "source": "tau-bench",
+      "domain": "airline",
+      "gt_outcome": "pass",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "airline",
+        "sim_id": "1d9389d6-60a8-4a00-89b7-1dd98d33bc90"
+      }
+    },
+    {
+      "trajectory_id": "tau_5aea8c57-4d2b-4397-97de-5a0439e14d8c",
+      "source": "tau-bench",
+      "domain": "airline",
+      "gt_outcome": "pass",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "airline",
+        "sim_id": "5aea8c57-4d2b-4397-97de-5a0439e14d8c"
+      }
+    },
+    {
+      "trajectory_id": "tau_ae2cf265-b025-45fc-895a-b6d8897aa7ed",
+      "source": "tau-bench",
+      "domain": "airline",
+      "gt_outcome": "pass",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "airline",
+        "sim_id": "ae2cf265-b025-45fc-895a-b6d8897aa7ed"
+      }
+    },
+    {
+      "trajectory_id": "tau_0b03e577-1d01-4d0f-86ef-b02264f7c720",
+      "source": "tau-bench",
+      "domain": "airline",
+      "gt_outcome": "pass",
+      "loader": "tau_bench",
+      "loader_args": {
+        "domain": "airline",
+        "sim_id": "0b03e577-1d01-4d0f-86ef-b02264f7c720"
+      }
+    },
+    {
+      "trajectory_id": "swe_JeffLIrion__python-androidtv-351",
+      "source": "swe-bench",
+      "domain": "coding",
+      "gt_outcome": "fail",
+      "loader": "swe_bench",
+      "loader_args": {
+        "filename": "JeffLIrion__python-androidtv-351.json"
+      }
+    },
+    {
+      "trajectory_id": "swe_python-graphblas__python-graphblas-303",
+      "source": "swe-bench",
+      "domain": "coding",
+      "gt_outcome": "fail",
+      "loader": "swe_bench",
+      "loader_args": {
+        "filename": "python-graphblas__python-graphblas-303.json"
+      }
+    },
+    {
+      "trajectory_id": "swe_beetbox__beets-3863",
+      "source": "swe-bench",
+      "domain": "coding",
+      "gt_outcome": "fail",
+      "loader": "swe_bench",
+      "loader_args": {
+        "filename": "beetbox__beets-3863.json"
+      }
+    },
+    {
+      "trajectory_id": "swe_tobymao__sqlglot-2295",
+      "source": "swe-bench",
+      "domain": "coding",
+      "gt_outcome": "fail",
+      "loader": "swe_bench",
+      "loader_args": {
+        "filename": "tobymao__sqlglot-2295.json"
+      }
+    },
+    {
+      "trajectory_id": "swe_spacetx__starfish-1525",
+      "source": "swe-bench",
+      "domain": "coding",
+      "gt_outcome": "fail",
+      "loader": "swe_bench",
+      "loader_args": {
+        "filename": "spacetx__starfish-1525.json"
+      }
+    },
+    {
+      "trajectory_id": "swe_tianocore__edk2-pytool-library-372",
+      "source": "swe-bench",
+      "domain": "coding",
+      "gt_outcome": "pass",
+      "loader": "swe_bench",
+      "loader_args": {
+        "filename": "tianocore__edk2-pytool-library-372.json"
+      }
+    },
+    {
+      "trajectory_id": "swe_omni-us__jsonargparse-564",
+      "source": "swe-bench",
+      "domain": "coding",
+      "gt_outcome": "pass",
+      "loader": "swe_bench",
+      "loader_args": {
+        "filename": "omni-us__jsonargparse-564.json"
+      }
+    },
+    {
+      "trajectory_id": "swe_kvesteri__intervals-54",
+      "source": "swe-bench",
+      "domain": "coding",
+      "gt_outcome": "pass",
+      "loader": "swe_bench",
+      "loader_args": {
+        "filename": "kvesteri__intervals-54.json"
+      }
+    },
+    {
+      "trajectory_id": "swe_fronzbot__blinkpy-401",
+      "source": "swe-bench",
+      "domain": "coding",
+      "gt_outcome": "pass",
+      "loader": "swe_bench",
+      "loader_args": {
+        "filename": "fronzbot__blinkpy-401.json"
+      }
+    },
+    {
+      "trajectory_id": "swe_marshmallow-code__apispec-539",
+      "source": "swe-bench",
+      "domain": "coding",
+      "gt_outcome": "pass",
+      "loader": "swe_bench",
+      "loader_args": {
+        "filename": "marshmallow-code__apispec-539.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_prompt_injection_005",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "fail",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "prompt_injection_005.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_missing_action_001",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "fail",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "missing_action_001.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_wrong_response_004",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "fail",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "wrong_response_004.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_wrong_tool_002",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "fail",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "wrong_tool_002.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_context_overflow_001",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "fail",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "context_overflow_001.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_low_confidence_output_003",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "degraded",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "low_confidence_output_003.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_suboptimal_approach_002",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "degraded",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "suboptimal_approach_002.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_shallow_output_004",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "degraded",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "shallow_output_004.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_low_confidence_output_001",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "degraded",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "low_confidence_output_001.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_incomplete_analysis_005",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "degraded",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "incomplete_analysis_005.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_incomplete_analysis_007",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "degraded",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "incomplete_analysis_007.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_shallow_output_007",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "degraded",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "shallow_output_007.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_suboptimal_approach_008",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "degraded",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "suboptimal_approach_008.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_incomplete_analysis_004",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "degraded",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "incomplete_analysis_004.json"
+      }
+    },
+    {
+      "trajectory_id": "synth_incomplete_analysis_003",
+      "source": "synthetic",
+      "domain": "mixed",
+      "gt_outcome": "degraded",
+      "loader": "synthetic",
+      "loader_args": {
+        "filename": "incomplete_analysis_003.json"
+      }
+    },
+    {
+      "trajectory_id": "toolathlon_e3ec229d-9eee-41a0-9471-1000e7b677cd",
+      "source": "toolathlon",
+      "domain": "tool_use",
+      "gt_outcome": "fail",
+      "loader": "toolathlon",
+      "loader_args": {
+        "filename": "traj_0064.json"
+      }
+    },
+    {
+      "trajectory_id": "toolathlon_df322a4b-9ec7-44a5-b8ff-9b255ad22874",
+      "source": "toolathlon",
+      "domain": "tool_use",
+      "gt_outcome": "fail",
+      "loader": "toolathlon",
+      "loader_args": {
+        "filename": "traj_0018.json"
+      }
+    },
+    {
+      "trajectory_id": "toolathlon_abd578b1-7b44-4fbe-8a05-dafd5f52297a",
+      "source": "toolathlon",
+      "domain": "tool_use",
+      "gt_outcome": "fail",
+      "loader": "toolathlon",
+      "loader_args": {
+        "filename": "traj_0060.json"
+      }
+    },
+    {
+      "trajectory_id": "toolathlon_045c7f8b-e8ff-4343-8c06-48f87c175df9",
+      "source": "toolathlon",
+      "domain": "tool_use",
+      "gt_outcome": "fail",
+      "loader": "toolathlon",
+      "loader_args": {
+        "filename": "traj_0059.json"
+      }
+    },
+    {
+      "trajectory_id": "toolathlon_67acf729-7347-4a7d-8243-7415134e8710",
+      "source": "toolathlon",
+      "domain": "tool_use",
+      "gt_outcome": "fail",
+      "loader": "toolathlon",
+      "loader_args": {
+        "filename": "traj_0044.json"
+      }
+    }
+  ],
+  "annotations": {
+    "llama4_scout_groq": [
+      {
+        "trajectory_id": "tau_f227a2c2-ce83-496f-8da2-f7f5dbe9d5e0",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_f14d0036-8672-48e2-adf9-00ee7766546a",
+        "gt_outcome": "fail",
+        "outcome": "degraded",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_354556e5-b222-4df2-9b8d-bf4187bca68a",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_8ff1aa08-8ccb-4cf6-a773-5a4a8dd21d35",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_6be03461-43aa-4047-b8ea-0568a8abfe3a",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_2c21b571-dfaa-4825-82bc-d2a332500aaa",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_7cf22623-e0c7-481f-9e91-0ef4da794323",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_264e0afc-2152-45e7-82e4-d6c709066363",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "tau_b486d2dd-95c2-4176-a713-7c0f3aaaa176",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_8e60509f-9ba4-4586-9b9e-7f4bb8c8859f",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_654f411f-53b7-4d35-98f1-e88095f704e4",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_f9595724-8673-426d-a900-ebb098e245de",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_c5449da1-a515-40fd-be84-5657e80dcad4",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_080acd6b-6f95-45a6-9c5a-6fa823cfc99e",
+        "gt_outcome": "fail",
+        "outcome": "degraded",
+        "category": "process"
+      },
+      {
+        "trajectory_id": "tau_b08e65fe-4016-4e3c-849d-62c08de65a44",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_d2e15203-ca33-4c9f-8c3f-19e5c06ab4be",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_1d9389d6-60a8-4a00-89b7-1dd98d33bc90",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_5aea8c57-4d2b-4397-97de-5a0439e14d8c",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_ae2cf265-b025-45fc-895a-b6d8897aa7ed",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_0b03e577-1d01-4d0f-86ef-b02264f7c720",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_JeffLIrion__python-androidtv-351",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_python-graphblas__python-graphblas-303",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_beetbox__beets-3863",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_tobymao__sqlglot-2295",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_spacetx__starfish-1525",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_tianocore__edk2-pytool-library-372",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_omni-us__jsonargparse-564",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_kvesteri__intervals-54",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "swe_fronzbot__blinkpy-401",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_marshmallow-code__apispec-539",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_prompt_injection_005",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_missing_action_001",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "process"
+      },
+      {
+        "trajectory_id": "synth_wrong_response_004",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "communication"
+      },
+      {
+        "trajectory_id": "synth_wrong_tool_002",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_context_overflow_001",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "synth_low_confidence_output_003",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_suboptimal_approach_002",
+        "gt_outcome": "degraded",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_shallow_output_004",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": "quality"
+      },
+      {
+        "trajectory_id": "synth_low_confidence_output_001",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_incomplete_analysis_005",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": "process"
+      },
+      {
+        "trajectory_id": "synth_incomplete_analysis_007",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": "quality"
+      },
+      {
+        "trajectory_id": "synth_shallow_output_007",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_suboptimal_approach_008",
+        "gt_outcome": "degraded",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_incomplete_analysis_004",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": "process"
+      },
+      {
+        "trajectory_id": "synth_incomplete_analysis_003",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "toolathlon_e3ec229d-9eee-41a0-9471-1000e7b677cd",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_df322a4b-9ec7-44a5-b8ff-9b255ad22874",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_abd578b1-7b44-4fbe-8a05-dafd5f52297a",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_045c7f8b-e8ff-4343-8c06-48f87c175df9",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_67acf729-7347-4a7d-8243-7415134e8710",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      }
+    ],
+    "llama33_70b_groq": [
+      {
+        "trajectory_id": "tau_f227a2c2-ce83-496f-8da2-f7f5dbe9d5e0",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_f14d0036-8672-48e2-adf9-00ee7766546a",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_354556e5-b222-4df2-9b8d-bf4187bca68a",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_8ff1aa08-8ccb-4cf6-a773-5a4a8dd21d35",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_6be03461-43aa-4047-b8ea-0568a8abfe3a",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_2c21b571-dfaa-4825-82bc-d2a332500aaa",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_7cf22623-e0c7-481f-9e91-0ef4da794323",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_264e0afc-2152-45e7-82e4-d6c709066363",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_b486d2dd-95c2-4176-a713-7c0f3aaaa176",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_8e60509f-9ba4-4586-9b9e-7f4bb8c8859f",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_654f411f-53b7-4d35-98f1-e88095f704e4",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_f9595724-8673-426d-a900-ebb098e245de",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_c5449da1-a515-40fd-be84-5657e80dcad4",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "tau_080acd6b-6f95-45a6-9c5a-6fa823cfc99e",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_b08e65fe-4016-4e3c-849d-62c08de65a44",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_d2e15203-ca33-4c9f-8c3f-19e5c06ab4be",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_1d9389d6-60a8-4a00-89b7-1dd98d33bc90",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_5aea8c57-4d2b-4397-97de-5a0439e14d8c",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_ae2cf265-b025-45fc-895a-b6d8897aa7ed",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_0b03e577-1d01-4d0f-86ef-b02264f7c720",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_JeffLIrion__python-androidtv-351",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_python-graphblas__python-graphblas-303",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_beetbox__beets-3863",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_tobymao__sqlglot-2295",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_spacetx__starfish-1525",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_tianocore__edk2-pytool-library-372",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_omni-us__jsonargparse-564",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_kvesteri__intervals-54",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_fronzbot__blinkpy-401",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_marshmallow-code__apispec-539",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_prompt_injection_005",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "synth_missing_action_001",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_wrong_response_004",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "communication"
+      },
+      {
+        "trajectory_id": "synth_wrong_tool_002",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_context_overflow_001",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_low_confidence_output_003",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_suboptimal_approach_002",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_shallow_output_004",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_low_confidence_output_001",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_incomplete_analysis_005",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_incomplete_analysis_007",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_shallow_output_007",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_suboptimal_approach_008",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_incomplete_analysis_004",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_incomplete_analysis_003",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_e3ec229d-9eee-41a0-9471-1000e7b677cd",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_df322a4b-9ec7-44a5-b8ff-9b255ad22874",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_abd578b1-7b44-4fbe-8a05-dafd5f52297a",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_045c7f8b-e8ff-4343-8c06-48f87c175df9",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_67acf729-7347-4a7d-8243-7415134e8710",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      }
+    ],
+    "qwen3_32b_groq": [
+      {
+        "trajectory_id": "tau_f227a2c2-ce83-496f-8da2-f7f5dbe9d5e0",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_f14d0036-8672-48e2-adf9-00ee7766546a",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_354556e5-b222-4df2-9b8d-bf4187bca68a",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_8ff1aa08-8ccb-4cf6-a773-5a4a8dd21d35",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_6be03461-43aa-4047-b8ea-0568a8abfe3a",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_2c21b571-dfaa-4825-82bc-d2a332500aaa",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_7cf22623-e0c7-481f-9e91-0ef4da794323",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_264e0afc-2152-45e7-82e4-d6c709066363",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "tau_b486d2dd-95c2-4176-a713-7c0f3aaaa176",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_8e60509f-9ba4-4586-9b9e-7f4bb8c8859f",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_654f411f-53b7-4d35-98f1-e88095f704e4",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_f9595724-8673-426d-a900-ebb098e245de",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "tau_c5449da1-a515-40fd-be84-5657e80dcad4",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_080acd6b-6f95-45a6-9c5a-6fa823cfc99e",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_b08e65fe-4016-4e3c-849d-62c08de65a44",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_d2e15203-ca33-4c9f-8c3f-19e5c06ab4be",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_1d9389d6-60a8-4a00-89b7-1dd98d33bc90",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_5aea8c57-4d2b-4397-97de-5a0439e14d8c",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_ae2cf265-b025-45fc-895a-b6d8897aa7ed",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "tau_0b03e577-1d01-4d0f-86ef-b02264f7c720",
+        "gt_outcome": "pass",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_JeffLIrion__python-androidtv-351",
+        "gt_outcome": "fail",
+        "outcome": "degraded",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_python-graphblas__python-graphblas-303",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "process"
+      },
+      {
+        "trajectory_id": "swe_beetbox__beets-3863",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "process"
+      },
+      {
+        "trajectory_id": "swe_tobymao__sqlglot-2295",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "swe_spacetx__starfish-1525",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "swe_tianocore__edk2-pytool-library-372",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "swe_omni-us__jsonargparse-564",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "swe_kvesteri__intervals-54",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "swe_fronzbot__blinkpy-401",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "swe_marshmallow-code__apispec-539",
+        "gt_outcome": "pass",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "synth_prompt_injection_005",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_missing_action_001",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "process"
+      },
+      {
+        "trajectory_id": "synth_wrong_response_004",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "synth_wrong_tool_002",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_context_overflow_001",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "synth_low_confidence_output_003",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": "communication"
+      },
+      {
+        "trajectory_id": "synth_suboptimal_approach_002",
+        "gt_outcome": "degraded",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_shallow_output_004",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": "quality"
+      },
+      {
+        "trajectory_id": "synth_low_confidence_output_001",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_incomplete_analysis_005",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": "process"
+      },
+      {
+        "trajectory_id": "synth_incomplete_analysis_007",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": "action"
+      },
+      {
+        "trajectory_id": "synth_shallow_output_007",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": "quality"
+      },
+      {
+        "trajectory_id": "synth_suboptimal_approach_008",
+        "gt_outcome": "degraded",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "synth_incomplete_analysis_004",
+        "gt_outcome": "degraded",
+        "outcome": "degraded",
+        "category": "quality"
+      },
+      {
+        "trajectory_id": "synth_incomplete_analysis_003",
+        "gt_outcome": "degraded",
+        "outcome": "fail",
+        "category": "process"
+      },
+      {
+        "trajectory_id": "toolathlon_e3ec229d-9eee-41a0-9471-1000e7b677cd",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_df322a4b-9ec7-44a5-b8ff-9b255ad22874",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_abd578b1-7b44-4fbe-8a05-dafd5f52297a",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_045c7f8b-e8ff-4343-8c06-48f87c175df9",
+        "gt_outcome": "fail",
+        "outcome": "fail",
+        "category": null
+      },
+      {
+        "trajectory_id": "toolathlon_67acf729-7347-4a7d-8243-7415134e8710",
+        "gt_outcome": "fail",
+        "outcome": "pass",
+        "category": null
+      }
+    ]
+  },
+  "agreement": {
+    "n_items": 50,
+    "n_raters": 3,
+    "kappa_binary": 0.2077,
+    "kappa_outcome_3way": 0.2079,
+    "kappa_category_fail_subset": -0.0142,
+    "n_fail_subset": 22,
+    "gt_agreement": {
+      "llama4_scout_groq": {
+        "accuracy": 0.58,
+        "correct": 29,
+        "total": 50
+      },
+      "llama33_70b_groq": {
+        "accuracy": 0.52,
+        "correct": 26,
+        "total": 50
+      },
+      "qwen3_32b_groq": {
+        "accuracy": 0.46,
+        "correct": 23,
+        "total": 50
+      }
+    }
+  }
+}

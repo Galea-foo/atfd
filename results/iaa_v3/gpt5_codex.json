@@ -1,0 +1,202 @@
+[
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "degraded",
+    "category": "action"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "degraded",
+    "category": "communication"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "fail",
+    "category": "communication"
+  },
+  {
+    "outcome": "fail",
+    "category": "process"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "safety"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "communication"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "degraded",
+    "category": "communication"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "degraded",
+    "category": "quality"
+  },
+  {
+    "outcome": "degraded",
+    "category": "quality"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "communication"
+  },
+  {
+    "outcome": "fail",
+    "category": "communication"
+  },
+  {
+    "outcome": "degraded",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "quality"
+  },
+  {
+    "outcome": "fail",
+    "category": "quality"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "degraded",
+    "category": "action"
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "n_items": 50,
+  "n_raters": 3,
+  "kappa_binary": 0.2077,
+  "kappa_outcome_3way": 0.2079,
+  "kappa_category_fail_subset": -0.0142,
+  "n_fail_subset": 22,
+  "gt_agreement": {
+    "llama4_scout_groq": {
+      "accuracy": 0.58,
+      "correct": 29,
+      "total": 50
+    },
+    "llama33_70b_groq": {
+      "accuracy": 0.52,
+      "correct": 26,
+      "total": 50
+    },
+    "qwen3_32b_groq": {
+      "accuracy": 0.46,
+      "correct": 23,
+      "total": 50
+    }
+  }
+}

@@ -1,0 +1,202 @@
+[
+  {
+    "outcome": "fail",
+    "category": "process"
+  },
+  {
+    "outcome": "fail",
+    "category": "communication"
+  },
+  {
+    "outcome": "fail",
+    "category": "process"
+  },
+  {
+    "outcome": "fail",
+    "category": "process"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "degraded",
+    "category": "process"
+  },
+  {
+    "outcome": "fail",
+    "category": "process"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "fail",
+    "category": "process"
+  },
+  {
+    "outcome": "degraded",
+    "category": "process"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "fail",
+    "category": "communication"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "fail",
+    "category": "communication"
+  },
+  {
+    "outcome": "fail",
+    "category": "process"
+  },
+  {
+    "outcome": "degraded",
+    "category": "infrastructure"
+  },
+  {
+    "outcome": "degraded",
+    "category": "process"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "degraded",
+    "category": "quality"
+  },
+  {
+    "outcome": "fail",
+    "category": "process"
+  },
+  {
+    "outcome": "degraded",
+    "category": "process"
+  },
+  {
+    "outcome": "fail",
+    "category": "quality"
+  },
+  {
+    "outcome": "fail",
+    "category": "quality"
+  },
+  {
+    "outcome": "degraded",
+    "category": "quality"
+  },
+  {
+    "outcome": "fail",
+    "category": "process"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "outcome": "fail",
+    "category": "communication"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "fail",
+    "category": "communication"
+  },
+  {
+    "outcome": "degraded",
+    "category": "communication"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "degraded",
+    "category": "quality"
+  },
+  {
+    "outcome": "degraded",
+    "category": "communication"
+  },
+  {
+    "outcome": "fail",
+    "category": "quality"
+  },
+  {
+    "outcome": "degraded",
+    "category": "quality"
+  },
+  {
+    "outcome": "degraded",
+    "category": "communication"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "degraded",
+    "category": "quality"
+  },
+  {
+    "outcome": "fail",
+    "category": "quality"
+  },
+  {
+    "outcome": "degraded",
+    "category": "process"
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "outcome": "pass",
+    "category": null
+  }
+]

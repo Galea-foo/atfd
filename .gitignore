@@ -1,15 +1,42 @@
-data/
-datasets/converted/
-results/raw/
+# Python
 __pycache__/
 *.egg-info/
 dist/
+build/
 .venv/
+*.pyc
+
+# Data (downloaded at runtime)
+data/
+datasets/converted/
+results/raw/
+
+# LaTeX build artifacts
 *.aux
 *.log
 *.out
 *.bbl
 *.blg
 *.synctex.gz
-.DS_Store
+*.fls
+*.fdb_latexmk
+texput.log
+
+# Environment / secrets
 .env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Internal dev artifacts
+SESSION*_PROMPT.md
+HANDOFF.md
+CLAUDE.md
+docs/superpowers/
+old/
+.pytest_cache/

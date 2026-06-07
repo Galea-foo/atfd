@@ -1,0 +1,302 @@
+[
+  {
+    "trajectory_id": "tau_f227a2c2-ce83-496f-8da2-f7f5dbe9d5e0",
+    "gt_outcome": "fail",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_f14d0036-8672-48e2-adf9-00ee7766546a",
+    "gt_outcome": "fail",
+    "outcome": "degraded",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_354556e5-b222-4df2-9b8d-bf4187bca68a",
+    "gt_outcome": "fail",
+    "outcome": "fail",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_8ff1aa08-8ccb-4cf6-a773-5a4a8dd21d35",
+    "gt_outcome": "fail",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_6be03461-43aa-4047-b8ea-0568a8abfe3a",
+    "gt_outcome": "fail",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_2c21b571-dfaa-4825-82bc-d2a332500aaa",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_7cf22623-e0c7-481f-9e91-0ef4da794323",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_264e0afc-2152-45e7-82e4-d6c709066363",
+    "gt_outcome": "pass",
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "trajectory_id": "tau_b486d2dd-95c2-4176-a713-7c0f3aaaa176",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_8e60509f-9ba4-4586-9b9e-7f4bb8c8859f",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_654f411f-53b7-4d35-98f1-e88095f704e4",
+    "gt_outcome": "fail",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_f9595724-8673-426d-a900-ebb098e245de",
+    "gt_outcome": "fail",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_c5449da1-a515-40fd-be84-5657e80dcad4",
+    "gt_outcome": "fail",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_080acd6b-6f95-45a6-9c5a-6fa823cfc99e",
+    "gt_outcome": "fail",
+    "outcome": "degraded",
+    "category": "process"
+  },
+  {
+    "trajectory_id": "tau_b08e65fe-4016-4e3c-849d-62c08de65a44",
+    "gt_outcome": "fail",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_d2e15203-ca33-4c9f-8c3f-19e5c06ab4be",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_1d9389d6-60a8-4a00-89b7-1dd98d33bc90",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_5aea8c57-4d2b-4397-97de-5a0439e14d8c",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_ae2cf265-b025-45fc-895a-b6d8897aa7ed",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "tau_0b03e577-1d01-4d0f-86ef-b02264f7c720",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "swe_JeffLIrion__python-androidtv-351",
+    "gt_outcome": "fail",
+    "outcome": "fail",
+    "category": null
+  },
+  {
+    "trajectory_id": "swe_python-graphblas__python-graphblas-303",
+    "gt_outcome": "fail",
+    "outcome": "fail",
+    "category": null
+  },
+  {
+    "trajectory_id": "swe_beetbox__beets-3863",
+    "gt_outcome": "fail",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "swe_tobymao__sqlglot-2295",
+    "gt_outcome": "fail",
+    "outcome": "fail",
+    "category": null
+  },
+  {
+    "trajectory_id": "swe_spacetx__starfish-1525",
+    "gt_outcome": "fail",
+    "outcome": "fail",
+    "category": null
+  },
+  {
+    "trajectory_id": "swe_tianocore__edk2-pytool-library-372",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "swe_omni-us__jsonargparse-564",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "swe_kvesteri__intervals-54",
+    "gt_outcome": "pass",
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "trajectory_id": "swe_fronzbot__blinkpy-401",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "swe_marshmallow-code__apispec-539",
+    "gt_outcome": "pass",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "synth_prompt_injection_005",
+    "gt_outcome": "fail",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "synth_missing_action_001",
+    "gt_outcome": "fail",
+    "outcome": "fail",
+    "category": "process"
+  },
+  {
+    "trajectory_id": "synth_wrong_response_004",
+    "gt_outcome": "fail",
+    "outcome": "fail",
+    "category": "communication"
+  },
+  {
+    "trajectory_id": "synth_wrong_tool_002",
+    "gt_outcome": "fail",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "synth_context_overflow_001",
+    "gt_outcome": "fail",
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "trajectory_id": "synth_low_confidence_output_003",
+    "gt_outcome": "degraded",
+    "outcome": "degraded",
+    "category": null
+  },
+  {
+    "trajectory_id": "synth_suboptimal_approach_002",
+    "gt_outcome": "degraded",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "synth_shallow_output_004",
+    "gt_outcome": "degraded",
+    "outcome": "degraded",
+    "category": "quality"
+  },
+  {
+    "trajectory_id": "synth_low_confidence_output_001",
+    "gt_outcome": "degraded",
+    "outcome": "degraded",
+    "category": null
+  },
+  {
+    "trajectory_id": "synth_incomplete_analysis_005",
+    "gt_outcome": "degraded",
+    "outcome": "fail",
+    "category": "process"
+  },
+  {
+    "trajectory_id": "synth_incomplete_analysis_007",
+    "gt_outcome": "degraded",
+    "outcome": "degraded",
+    "category": "quality"
+  },
+  {
+    "trajectory_id": "synth_shallow_output_007",
+    "gt_outcome": "degraded",
+    "outcome": "degraded",
+    "category": null
+  },
+  {
+    "trajectory_id": "synth_suboptimal_approach_008",
+    "gt_outcome": "degraded",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "synth_incomplete_analysis_004",
+    "gt_outcome": "degraded",
+    "outcome": "fail",
+    "category": "process"
+  },
+  {
+    "trajectory_id": "synth_incomplete_analysis_003",
+    "gt_outcome": "degraded",
+    "outcome": "fail",
+    "category": "action"
+  },
+  {
+    "trajectory_id": "toolathlon_e3ec229d-9eee-41a0-9471-1000e7b677cd",
+    "gt_outcome": "fail",
+    "outcome": "fail",
+    "category": null
+  },
+  {
+    "trajectory_id": "toolathlon_df322a4b-9ec7-44a5-b8ff-9b255ad22874",
+    "gt_outcome": "fail",
+    "outcome": "fail",
+    "category": null
+  },
+  {
+    "trajectory_id": "toolathlon_abd578b1-7b44-4fbe-8a05-dafd5f52297a",
+    "gt_outcome": "fail",
+    "outcome": "pass",
+    "category": null
+  },
+  {
+    "trajectory_id": "toolathlon_045c7f8b-e8ff-4343-8c06-48f87c175df9",
+    "gt_outcome": "fail",
+    "outcome": "fail",
+    "category": null
+  },
+  {
+    "trajectory_id": "toolathlon_67acf729-7347-4a7d-8243-7415134e8710",
+    "gt_outcome": "fail",
+    "outcome": "pass",
+    "category": null
+  }
+]

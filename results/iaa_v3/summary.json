@@ -1,0 +1,10 @@
+{
+  "kappa_binary": 0.067,
+  "kappa_outcome": 0.055,
+  "kappa_category": -0.115,
+  "n": 50,
+  "n_cat": 21,
+  "binary_agree": 21,
+  "outcome_agree": 15,
+  "category_agree": 0
+}
